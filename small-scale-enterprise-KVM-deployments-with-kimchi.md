@@ -1,6 +1,8 @@
 ## Small-scale Enterprise KVM Deployments With Kimchi
+##### Copyright (c) TYA
+##### Homepage: http://tya.company/
 
-Project Homepages:
+Kimchi Project Homepage:
 [https://kimchi-project.github.io/kimchi/](https://kimchi-project.github.io/kimchi/)
    
 #####Update Repositories
