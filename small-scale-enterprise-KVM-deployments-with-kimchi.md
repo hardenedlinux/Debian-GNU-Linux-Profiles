@@ -2,8 +2,7 @@
 ##### Copyright (c) TYA
 ##### Homepage: http://tya.company/
 
-Kimchi Project Homepage:
-[https://kimchi-project.github.io/kimchi/](https://kimchi-project.github.io/kimchi/)
+#####Kimchi Project Homepage: https://kimchi-project.github.io/kimchi/
    
 #####Update Repositories
 ```
