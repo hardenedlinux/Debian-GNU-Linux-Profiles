@@ -52,6 +52,7 @@ Disks images can be uploaded and downloaded "locally" if the management console 
 
 ######Reference: 
 ######[1] https://wiki.debian.org/libvirt
-######[2] https://libvirt.org/virshcmdref.html
-######[3] https://docs.fedoraproject.org/en-US/Fedora/13/html/Virtualization_Guide/chap-Virtualization-KVM_live_migration.html#sect-Virtualization-KVM_live_migration-Live_migration_requirements
-######[4] https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/App_Migration_Disk_Image.html
+######[2] https://wiki.debian.org/KVM
+######[3] https://libvirt.org/virshcmdref.html
+######[4] https://docs.fedoraproject.org/en-US/Fedora/13/html/Virtualization_Guide/chap-Virtualization-KVM_live_migration.html#sect-Virtualization-KVM_live_migration-Live_migration_requirements
+######[5] https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/App_Migration_Disk_Image.html
