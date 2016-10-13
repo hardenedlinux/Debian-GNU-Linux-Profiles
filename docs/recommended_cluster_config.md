@@ -24,17 +24,62 @@ The remaining capacity is to be shared between `/var` and `/home`.
 
 Every partition on SSD had better be mounted with the option `discard` if the SSD and the file system they use support that BOTH, and every partition should mounted with the option `user_xattr` if supported, in order to make it easy to deploy grsecurity later.
 
-##### Repositories setup.
-
-TBF
-
 ##### Configs applied after installation but before reboot.
 
-TBF
+There will be a notification for the completion of installation, after bootloader is properly installed. If you confirm this notification, the computer will reboot into the newly install operating system.
+
+At this point, you are still able to switch to an unoccupied virtual terminal (tty1 is occupied by the UI of debian installer, and tty4 is used for logging) to get a shell for debian installer environment, and the whole installed system is mounted at `/target`.
+
+You can `cd` or `chroot` to `/target` NOW, to apply any config you want, before the first boot of the installed system.
+
+For example, if you want to mount a tmpfs at `/tmp`, you had better config it NOW, for the installed system will start to write to `/tmp` after its first boot, so it will be hard to recycle the occupied space within the covered-mounted `/tmp` directory if you set up this after the first boot.
+
+Add the following instruction to `/etc/fstab` to mount /tmp as a tmpfs:
+
+
+```
+tmpfs     /tmp tmpfs     nodev,nosuid,size=20%,mode=1777    0    0
+```
+
+Or, on Debian GNU/Linux, you can uncomment `RAMTMP=yes` within `/etc/default/tmpfs` (This method may be outdated in Debian GNU/Linux versions with systemd as init).
+
+`/media` had also better be mounted as a tmpfs, in order not to wear `/` unnecessarily. Since `/media` should only contain other temporary mount points for removable storages, its reserved space could be minimized to 1%:
+
+```
+tmpfs     /media tmpfs     size=1%,mode=0755     0    0
+```
+
+##### Repositories setup.
+
+I recommend using the following repositories in `/etc/apt/sources.list` for Debian GNU/Linux 8:
+
+```
+deb http://httpredir.debian.org/debian jessie main
+deb-src http://httpredir.debian.org/debian jessie main
+
+deb http://httpredir.debian.org/debian jessie-updates main
+deb-src http://httpredir.debian.org/debian jessie-updates main
+
+deb http://security.debian.org/ jessie/updates main
+deb-src http://security.debian.org/ jessie/updates main
+
+deb http://httpredir.debian.org/debian jessie-backports main
+deb-src http://httpredir.debian.org/debian jessie-backports main
+```
+
+According to Debian GNU/Linux's policy, functional improvements and new program will be added to `unstable` and `testing` branch, but not be added to published `stable` branch, and only security enhancements and bugfix are to be added, but Debian provides "backports" to provided packages specifically built against the corresponding `stable` branch for those who are using `stable` but want to use new software added to `unstable`.
+
+The source server can be replaced with a nearer mirror, and `http` is able to be replaced with `https` after package `apt-transport-https` is installed, if said mirror supports so.
 
 ##### Install necessary packages needed for virtual mechine hosts.
 
-TBF
+Install the `qemu-kvm` package with `apt-get(8)` or `aptitude(8)`, e.g. using this command:
+
+`# aptitude install qemu-kvm libvirt-bin`
+
+In current `stable` branch `jessie`, `libvirt-bin` is already a transitional package with no real content, only to make it easy to install its dependency `libvirt-clients` and `libvirt-daemon-system`, and has been removed in `testing` and `unstable`, so you should replace `libvirt-bin` with `libvirt-clients` and `libvirt-daemon-system` for future Debian versions.
+
+The daemon `libvirt-daemon-system` daemon will start automatically at boot time and load the appropriate kvm modules, kvm-amd or kvm-intel, which are shipped with the Linux kernel Debian package. If you intend to create VMs from the command-line, install `virtinst`. 
 
 ##### Use a shared storage pool to store disk images of virtual machines.
 
@@ -43,7 +88,6 @@ TBF
 For example, if the shared storage is an NFS, mount it to `/var/lib/libvirt/images` with the following instruction:
 
 `$hostname_of_nfs_server.local:/the/exported/path/for/nfs	/var/lib/libvirt/images	nfs	auto	0	0`
-
 Source images (e.g. isos for installation) can be put into the pool using `vol-upload` sub-command of `virsh(1)`, and you can get a backup of one image inside the pool using `vol-download` sub-command.
 
 ##### Use a normal user to perform libvirt-related maintenance.
@@ -88,9 +132,19 @@ Virtual machines can then be created and calibrated on the management console, a
 
 Disks images can be uploaded and downloaded "locally" if the management console directly mounts the shared storage pool, eliminating the communicational expense between the console and a worker host.
 
+##### Specific recommended configs for the management console.
+
+The configs for the management console could be based on those for ordinary hosts, but since maintenance could be performed on management consoles, it may need additional local storage capacity, so I suggest using double-disk scheme mentioned above for a management console.
+
+Besides, the management console is for administrators to work upon, so some software ease their working, such as GUI tools (e.g. `virt-manager`) using X window protocol, which could use an X socket forwarded by `ssh(1)` from the computer with X server directly used by an administrator, displaying its GUI on the screen just in front of them.
+
 ######Reference: 
-######[1] https://wiki.debian.org/libvirt
-######[2] https://wiki.debian.org/KVM
-######[3] https://libvirt.org/virshcmdref.html
-######[4] https://docs.fedoraproject.org/en-US/Fedora/13/html/Virtualization_Guide/chap-Virtualization-KVM_live_migration.html#sect-Virtualization-KVM_live_migration-Live_migration_requirements
-######[5] https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/App_Migration_Disk_Image.html
+######[1] man page tmpfs(5)
+######[2] https://wiki.debian.org/SourcesList
+######[3] https://wiki.debian.org/Backports
+######[4] https://backports.debian.org/Instructions/
+######[5] https://wiki.debian.org/libvirt
+######[6] https://wiki.debian.org/KVM
+######[7] https://libvirt.org/virshcmdref.html
+######[8] https://docs.fedoraproject.org/en-US/Fedora/13/html/Virtualization_Guide/chap-Virtualization-KVM_live_migration.html#sect-Virtualization-KVM_live_migration-Live_migration_requirements
+######[9] https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/App_Migration_Disk_Image.html
