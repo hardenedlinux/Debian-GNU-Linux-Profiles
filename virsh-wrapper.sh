@@ -1,8 +1,6 @@
 #!/bin/bash
 
 VIRSH_CMD="virsh"
-#Set EE (Echo or Exec) to echo for debugging, set EE to empty string to unleash those dangerous actions.
-EE=echo
 
 #chech if we are going to use virsh remotely.
 if [[ ${1} =~ '://' ]]; then
@@ -10,20 +8,12 @@ if [[ ${1} =~ '://' ]]; then
     shift;
 fi
 
-#create-vm(){
-#    domfile=${1};
-#    ${VIRSH_CMD} create ${domfile} --validate --paused;
-#}
-
 delete-disks-of-vm-dump () {
     DUMP=${*};
-    #printf "DUMP=\"%s\"\n" ${DUMP};
     COUNT=$(echo ${DUMP} | xmlstarlet sel -t -c 'count(/domain/devices/disk[@device="disk"])');
-    #printf "COUNT=\"%s\"\n" ${COUNT};
     for i in $(seq 1 ${COUNT});do
-	PATH=$(echo ${DUMP} | xmlstarlet sel -t -v "/domain/devices/disk[@device=\"disk\"][${i}]/source/@file");
-	#printf "PATH=\"%s\"\n" ${PATH};
-	${EE} ${VIRSH_CMD} vol-delete ${PATH};
+	DISKPATH=$(echo ${DUMP} | xmlstarlet sel -t -v "/domain/devices/disk[@device=\"disk\"][${i}]/source/@file");
+	${VIRSH_CMD} vol-delete ${DISKPATH};
     done
 }
 
@@ -40,39 +30,35 @@ delete-vm () {
     #TODO check the vm to delete really shuts down.
     DUMP=$(${VIRSH_CMD} dumpxml ${VM});
     #undefine the vm
-    ${EE} ${VIRSH_CMD} undefine ${VM};
+    ${VIRSH_CMD} undefine ${VM};
     #delete all disks belonging to the vm
     delete-disks-of-vm-dump ${DUMP};
 }
 
 add-disk () {
-    NAME=${1};
-    CAPACITY=${2};
+    POOL=${1};
+    NAME=${2};
+    CAPACITY=${3};
     DRY=;
-    #if [ -n ${EE} ];then
-    #	DRY="--print-xml";
-    #fi
-    ${VIRSH_CMD} vol-create-as --pool default --name ${NAME}.qcow2 --capacity ${CAPACITY} --format qcow2 --prealloc-metadata ${DRY};
+    ${VIRSH_CMD} vol-create-as --pool ${POOL} --name ${NAME}.qcow2 --capacity ${CAPACITY} --format qcow2 --prealloc-metadata ${DRY};
 }
 
-#each host needs an iso pool, use to store iso images for installation. source images should be uploaded to this path before vm creation.
-add-iso-pool () {
-    ${VIRSH_CMD} pool-create /dev/stdin <<EOF
-<pool type='dir'>
-  <name>iso</name>
-  <target>
-    <path>/home/persmule/下载/iso</path>
-  </target>
-</pool>
-EOF
+upload-iso-image () {
+    POOL=${1};
+    IMGPATH=${2};
+    IMGNAME=$(basename ${IMGPATH})
+    ${VIRSH_CMD} vol-create-as ${POOL} ${IMGNAME} 0 --format raw;
+    ${VIRSH_CMD} vol-upload --pool ${POOL} ${IMGNAME} ${IMGPATH};
 }
 
 add-vm-with-template-file () {
     TEMPLATE=${1};
     NAME=${2};
     RAMSIZE=${3};
-    DISKSIZE=${4};
-    ISONAME=${5};
+    POOL=${4};
+    DISKSIZE=${5};
+    ISOPATH=${6};
+    ISONAME=$(basename ${ISOPATH});
     #read template file
     DUMP=$(cat ${TEMPLATE});
     #delete uuid inside template;
@@ -84,16 +70,18 @@ add-vm-with-template-file () {
     DUMP=$(echo ${DUMP}|xmlstarlet ed -u /domain/memory -v ${RAMSIZE});
     #generate a new mac address
     DUMP=$(echo ${DUMP}|xmlstarlet ed -u /domain/devices/interface/mac/@address -v 52:54:$(dd if=/dev/urandom count=4 2>/dev/null | md5sum | sed 's/^\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4/'));
+    #upload the iso image if not exist.
+    ${VIRSH_CMD} vol-info --pool ${POOL} ${ISONAME} || upload-iso-image ${POOL} ${ISOPATH};
     #modify iso image path
-    ISOPOOLPATH=$(${VIRSH_CMD} pool-dumpxml iso|xmlstarlet sel -t -v /pool/target/path);
-    DUMP=$(echo ${DUMP}|xmlstarlet ed -u "/domain/devices/disk[@device=\"cdrom\"]/source/@file" -v ${ISOPOOLPATH}/${ISONAME});
+    POOLPATH=$(${VIRSH_CMD} pool-dumpxml ${POOL}|xmlstarlet sel -t -v /pool/target/path);
+    DUMP=$(echo ${DUMP}|xmlstarlet ed -u "/domain/devices/disk[@device=\"cdrom\"]/source/@file" -v ${POOLPATH}/${ISONAME});
     #add a virtual disk
-    add-disk ${NAME} ${DISKSIZE} || true;
+    add-disk ${POOL} ${NAME} ${DISKSIZE} || true;
     #get path of the virtual disk
     VOLPATH=$(${VIRSH_CMD} vol-dumpxml --pool default ${NAME}.qcow2|xmlstarlet sel -t -v /volume/target/path);
     #modify volume path
     DUMP=$(echo ${DUMP}|xmlstarlet ed -u "/domain/devices/disk[@device=\"disk\"]/source/@file" -v ${VOLPATH});
-    echo ${DUMP}|${VIRSH_CMD} create /dev/stdin;
+    echo ${DUMP}|${VIRSH_CMD} define /dev/stdin;
 }
 
 COMMAND=${1};
@@ -125,6 +113,10 @@ case ${COMMAND} in
     list-vm)
 	shift;
 	${VIRSH_CMD} list --all;
+	;;
+    upload-iso-image)
+	shift;
+	upload-iso-image ${*};
 	;;
     *)
 	#Unrecognized sub-commands are all considered as virsh's.
