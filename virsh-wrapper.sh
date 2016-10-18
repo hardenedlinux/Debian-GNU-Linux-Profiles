@@ -110,6 +110,22 @@ case ${COMMAND} in
 	shift;
 	add-vm-with-template-file ${*};
 	;;
+    start-vm)
+	shift;
+	${VIRSH_CMD} start ${*};
+	;;
+    shutdown-vm)
+	shift;
+	${VIRSH_CMD} shutdown ${*};
+	;;
+    reboot-vm)
+	shift;
+	${VIRSH_CMD} reboot ${*};
+	;;
+    list-vm)
+	shift;
+	${VIRSH_CMD} list --all;
+	;;
     *)
 	#Unrecognized sub-commands are all considered as virsh's.
 	${VIRSH_CMD} $*;
