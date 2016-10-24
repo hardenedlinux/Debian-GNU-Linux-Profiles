@@ -42,7 +42,7 @@ This is useful to log into remote host from an environment with X11. X clients c
 
 ###### ForwardAgent(A,~a)
 
-Forward the local X11 server socket (usually UNIX) assigned with `SSH_AUTH_SOCK` environment variable to the remote (usually a UNIX one), and set `SSH_AUTH_SOCK` of the remote environment to it.
+Forward the local SSH agent socket (usually UNIX) assigned with `SSH_AUTH_SOCK` environment variable to the remote (usually a UNIX one), and set `SSH_AUTH_SOCK` of the remote environment to it.
 
 Use this to eliminate the need to store secret keys on the remote host if we are in a scene in which we need to remotely log into a host first in order to log into more hosts only accessible from the first hosts.
 
