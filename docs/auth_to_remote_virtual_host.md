@@ -20,7 +20,7 @@ Next step, you have to add the content of your public key file (only one line) t
 
 If `gnome-keyring` is available in your desktop environment with default configurations, you can now try logging into the remote host using `ssh`(1), by invoking it directly from a terminal emulator, or any GUI tool able to invoke `ssh`(1), including `virt-manager`(1). a special window will pop up asking the passphrase/pin for your private key, and `gnome-keyring` will hold it within a period of time once you have performed unlocking correctly, so that further on-demand SSH login will not ask you for passphrase/pin again, until the old storage gets timed out.
 
-###### Authenticate via key files or PKCS#11 module with ssh-agent as the agent
+###### Authenticate via key files and/or PKCS#11 module with ssh-agent as the agent
 
 Originally you can invoke `$ ssh-add -s $pkcs11_shared_lib` (e.g. `$ ssh-add -s opensc-pkcs11.so`) to acknowledge the agent process with the PKCS#11 module to use. But unfortunately, since the recent version of `gnome-keyring` still lacks the ability to load PKCS#11 module, you will get an error like `Could not add card "$pkcs11_shared_lib": agent refused operation`, and you are unable to use a PKCS#11 module with `gnome-keyring` for authentication.
 
@@ -39,6 +39,8 @@ Adding a lifetime to your authentication key for `ssh-agent`(1) to remember is r
 If the PKCS#11 module you use is backed by a removable hardware (e.g. a smartcard), the remembrance of the keys provided by the module becomes invalid once the backing hardware goes offline. You must ask `ssh-agent`(1) to forget the module by invoking `$ ssh-add -e opensc-pkcs11.so` before or after you remove the backing hardware, and then add the module again when needed.
 
 `$ ssh-add -d file ...` can be used to forget key files.
+
+With all authentication key remembered by `ssh-agent`(1), you can write and use scripts like _[virsh-list-cluster.sh](../scripts/vm-managements/virsh-list-cluster.sh)_ to query every host inside a cluster, with no need to get authenticated for every single hosts separately.
 
 ##### Via TLS
 
