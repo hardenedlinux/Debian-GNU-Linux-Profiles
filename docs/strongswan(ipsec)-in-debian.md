@@ -1,6 +1,6 @@
 ##Scenario
 
-Android users use strongswan client to connect VPN gateway(host). Make sure connection between host and client
+Android user can use strongswan client to connect VPN server. Make sure connection between host and client
 remain secrecy and integrity. (enable PFS by using DH groups)
 
 ##Keyword: ikev2, pfs, ipsec, android
