@@ -17,8 +17,9 @@ You have to generate your keypair with `ssh-keygen`(1) if you do not have one.
 
 The Stribika Guide[3] immediately dismisses the DSA cipher, due to DSA only have 1024 bit. And DSA and ECDSA use randomness for each signature, if random numbers are not the best quality, then it is possible to recover the secret key. And ECDSA us NIST elliptic curves, so we departure DSA and ECDSA. RSA1 is using by SSHv1. So the options left for us is ed25519 and RSA.  Using large RSA and ed25519 key would be perfectly OK.
 
-    $ ssh-keygen -t ed25519 -o -a 100   
-    $ ssh-keygen -t rsa -b 4096 -o -a 100   
+`$ ssh-keygen -t ed25519 -o -a 100`   
+
+`$ ssh-keygen -t rsa -b 4096 -o -a 100`
 
 `-o` Causes ssh-keygen to save private keys using the new OpenSSH format rather than the more compatible PEM format.  The new format has increased resistance to brute-force password cracking but is not supported by versions of OpenSSH prior to 6.5.
 
