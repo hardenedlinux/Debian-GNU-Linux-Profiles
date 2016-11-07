@@ -14,6 +14,16 @@ You have to generate your keypair with `ssh-keygen`(1) if you do not have one.
 
 `$ ssh-keygen [-q] [-b bits] [-t dsa | ecdsa | ed25519 | rsa | rsa1] [-N new_passphrase] [-C comment] [-f output_keyfile]`
 
+
+The Stribika Guide[3] immediately dismisses the DSA cipher, due to DSA only have 1024 bit. And DSA and ECDSA use randomness for each signature, if random numbers are not the best quality, then it is possible to recover the secret key. And ECDSA us NIST elliptic curves, so we departure DSA and ECDSA. RSA1 is using by SSHv1. So the options left for us is ed25519 and RSA.  Using large RSA and ed25519 key would be perfectly OK.
+
+    $ ssh-keygen -t ed25519 -o -a 100   
+    $ ssh-keygen -t rsa -b 4096 -o -a 100   
+
+`-o` Causes ssh-keygen to save private keys using the new OpenSSH format rather than the more compatible PEM format.  The new format has increased resistance to brute-force password cracking but is not supported by versions of OpenSSH prior to 6.5.
+
+`-a rounds` When saving a new-format private key (i.e. an ed25519 key or any SSH protocol 2 key when the -o flag is set), this option specifies the number of KDF (key derivation function) rounds used.  Higher numbers result in slower passphrase verification and increased resistance to brute-force password cracking (should the keys be stolen).
+
 By default, the generated key files are located under your `$HOME/.ssh`, with names `id_$ALG` for private key and `id_$ALG.pub` for public key. A passphrase/pin had better be set to the private key.
 
 Next step, you have to add the content of your public key file (only one line) to your `$HOME/.ssh/authorized_keys` with your personal workspace on the remote host, one line per key, by either asking the administrator of the remote host to add, or adding it yourself if you have been able to login to that host, by using `ssh-copy-id`(1) or by editing `authorized_keys` file manually.
@@ -49,3 +59,4 @@ TBD
 ######Reference: 
 ######[1] man pages for ssh(1), ssh-keygen(1), ssh-add(1), ssh-agent(1), ssh-copy-id(1)
 ######[2] https://wiki.archlinux.org/index.php/GNOME/Keyring
+######[3] https://stribika.github.io/2015/01/04/secure-secure-shell.html
