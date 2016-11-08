@@ -1,9 +1,8 @@
-##Scenario
+#Building IPSEC vpn via strongswan
 
-Android user can use strongswan client to connect VPN server. Make sure connection between host and client
-remain secrecy and integrity. (enable PFS by using DH groups)
 
-##Keyword: ikev2, pfs, ipsec, android
+
+##Keyword: ikev2, pfs, ipsec, android, tunnel, gateway
 
 ##Install Strongswan
 
@@ -55,16 +54,19 @@ Verify
 
 Install building dependencies
 
-    $ sudo apt-get build-dep strongswan
-	$ sudo apt-get install systemd-dev
+    # apt-get build-dep strongswan
+	# apt-get install systemd-dev
     $ cd strongswan-5.5.1/   
 
-Configure
+Configuration
+
+create a specific directory to prevent polluting source tree.
 
 	$ mkdir build
-	# create a specific directory to prevent polluting source tree.
 	$ cd build
-	# install to default prefix /usr/local to prevent polluting /usr managed by package manager
+	
+configure this package to install to default prefix /usr/local to prevent polluting /usr managed by package manager
+
     $ ../configure --sysconfdir=/etc --enable-aes \
             --enable-des --enable-sha1 --enable-md4 --enable-md5 \
             --enable-eap-md5 --enable-eap-identity --enable-hmac \
@@ -77,10 +79,15 @@ Configure
 
 Make & Install
 
-    $ sudo make && make install
+    $ make 
+	# make install
 
+##Scenario 1: VPN client and server
 
-##Configuration
+Android user can use strongswan client to connect VPN server. Make sure connection between host and client
+remain secrecy and integrity. (enable PFS by using DH groups)
+
+### Generating needed key and certificate
 
 Generate Self-sign Root Certificate Authority
 
@@ -127,7 +134,7 @@ gen-root-ca.sh
 gen-server-key-and-cert.sh
 
 
-    cat >gen-server-key-and-cert.sh<<EOF
+    $ cat >gen-server-key-and-cert.sh<<EOF
     #!/bin/bash
 
     gen_template()
@@ -211,14 +218,14 @@ for privkey
 
 set permissions
 
-    $ chmod 600 /etc/ipsec.d/private/vpn-server-rsa-key.pem
+    # chmod 600 /etc/ipsec.d/private/vpn-server-rsa-key.pem
 
 
 ###Configuration in Strongswan Server
 
 /etc/ipsec.conf
 
-    $ cat > /etc/ipsec.conf <<EOF
+    # cat > /etc/ipsec.conf <<EOF
     config setup
         strictcrlpolicy=yes
         uniqueids = never
@@ -240,7 +247,7 @@ set permissions
 
 /etc/strongswan.conf
 
-    $ cat > /etc/ipsec.secrets <<EOF
+    # cat > /etc/ipsec.secrets <<EOF
     : RSA  vpn-server-rsa-key.pem
 
     testuser : EAP "M2I3ZDFkNWE5Mjk51NzNhZGUz"
@@ -248,7 +255,7 @@ set permissions
 
 /etc/strongswan.conf
 
-    $ cat > /etc/strongswan.conf <<EOF
+    # cat > /etc/strongswan.conf <<EOF
     charon {
         load = aes des sha1 sha2 md4 md5 pem pkcs1 gmp random nonce x509 curl gcm \
                revocation hmac xcbc stroke kernel-netlink socket-default fips-prf \
@@ -256,10 +263,10 @@ set permissions
     }
     EOF
 
-    $ sudo systemctl enable strongswan
-    $ sudo systemctl start strongswan
+    # systemctl enable strongswan
+    # systemctl start strongswan
 
-    $ sudo systemctl status strongswan
+    # systemctl status strongswan
     
     ● strongswan.service - strongSwan IPsec IKEv1/IKEv2 daemon using ipsec.conf
     Loaded: loaded (/usr/lib/systemd/system/strongswan.service; disabled; vendor preset: disabled)
@@ -284,11 +291,11 @@ set permissions
 
 ###Firewall
 
-    $ vim /etc/sysctl.conf
+    # vim /etc/sysctl.d/99-sysctl.conf
     net.ipv4.ip_forward=1
     sysctl -p
 
-    $ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    # iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
     (for test purpose)
 
 ##Android Client setting
@@ -328,3 +335,96 @@ Don't select automatically
 Select CA certificate  ---->  USER  ---->  TYA Company Limited.
 
 and save
+
+##Scenario 2: VPN tunnel between two Gateways
+
+Gateway machines (assuming gate.aa.xxx.com and gate.bb.xxx.com) should at least have two NICs, one to "public" network (assuming it is eth0), the other for private network (assuming it is eth1).
+
+Generate and deploy keys and certificates on all of two gateways, as the former scenario, except that the `cn` section for certificate template should also be the domain name of this host:
+
+	...
+    gen_template()
+    {
+    cat <<EOF> gate.yy.xxx.com.tmpl
+    cn = "gate.yy.xxx.com"
+    organization = "TYA Company Limited."
+    unit = "TYA Infrastructure Assurance"
+    country = "CN"
+    expiration_days = "365"
+    dns_name = "gate.yy.xxx.com"
+    signing_key
+    tls_www_server
+    EOF
+    }
+	...
+	
+Like the former one, certificate and provate key for a gateway should be put in the following directory, accordingly:
+
+`/etc/ipsec.d/certs/` for certificates,
+
+and `/etc/ipsec.d/private/` for private keys, their permission should also be set to `0600`.
+
+Used private key should be addressed in the `/etc/ipsec.secrets`:
+
+	$ cat > /etc/ipsec.secrets <<EOF
+	: RSA  key-of-this-gateway.pem
+
+In this scenario, the root certificate of CA should be put in `/etc/ipsec.d/cacerts`, and a certificate revocation list (CRL) should be put in `/etc/ipsec.d/crls`, despite there may be no revoked certificates, so, an empty crl could be generated:
+
+	certtool --generate-crl --load-ca-privkey ca.pem --load-ca-certificate ca.crt --outfile ca.crl
+	
+Certificates really needed to be revoked could be added via `--load-certificate` option:
+
+	certtool --generate-crl --load-ca-privkey ca.pem --load-ca-certificate ca.crt --load-certificate cert-to-be-revoked.crt --outfile ca.crl
+	
+IPSEC configuration should be written into `/etc/ipsec.conf`.
+
+For gate.aa.xxx.com:
+
+    # cat > /etc/ipsec.conf <<EOF
+    config setup
+        strictcrlpolicy=yes
+        uniqueids = never
+		
+	conn %default
+		ikelifetime=60m
+		keylife=20m
+		rekeymargin=3m
+		keyingtries=1
+		keyexchange=ikev2
+		mobike=no
+	
+	conn net-net
+		left=IPADDR.OF.ETH0.OF.gate.aa.xxx.com
+		leftcert=cert-of-this-gateway.crt
+		leftsubnet=SUBNET.ETH1.OF.gate.aa.xxx.com.CONNECTING/MASK
+		leftid=@gate.aa.xxx.com
+		leftfirewall=yes
+		right=IPADDR.OF.ETH0.OF.gate.bb.xxx.com
+		rightsubnet=SUBNET.ETH1.OF.gate.bb.xxx.com.CONNECTING/MASK
+		rightid=@gate.bb.xxx.com
+		auto=start
+	EOF
+	
+You should write
+	
+	...
+	conn net-net
+		left=IPADDR.OF.ETH0.OF.gate.bb.xxx.com
+		leftcert=cert-of-this-gateway.crt
+		leftsubnet=SUBNET.ETH1.OF.gate.bb.xxx.com.CONNECTING/MASK
+		leftid=@gate.bb.xxx.com
+		leftfirewall=yes
+		right=IPADDR.OF.ETH0.OF.gate.aa.xxx.com
+		rightsubnet=SUBNET.ETH1.OF.gate.aa.xxx.com.CONNECTING/MASK
+		rightid=@gate.aa.xxx.com
+		auto=start
+	...
+	
+to the according place of the `/etc/ipsec.conf` for gate.bb.xxx.com.
+
+Ways to modify `/etc/strongswan.conf` and `/etc/sysctl.d/99-sysctl.conf`, as well as to enable strongswan service are identical with those for the former scenario.
+
+######Reference: 
+######[1] https://www.gnutls.org/manual/html_node/certtool-Invocation.html
+######[2] https://wiki.strongswan.org/projects/strongswan/wiki/IKEv2Examples
