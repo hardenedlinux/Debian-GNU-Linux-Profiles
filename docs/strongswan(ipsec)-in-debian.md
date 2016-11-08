@@ -21,7 +21,7 @@ remain secrecy and integrity. (enable PFS by using DH groups)
 
 Adding pubkey
 
-    $ gpg --search-keys 0xb34dba77
+    $ gpg --search-keys 0xb34dba77 (The second one is forged via short fingerprint collision.)
 
     gpg: searching for "0xb34dba77" from hkp server keys.gnupg.net   
     (1)	Andreas Steffen <andreas.steffen@strongswan.org>   
@@ -55,12 +55,17 @@ Verify
 
 Install building dependencies
 
-    $ sudo yum install libcurl-devel openssl-devel systemd-devel
+    $ sudo apt-get build-dep strongswan
+	$ sudo apt-get install systemd-dev
     $ cd strongswan-5.5.1/   
 
 Configure
 
-    $ ./configure --prefix=/usr --sysconfdir=/etc --enable-aes \
+	$ mkdir build
+	# create a specific directory to prevent polluting source tree.
+	$ cd build
+	# install to default prefix /usr/local to prevent polluting /usr managed by package manager
+    $ ../configure --sysconfdir=/etc --enable-aes \
             --enable-des --enable-sha1 --enable-md4 --enable-md5 \
             --enable-eap-md5 --enable-eap-identity --enable-hmac \
             --enable-kernel-libipsec --enable-dhcp --enable-eap-mschapv2 \
