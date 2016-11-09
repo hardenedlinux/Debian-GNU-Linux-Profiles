@@ -20,9 +20,15 @@ On `sdb`, behind the BIOS boot partition lie the swap partition, `/var/lib/dpkg/
 
 `/var/lib/dpkg/updates` is used to store temporary files and contexts for dpkg(1) to perform package management. Its contents must survive till the next time dpkg(1) being called, in case of system crash during package management, for dpkg(1) to recover, so it MUST not be a tmpfs, and had better be separated from `/var/lib/dpkg` if double-disk scheme is used to avoid unnecessary wearing of SSD. (On single-disk systems there is no need to separate `/var/lib/dpkg/updates` from its parent directory, and their capacity should be combined.) I usually leave 1GiB for it.
 
-The remaining capacity is to be shared between `/var` and `/home`.
+The remaining capacity is to be shared between `/var`, `/var/log` and `/home`.
 
-Every partition on SSD had better be mounted with the option `discard` if the SSD and the file system they use support that BOTH, and every partition should mounted with the option `user_xattr` if supported, in order to make it easy to deploy grsecurity later.
+In production environment, logs are very important, so `/var/log` should be separated from `/var`. Its capacity depends on the host's usage.
+
+Every partition should mounted with the option `user_xattr` if supported, in order to make it easy to deploy grsecurity later.
+
+Storage devices based on flash memory such as SSDs need to erase a block with old data FIRST before writing new data to it. The easiest way to perform is to mount the filesystem DIRECTLY on an SSD with `discard` option, to erase blocks occupied by a file which is being deleted. The other way is to run `fstrim(8)` periodically on every filesystems with TRIM features, erasing every unused block.
+
+The implementation needed to perform `discard` is uneven among SSD's firmware, and all TRIM command were synchronous before SATA 3.1, so periodic trimming is more recommended than using `discard`. You can config it after installation in the way described in [this article](https://wiki.archlinux.org/index.php/Solid_State_Drives#Periodic_TRIM).
 
 ##### Configs applied after installation but before reboot.
 
@@ -140,11 +146,12 @@ Besides, the management console is for administrators to work upon, so some soft
 
 ######Reference: 
 ######[1] man page tmpfs(5)
-######[2] https://wiki.debian.org/SourcesList
-######[3] https://wiki.debian.org/Backports
-######[4] https://backports.debian.org/Instructions/
-######[5] https://wiki.debian.org/libvirt
-######[6] https://wiki.debian.org/KVM
-######[7] https://libvirt.org/virshcmdref.html
-######[8] https://docs.fedoraproject.org/en-US/Fedora/13/html/Virtualization_Guide/chap-Virtualization-KVM_live_migration.html#sect-Virtualization-KVM_live_migration-Live_migration_requirements
-######[9] https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/App_Migration_Disk_Image.html
+######[2] https://wiki.archlinux.org/index.php/Solid_State_Drives
+######[3] https://wiki.debian.org/SourcesList
+######[4] https://wiki.debian.org/Backports
+######[5] https://backports.debian.org/Instructions/
+######[6] https://wiki.debian.org/libvirt
+######[7] https://wiki.debian.org/KVM
+######[8] https://libvirt.org/virshcmdref.html
+######[9] https://docs.fedoraproject.org/en-US/Fedora/13/html/Virtualization_Guide/chap-Virtualization-KVM_live_migration.html#sect-Virtualization-KVM_live_migration-Live_migration_requirements
+######[10] https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/App_Migration_Disk_Image.html
