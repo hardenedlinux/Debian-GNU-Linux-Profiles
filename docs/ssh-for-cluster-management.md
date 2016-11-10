@@ -28,7 +28,12 @@ The `ForwardAgent(A,~a)` option provided by `OpenSSH` could just solve this cont
 
 By applying this option to the command line for ssh(1), scp(1) and sftp(1) (possibly with its config form), the unix domain socket from your local ssh agent is forwarded to the remote host once you have passed the authentication and then logged into it, as if the forwarded domain socket recorded in the `SSH_AUTH_SOCK` environment variable on the remote host were provided by an agent running on the remote host, which, in this scene, may be the MC, and all identity keys registered locally are all available on the remote. 
 
-You can then log into any machine accessible from MC, provided that the identity keys needed for authentication for the machine have been registered to the local agent.
+You can then log into any machine accessible from MC, provided that the identity keys needed for authentication for the machine have been registered to the local agent:
+
+	$ ssh-add -t 300 mc.key
+	$ ssh-add -t 300 a.host.key
+	$ ssh -A virtmgr@mc.host.xxx.com
+	virtmgr@mc.host.xxx.com:~$ ssh virtmgr@a.host.xxx.com
 
 ##### Usage of ProxyJump(J).
 
@@ -36,11 +41,13 @@ Sometimes, you may need only to log into one of the (physical or virtual) machin
 
 This time you could use `ProxyJump(J)`. You have known that the ssh(1) has the ability to multiplex many streams inside one session of its own. By using this option with MC as the proxy host, the SSH client you are using will first connect to the proxy host, authencate and create a session, and then create a second connection, tunneled inside the first one, to the target host, with the very same process, and finally create the session to your target host. The proxy hosts could even be stacked more, for which commas could be used to multiple proxies.
 
-In order to use this option, you should have authentication material for both the proxy host and the target host at hand, which the easist way to achieve is to register both authentication identities to your local adent. Using `ForwardAgent(A,~a)` is not necessary here, as only the local client is participating in needed sessions.
+In order to use this option, you should have authentication material for both the proxy host and the target host at hand, which the easist way to achieve is to register both authentication identities to your local adent. Using `ForwardAgent(A,~a)` is not necessary here, as only the local client is participating in needed sessions:
 
-Besides the host expression (ip address, hostname, etc) for the target host should be in the sight of the proxy host, NOT the local host, as the direct network connection to the target host is made from the proxy host.
+	$ ssh-add -t 300 mc.key
+	$ ssh-add -t 300 a.host.key
+	$ ssh -J virtmgr@mc.host.xxx.com virtmgr@a.host.xxx.com
 
-For example, the command line should be `$ ssh [-XC] -p TARGET_PORT -J USER0@MC_HOST:MC_SSH_PORT USER1@TARGET_HOST_IN_SIGHT_OF_MC`. In every scene, port assigned with `Port(p)` is always referred to the port for target host.
+Besides the host expression (ip address, hostname, etc) for the target host should be in the sight of the proxy host (mc.host.xxx.com for above example), NOT the local host, as the direct network connection to the target host is made from the proxy host.
 
 ######Reference: 
 ######[1] man page ssh(1) and ssh_config(5)
