@@ -54,9 +54,9 @@ Verify
 
 Install building dependencies
 
-    # apt-get build-dep strongswan
-	# apt-get install systemd-dev
-    $ cd strongswan-5.5.1/   
+	$ sudo apt-get install build-essential   
+	$ sudo apt-get install systemd-dev   
+	$ cd strongswan-5.5.1/   
 
 Configuration
 
