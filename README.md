@@ -1,12 +1,14 @@
 # Debian-GNU-Linux-Profiles
 
 ###Done
-SSL/TLS Mutual Authentication in Webdav   
-SSL/TLS Mutual Authentication in Gitlab   
-OpenConnect Server For Anyconnect Compatible Service   
+
+[SSL/TLS Mutual Authentication in Webdav](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ssl-tls-mutual-authentication-in-webdav.md)   
+[SSL/TLS Mutual Authentication in Gitlab](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ssl-tls-mutual-authentication-in-gitlab.md)   
+[OpenConnect Server For Anyconnect Compatible Service](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/OpenConnect-Server(ocserv)-on-debian.md)   
+[Building IPSEC VPN via strongswan](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/strongswan(ipsec)-in-debian.md)   
+[Small-scale Enterprise KVM Deployments With Kimchi](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/small-scale-enterprise-KVM-deployments-with-kimchi.md)   
 
 ###Todo-list
-Small-scale Enterprise KVM Deployments With Kimchi   
 DRBD in HA   
 LVM Best Practice   
 Soft Raid in Debian   
