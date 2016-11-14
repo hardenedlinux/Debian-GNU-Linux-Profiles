@@ -989,6 +989,34 @@ Please read this configuration file carefully. You could make it work out of box
 
     $ chmod +x /etc/network/if-pre-up.d/iptables
 
+####Client side support
+
+iOS  
+
+    Anyconnect https://itunes.apple.com/us/app/cisco-anyconnect/id392790924?mt=8  
+
+Android  
+
+    Anyconnect https://play.google.com/store/apps/details?id=com.cisco.anyconnect.vpn.android.avf&hl=en  
+    OpenConnect https://play.google.com/store/apps/details?id=app.openconnect&hl=en  
+
+Windows  
+
+    Anyconnect https://software.cisco.com/download/release.html?mdfid=286281283&softwareid=282364313&os=&release=4.3.03086&relind=AVAILABLE&rellifecycle=&reltype=latest&i=!pp
+    OpenConnect-gui http://openconnect.github.io/openconnect-gui/
+
+Mac OS X  
+
+    Anyconnect https://software.cisco.com/download/release.html?mdfid=286281283&softwareid=282364313&os=&release=4.3.03086&relind=AVAILABLE&rellifecycle=&reltype=latest&i=!pp
+    OpenConnect-gui http://openconnect.github.io/openconnect-gui/
+    OpenConnect CLI brew install openconnect
+
+Linux
+
+    Anyconnect https://software.cisco.com/download/release.html?mdfid=286281283&softwareid=282364313&os=&release=4.3.03086&relind=AVAILABLE&rellifecycle=&reltype=latest&i=!pp
+    Openconnect http://www.infradead.org/openconnect/
+
+In our cipher suites, it would work with Anyconnect and OpenConnect :)
 ####Reference:
 
 [1] https://gitlab.com/ocserv/ocserv   
