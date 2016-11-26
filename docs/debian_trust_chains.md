@@ -1,6 +1,6 @@
 ## Building a chain of trust on Debian GNU/Linux
 
-We've been losing software freedom because ME, which is the most powerful demon from Ring -3 world. Since it's more likely an invincible enemy even Intel haven't disabled SPI by adding a similar feature into the internal physical package of processor, we'd still have some chances( illusion?) to build our defense for Ring -2 and above world. With reproducible builds for PaX/Grsecurity, we'd like to make UEFI Secure Boot, bootloader( Grub2), linux kernel and kernel modules on the chain of trust by signing/verify at each level.
+We've been losing software freedom because ME, which is the most powerful demon from Ring -3 world. Since it's more likely an invincible enemy even Intel haven't disabled SPI by adding a similar feature into the same physical package of processor, we'd still have some chances( illusion?) to build our defense for Ring -2 and above world. With [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build), we'd like to make UEFI Secure Boot, bootloader( Grub2), linux kernel and kernel modules on the chain of trust by signing/verify at each level.
 
 
 ### Secure Boot
@@ -41,3 +41,8 @@ Those out-of-tree kernel module can be signed by the private key/certificate man
 0002bb90  65 6e 64 65 64 7e 0a                              |ended~.|
 0002bb97
 </pre>
+
+### Reference
+
+[1] [Experiments with signed kernels and modules in Debian](https://womble.decadent.org.uk/blog/experiments-with-signed-kernels-and-modules-in-debian.html)
+[2] [Signed kernel module support](https://wiki.gentoo.org/wiki/Signed_kernel_module_support)
