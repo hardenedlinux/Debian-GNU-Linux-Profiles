@@ -18,7 +18,7 @@ Generating a private key/certificate for signing kernel modules
 
 <pre>
 # ./gen-x509-key.sh sha512 hardenedlinux.x509 hardenedlinux.pk
-
+# cat hardenedlinux.x509 >> hardenedlinux.pk
 # cp hardenedlinux.x509 hardenedlinux.pk /kbuild/
 </pre>
 
@@ -45,4 +45,7 @@ Those out-of-tree kernel module can be signed by the private key/certificate man
 ### Reference
 
 [1] [Experiments with signed kernels and modules in Debian](https://womble.decadent.org.uk/blog/experiments-with-signed-kernels-and-modules-in-debian.html)
-[2] [Signed kernel module support](https://wiki.gentoo.org/wiki/Signed_kernel_module_support)
+
+[2] [KERNEL MODULE SIGNING FACILITY](https://www.kernel.org/doc/Documentation/module-signing.txt)
+
+[3] [Signed kernel module support](https://wiki.gentoo.org/wiki/Signed_kernel_module_support)
