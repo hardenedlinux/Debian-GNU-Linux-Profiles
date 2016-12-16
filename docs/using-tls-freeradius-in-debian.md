@@ -20,8 +20,7 @@ In order to do that, I decide to build a FreeRADIUS server with EAP-TLS support.
 
 ####Build dependencies[1]   
 
-    $ sudo apt install build-essential   
-    $ apt install build-essential   
+    $ sudo apt install build-essential     
 
 ####Extract files
 
