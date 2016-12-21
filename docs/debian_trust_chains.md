@@ -4,7 +4,7 @@ We've been losing software freedom because ME, which is the most powerful demon 
 
 
 ### Secure Boot
-
+[Ways to build your own trustchain for secureboot](./build-secureboot-trustchain.md)
 
 ### Bootloader( Grub?)
 
