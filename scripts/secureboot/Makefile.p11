@@ -1,0 +1,103 @@
+EFITOOLPATH:=/usr/lib/efitools/x86_64-linux-gnu
+SIGNEDTOOLS:=$(shell ls $(EFITOOLPATH)|sed 's/efi/signed.efi/g')
+DISKPATH:=EFIBOOT
+CARD:="SmartCard-HSM (UserPIN)"
+export GNUTLS_PIN:=$(PIN)
+
+all: auth signedtools
+
+auth: pk.auth kek.auth db.auth dbx.auth #nopk.auth
+
+certs: pk.crt kek.crt db.crt dbx.crt
+
+ders: pk.crt.der kek.crt.der db.crt.der dbx.crt.der
+
+#"$<" is equal to "$(word 1,$^)"
+%.crt: %.url %.tmpl
+	certtool -s --template $(word 2,$^) --load-privkey "`cat $<`" --outfile $@
+
+%.crt.der: %.crt
+	openssl x509 -in $< -out $@ -outform der
+
+uuid:
+	uuidgen > $@
+
+timestamp:
+	LANG=EN date -u '+%c' > $@
+
+%.esl: %.crt uuid
+	cert-to-efi-sig-list -g `cat $(word 2,$^)` $< $@
+
+pk.forsig: pk.esl timestamp
+	sign-efi-sig-list -t "`cat $(word 2,$^)`" -o PK pk.esl pk.forsig
+
+kek.forsig: kek.esl timestamp
+	sign-efi-sig-list -t "`cat $(word 2,$^)`" -o KEK kek.esl kek.forsig
+
+db.forsig: db.esl timestamp
+	sign-efi-sig-list -a -t "`cat $(word 2,$^)`" -o db db.esl db.forsig
+
+dbx.forsig: dbx.esl timestamp
+	sign-efi-sig-list -a -t "`cat $(word 2,$^)`" -o dbx dbx.esl dbx.forsig
+
+nopk.forsig: timestamp
+	sign-efi-sig-list -t "`cat $(word 1,$^)`" -o PK /dev/null nopk.forsig
+
+pk.sig: pk.forsig pk.url pk.crt
+	certtool --p7-detached-sign --p7-include-cert --p7-time --hash=SHA256 --load-privkey `cat $(word 2,$^)` --load-certificate $(word 3,$^) --infile $< --outder --outfile $@
+
+kek.sig: kek.forsig pk.url pk.crt
+	certtool --p7-detached-sign --p7-include-cert --p7-time --hash=SHA256 --load-privkey `cat $(word 2,$^)` --load-certificate $(word 3,$^) --infile $< --outder --outfile $@
+
+db.sig: db.forsig kek.url kek.crt
+	certtool --p7-detached-sign --p7-include-cert --p7-time --hash=SHA256 --load-privkey `cat $(word 2,$^)` --load-certificate $(word 3,$^) --infile $< --outder --outfile $@
+
+dbx.sig: dbx.forsig kek.url kek.crt
+	certtool --p7-detached-sign --p7-include-cert --p7-time --hash=SHA256 --load-privkey `cat $(word 2,$^)` --load-certificate $(word 3,$^) --infile $< --outder --outfile $@
+
+nopk.sig: nopk.forsig pk.url pk.crt
+	certtool --p7-detached-sign --p7-include-cert --p7-time --hash=SHA256 --load-privkey `cat $(word 2,$^)` --load-certificate $(word 3,$^) --infile $< --outder --outfile $@
+
+pk.auth: pk.sig pk.esl timestamp
+	sign-efi-sig-list -i $< -t "`cat $(word 3,$^)`" PK $(word 2,$^) $@
+
+kek.auth: kek.sig kek.esl timestamp
+	sign-efi-sig-list -i $< -t "`cat $(word 3,$^)`" KEK $(word 2,$^) $@
+
+db.auth: db.sig db.esl timestamp
+	sign-efi-sig-list -a -i $< -t "`cat $(word 3,$^)`" db $(word 2,$^) $@
+
+dbx.auth: dbx.sig dbx.esl timestamp
+	sign-efi-sig-list -a -i $< -t "`cat $(word 3,$^)`" dbx $(word 2,$^) $@
+
+nopk.auth: nopk.sig timestamp
+	sign-efi-sig-list -i $< -t "`cat $(word 2,$^)`" PK /dev/null $@
+
+import: db.crt.der
+	-pkcs11-tool -p $(PIN) -ly cert -ba db
+	pkcs11-tool -p $(PIN) -ly cert -w $< -a db
+
+certdb:
+	mkdir -p $@
+	modutil -create -dbdir $@
+	modutil -dbdir $@ -add opensc-pkcs11 -libfile opensc-pkcs11.so
+
+%.signed.efi: $(EFITOOLPATH)/%.efi certdb
+	pesign -n $(word 2,$^) -i $< -o $@ -t $(CARD) -c "db" -s
+
+signedtools: $(SIGNEDTOOLS)
+
+installauth: auth
+	cp *.auth $(DISKPATH)
+
+installtools: signedtools
+	mkdir -p $(DISKPATH)/EFI/BOOT
+	cp $(EFITOOLPATH)/*.efi $(DISKPATH)/EFI/BOOT
+	cp $(SIGNEDTOOLS) $(DISKPATH)/EFI/BOOT
+
+install: installauth installtools
+
+clean:
+	-rm *.esl *.auth *.forsig *.sig $(SIGNEDTOOLS) uuid timestamp
+
+
