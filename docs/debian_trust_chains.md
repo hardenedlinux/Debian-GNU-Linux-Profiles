@@ -35,7 +35,7 @@ We've been losing software freedom because ME, which is the most powerful demon 
 +--------------------------------------------------------------------------------------------------------------------------------------------+
 </pre>
 
-Fortunately, there are the best practice of (Neutralizing ME)[https://hardenedlinux.github.io/firmware/2016/11/17/neutralize_ME_firmware_on_sandybridge_and_ivybridge.html] and [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build). But we still need to finish the rest.
+Fortunately, there are the best practice of [Neutralizing ME](https://hardenedlinux.github.io/firmware/2016/11/17/neutralize_ME_firmware_on_sandybridge_and_ivybridge.html] and [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build). But we still need to finish the rest.
 
 
 ### Secure Boot
