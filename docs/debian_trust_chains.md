@@ -1,10 +1,46 @@
 ## Building a chain of trust on Debian GNU/Linux
 
-We've been losing software freedom because ME, which is the most powerful demon from Ring -3 world. Since it's more likely an invincible enemy even Intel haven't disabled SPI by adding a similar feature into the same physical package of processor, we'd still have some chances( illusion?) to build our defense for Ring -2 and above world. With [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build), we'd like to make UEFI Secure Boot, bootloader( Grub2), linux kernel and kernel modules on the chain of trust by signing/verify at each level.
+Free software community has been facing the big threats from firmware level for a long time. Those free software implementation of firmware, such as Libreboot/Coreboot is still hard to apply to diverse x86 hardware. The situation we have isn't optimistic according to the threat model.
+
+
+<pre>
++--------------------------------------------------------------------------------------+
+|  Level  |  Threat: e.g:                   |  Defense gate                            |
++--------------------------------------------------------------------------------------+
+| Ring 3  | compromised program with setuid | Compiler mitigation                      |
++--------------------------------------------------------------------------------------+
+| Ring 0  | root priv esclation             | PaX/Grsecurity                           |
++--------------------------------------------------------------------------------------+
+| Ring -1 | virtual machine escape          | PaX/Grsecurity + Situational hardening   |
++--------------------------------------------------------------------------------------+
+| Ring -2 | bypass signature verify         | Secure boot + Situational hardening      |
++--------------------------------------------------------------------------------------+
+| Ring -3 | Rootkit friendly ME             | Kill it?                                 |
++--------------------------------------------------------------------------------------+
+</pre>
+
+
+We've been losing software freedom because ME, which is the most powerful demon from Ring -3 world. Since it's more likely an invincible enemy even Intel haven't disabled SPI by adding a similar feature into the same physical package of processor, we'd still have some chances( illusion?) to build our defense for Ring -2 and above world. We are going to make UEFI Secure Boot, bootloader( Grub2), linux kernel and kernel modules on the chain of trust by signing/verify at each level. There are less than 5% of machines are running *critical/important* production systems. We should do the hardening by its situation.  
+
+<pre>
++--------------------------------------------------------------------------------------------------------------------------------------------+
+|  Level    |  Digtial asset need to be protected        |  Solution                                                                         |
++--------------------------------------------------------------------------------------------------------------------------------------------+
+| Critical  | Private key, key mgt server, etc           | Neutralized ME + free/libre firmware + Secure/verified                            | 
+|           |                                            | boot + reproducible builds for PaX/Grsecurity                                     |
++--------------------------------------------------------------------------------------------------------------------------------------------+
+| Important | Asset could possibly cause business impact | Neutralized ME + Secure/verified + boot + reproducible builds for PaX/Grsecurity  |
++--------------------------------------------------------------------------------------------------------------------------------------------+
+| Normal    | blah-blah-blah!                            | Original ME + Secure/verified + boot + reproducible builds for PaX/Grsecurity     |
++--------------------------------------------------------------------------------------------------------------------------------------------+
+</pre>
+
+Fortunately, there are the best practice of (Neutralizing ME)[https://hardenedlinux.github.io/firmware/2016/11/17/neutralize_ME_firmware_on_sandybridge_and_ivybridge.html] and [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build). But we still need to finish the rest.
 
 
 ### Secure Boot
 [Ways to build your own trustchain for secureboot](./build-secureboot-trustchain.md)
+
 
 ### Bootloader( Grub?)
 
@@ -41,6 +77,13 @@ Those out-of-tree kernel module can be signed by the private key/certificate man
 0002bb90  65 6e 64 65 64 7e 0a                              |ended~.|
 0002bb97
 </pre>
+
+
+### Know your enemy
+[Intel x86 considered harmful](https://blog.invisiblethings.org/papers/2015/x86_harmful.pdf)
+
+[Platform Embedded Security Technology Revealed: Safeguarding the Future of Computing with Intel Embedded Security and Management Engine](http://download.springer.com/static/pdf/940/bok%253A978-1-4302-6572-6.pdf?originUrl=http%3A%2F%2Flink.springer.com%2Fbook%2F10.1007%2F978-1-4302-6572-6&token2=exp=1482307879~acl=%2Fstatic%2Fpdf%2F940%2Fbok%25253A978-1-4302-6572-6.pdf%3ForiginUrl%3Dhttp%253A%252F%252Flink.springer.com%252Fbook%252F10.1007%252F978-1-4302-6572-6*~hmac=8dfe35980dc1ce90babcfe71699db6c5e9a745710f50ee2d3be6d58d053fee5b)
+
 
 ### Reference
 
