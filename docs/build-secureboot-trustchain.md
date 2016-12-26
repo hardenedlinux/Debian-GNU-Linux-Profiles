@@ -46,9 +46,23 @@ Symlink its mount point to your working directory, or change the value of `DISKP
 
 Run `make install`. .auth files will be installed to the root of the file system with the image, while efi executables (signed and unsigned) will be installed to EFT/BOOT/.
 
-Then you can test this image on a libvirt virtual machine using OVMF as boot firmware. Using `KeyTool(.signed).efi` (whose usage is described inJames' blog above) to manipulate secure boot variables. If failed, reboot the VM, and press ESC to enter the config interface to remove the keys.
+Then you can test this image on a libvirt virtual machine using OVMF as boot firmware. 
 
-The nopk.auth created from /dev/null could be used to delete pk signed with the same cert.
+Under EFI shell, type `FSn:\EFI\BOOT\KeyTool.efi` to execute the KeyTool.
+
+KeyTool itself has a curses-like user interface, in which the keys (PK, KEK, db, dbx, etc) for this firmware could be manipulated.
+
+To import keys to a platform, select `Edit Keys` first, then a key variable, then `Add New Key`, now you are able to browse the file system on the image, to add an .auth file to the key variable.
+
+PK should be imported AFTER KEK, db, and dbx, because once PK is imported, the secure boot is enabled, and only signed efi executables could be executed. If at this time there is no valid trustchain inside the firmware, you will not be able to invoke any efi executable.
+
+PK could only be replaced or deleted, not able to be added. Select `PK`, then `Replace Key(s)`, then you can browse the .auth file you want to use.
+
+An .auth file generated from an empty .esl file and signed with PK (`nopk.auth` in the Makefile) could be used to delete PK. Select the PK, then select the existing key expressed with its UUID, and `Delete with .auth File`, then you can browse the file to delete PK. Other keys could be delete directly.
+
+If the nopk file is invalid or the trustchain is broken that no efi executable can be executed, you could enter the config interface of the firmware by pressing ESC when TianoCore's logo appears on the screen. Select `Device Manager`, then `Secure Boot Configuration`, then change `Secure Boot Mode` to `Custom Mode`, you can now delete present keys on the `Custom Secure Boot Options` appeared below. Note: after PK is delete, the secureboot is disabled, and `Secure Boot Mode` is changed back to `Standard Mode`, so you should enable `Custom Mode` again in order to remove remaining keys.
+
+`Custom Secure Boot Options` could also be used to import keys from file on disk(image)s.
 
 The image could also be used on physical machine if written to a usb drive.
 
