@@ -1,0 +1,28 @@
+--- /etc/grub.d/10_linux.orig	2017-01-17 16:26:13.781489719 +0800
++++ /etc/grub.d/10_linux	2017-01-17 16:30:37.629898631 +0800
+@@ -176,7 +176,7 @@ EOF
+   fi
+   if test -d /sys/firmware/efi && test -e "${linux}.efi.signed"; then
+     sed "s/^/$submenu_indentation/" << EOF
+-	linux	${rel_dirname}/${basename}.efi.signed root=${linux_root_device_thisversion} ro ${args}
++	linuxefi	${rel_dirname}/${basename}.efi.signed root=${linux_root_device_thisversion} ro ${args}
+ EOF
+   else
+     sed "s/^/$submenu_indentation/" << EOF
+@@ -191,9 +191,15 @@ EOF
+ 	echo	'$(echo "$message" | grub_quote)'
+ EOF
+     fi
+-    sed "s/^/$submenu_indentation/" << EOF
++    if test -d /sys/firmware/efi && test -e "${linux}.efi.signed"; then
++      sed "s/^/$submenu_indentation/" << EOF
++	initrdefi	${rel_dirname}/${initrd}
++EOF
++    else
++      sed "s/^/$submenu_indentation/" << EOF
+ 	initrd	${rel_dirname}/${initrd}
+ EOF
++    fi
+   fi
+   sed "s/^/$submenu_indentation/" << EOF
+ }
