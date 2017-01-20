@@ -20,7 +20,7 @@ To create certificates in batch, template files are needed, some exemplative fil
 
 Run `make auth` to create .auth files which UEFI with secure boot feature accepts, and `make signedtools` could be used to create signed version of efi executables privided by `efitools` package, which are needed to import and manipulate keys on UEFI shell.
 
-##### Test on virtual machine.
+##### Create and upload disk image.
 
 Create a disk image with the following GPT table via `gdisk(8)` (no need to be accurate):
 
@@ -47,6 +47,22 @@ Symlink its mount point to your working directory, or change the value of `DISKP
 Run `make install`. .auth files will be installed to the root of the file system with the image, while efi executables (signed and unsigned) will be installed to EFT/BOOT/.
 
 Then you can test this image on a libvirt virtual machine using OVMF as boot firmware. 
+
+##### Test on virtual machine.
+
+ You should have access to a host of virtual machine in order to perform test (The host could be your local machine provided that all the software needed are [installed and configured](./recommended_cluster_config.md)). The host should have OVMF available. If not, ask its administrator to install it:
+ 
+`# apt-get install ovmf`
+ 
+ Create an empty raw disk image on the host:
+
+`$ virsh -c ${HOST_URL} vol-create-as default efiboot 0`
+
+Then upload the local disk image you just prepared to the place:
+
+`$ virsh -c ${HOST_URL} vol-upload --pool default --vol efiboot --file efiboot.img`
+
+Connect your `virt-manager` to the host, and create a virtual machine using the disk image you just upload (`Import existing disk image`) and OVMF (Choose `Customize configuration before install` in the last step, and select OVMF as firmware in the configuration interface). Now you can use this virtual machine to test your keys.
 
 Under EFI shell, type `FSn:\EFI\BOOT\KeyTool.efi` to execute the KeyTool.
 

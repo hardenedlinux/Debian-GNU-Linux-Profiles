@@ -85,7 +85,7 @@ Install the `qemu-kvm` package with `apt-get(8)` or `aptitude(8)`, e.g. using th
 
 In current `stable` branch `jessie`, `libvirt-bin` is already a transitional package with no real content, only to make it easy to install its dependency `libvirt-clients` and `libvirt-daemon-system`, and has been removed in `testing` and `unstable`, so you should replace `libvirt-bin` with `libvirt-clients` and `libvirt-daemon-system` for future Debian versions.
 
-The daemon `libvirt-daemon-system` daemon will start automatically at boot time and load the appropriate kvm modules, kvm-amd or kvm-intel, which are shipped with the Linux kernel Debian package. If you intend to create VMs from the command-line, install `virtinst`. 
+The daemon `libvirt-daemon-system` daemon will start automatically at boot time and load the appropriate kvm modules, kvm-amd or kvm-intel, which are shipped with the Linux kernel Debian package. If you intend to create VMs from the command-line, install `virtinst`, or you can use GUI tool `virt-manager`. 
 
 ##### Use a shared storage pool to store disk images of virtual machines.
 
