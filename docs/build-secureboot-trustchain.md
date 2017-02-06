@@ -6,9 +6,11 @@
 
 Secure Boot need a trustchain, which has been described in [Pollux's blog](https://www.wzdftpd.net/blog/uefi-secureboot-debian.html) and [James Bottomley's random Pages](http://blog.hansenpartnership.com/owning-your-windows-8-uefi-platform/). This scheme is even useful for virtual machine, if [OVMF](http://www.tianocore.org/ovmf/) is used as the boot firmware.
 
+The following procedures should all be done on a properly fortified host, for some private keys are going to be generated.
+
 ##### File based trustchain building.
 
-The following packages should be installed:
+The following packages should be installed (Note that currently efitools is only available in debian sid, and sbsigntool is only available in debian testing and sid.):
 
 ```
 # apt-get install gnutls-bin uuid-runtime efitools sbsigntool
@@ -22,13 +24,15 @@ Run `make auth` to create .auth files which UEFI with secure boot feature accept
 
 ##### Create and upload disk image.
 
-Create a disk image with the following GPT table via `gdisk(8)` (no need to be accurate):
+Create a disk image with the following GPT table via `gdisk(8)` (no need to be accurate, and its capacity may vary):
 
 ```
 Number  Start (sector)    End (sector)  Size       Code  Name
    1              34            2048   1007.5 KiB  EF02  BIOS boot partition
    2            2074          131038   63.0 MiB    EF00  EFI System
 ```
+
+Not that the type of partitions should be set to EF02 (BIOS boot partition) and EF00 (EFI boot partition) respectively (with `T` command of `gdisk(8)`).
 
 Bind the image to a loop device:
 
