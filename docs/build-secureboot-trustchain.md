@@ -20,7 +20,17 @@ In the blogs above there have been some commands to do the deed, but I believe, 
 
 To create certificates in batch, template files are needed, some exemplative files are provided in [this directory](../scripts/secureboot/)
 
-Run `make auth` to create .auth files which UEFI with secure boot feature accepts, and `make signedtools` could be used to create signed version of efi executables privided by `efitools` package, which are needed to import and manipulate keys on UEFI shell.
+Run `make auth` to create .auth files which UEFI with secure boot feature accepts, 
+
+```
+$ make auth
+```
+
+and `make signedtools` could be used to create signed version of efi executables privided by `efitools` package, which are needed to import and manipulate keys on UEFI shell.
+
+```
+$ make signedtools
+```
 
 ##### Create and upload disk image.
 
@@ -32,7 +42,37 @@ Number  Start (sector)    End (sector)  Size       Code  Name
    2            2074          131038   63.0 MiB    EF00  EFI System
 ```
 
-Not that the type of partitions should be set to EF02 (BIOS boot partition) and EF00 (EFI boot partition) respectively (with `T` command of `gdisk(8)`).
+Not that the type of partitions should be set to EF02 (BIOS boot partition) and EF00 (EFI boot partition) respectively (with `T` command of `gdisk(8)`):
+
+```
+$ fallocate -l 64M efiboot
+$ /sbin/gdisk efiboot.img
+Command (? for help): x
+Expert command (? for help): l
+Enter the sector alignment value (1-65536, default = 2048): 34
+Expert command (? for help): m
+Command (? for help): n
+Partition number (1-128, default 1): 1
+First sector (34-131038, default = 34) or {+-}size{KMGTP}: 34
+Last sector (34-131038, default = 131038) or {+-}size{KMGTP}: 2048
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): ef02
+Command (? for help): n
+
+First sector (2048-131038, default = 2074) or {+-}size{KMGTP}: 
+Last sector (2049-131018, default = 131018) or {+-}size{KMGTP}: 
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): ef00
+Command (? for help): p
+Number  Start (sector)    End (sector)  Size       Code  Name
+   1              34            2048   1007.5 KiB  EF02  BIOS boot partition
+   2            2074          131038   63.0 MiB    EF00  EFI System
+Command (? for help): w
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): y
+```
 
 Bind the image to a loop device:
 
@@ -50,9 +90,11 @@ Symlink its mount point to your working directory, or change the value of `DISKP
 
 Run `make install`. .auth files will be installed to the root of the file system with the image, while efi executables (signed and unsigned) will be installed to EFT/BOOT/.
 
+`$ make install`
+
 Then you can test this image on a libvirt virtual machine using OVMF as boot firmware. 
 
-##### Test on virtual machine.
+##### Create a virtual machine to perform test.
 
  You should have access to a host of virtual machine in order to perform test (The host could be your local machine provided that all the software needed are [installed and configured](./recommended_cluster_config.md)). The host should have OVMF available. If not, ask its administrator to install it:
  
@@ -67,6 +109,8 @@ Then upload the local disk image you just prepared to the place:
 `$ virsh -c ${HOST_URL} vol-upload --pool default --vol efiboot --file efiboot.img`
 
 Connect your `virt-manager` to the host, and create a virtual machine using the disk image you just upload (`Import existing disk image`) and OVMF (Choose `Customize configuration before install` in the last step, and select OVMF as firmware in the configuration interface). Now you can use this virtual machine to test your keys.
+
+##### Test keys on the guest.
 
 Under EFI shell, type `FSn:\EFI\BOOT\KeyTool.efi` to execute the KeyTool.
 
@@ -94,18 +138,24 @@ Unfortunately, this scheme has not yet been able to produce valid signed efi exe
 
 Assuming you guys have already had enough 2048-bit RSA keys stored in a smart card-like device supported by [OpenSC](https://github.com/OpenSC/OpenSC), you have to config your GnuTLS for PKCS#11 first:
 
-	$ mkdir -p $HOME/.config/pkcs11/modules/
-	$ echo 'module: /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so' > $HOME/.config/pkcs11/modules/opensc.module
-	
+```
+$ mkdir -p $HOME/.config/pkcs11/modules/
+$ echo 'module: /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so' > $HOME/.config/pkcs11/modules/opensc.module
+```
+
 Then list the PKCS#11 urls of your keys with the following command:
 
-	$ p11tool --provider opensc-pkcs11.so --list-privkeys --login --only-urls
+```
+$ p11tool --provider opensc-pkcs11.so --list-privkeys --login --only-urls
+```
 
 write them down (one line per key)to the .url files needed by Makefile, one key per file, as targets of `make(1)`.
 
 In order to run `certtool(1)` in batch mode, the `PIN`(`GNUTLS_PIN`) environment variable should be set to the real pin of your card:
 
-	$ PIN=<pin of card> make (...)
+```
+$ PIN=<pin of card> make (...)
+```
 
 Some certificates should be imported back to the card. Warning: the label of a key may change after the corresponding certificate is imported, so do its PKCS#11 url. If so, you may have to write down its new url to corresponding .url file again.
 
