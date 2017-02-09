@@ -45,7 +45,7 @@ Number  Start (sector)    End (sector)  Size       Code  Name
 Not that the type of partitions should be set to EF02 (BIOS boot partition) and EF00 (EFI boot partition) respectively (with `T` command of `gdisk(8)`):
 
 ```
-$ fallocate -l 64M efiboot
+$ fallocate -l 64M efiboot.img
 $ /sbin/gdisk efiboot.img
 Command (? for help): x
 Expert command (? for help): l
