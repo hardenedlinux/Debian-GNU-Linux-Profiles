@@ -1,0 +1,5 @@
+set prefix=(memdisk)/boot/grub
+
+set root='cbfsdisk'
+loadfont (memdisk)/font.pf2
+source (cbfsdisk)/grub.cfg
