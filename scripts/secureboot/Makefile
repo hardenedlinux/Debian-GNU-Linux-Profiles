@@ -9,13 +9,13 @@ auth: pk.auth kek.auth db.auth dbx.auth nopk.auth
 keys: pk.key kek.key db.key dbx.key
 
 %.key:
-	certtool -s --bits=2048 --outfile $@
+	certtool -p --bits=2048 --outfile $@
 
 certs: pk.crt kek.crt db.crt dbx.crt
 
 #"$<" is equal to "$(word 1,$^)"
 %.crt: %.key %.tmpl
-	certtool --generate-self-signed --template $(word 2,$^) --load-privkey $< --outfile $@
+	certtool -s --template $(word 2,$^) --load-privkey $< --outfile $@
 
 uuid:
 	uuidgen > $@
