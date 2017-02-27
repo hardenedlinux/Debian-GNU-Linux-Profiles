@@ -42,11 +42,13 @@ Number  Start (sector)    End (sector)  Size       Code  Name
    2            2074          131038   63.0 MiB    EF00  EFI System
 ```
 
-Not that the type of partitions should be set to EF02 (BIOS boot partition) and EF00 (EFI boot partition) respectively (with `T` command of `gdisk(8)`):
+Not that the type of partitions should be set to EF02 (BIOS boot partition) and EF00 (EFI boot partition) respectively (with `T` command of `gdisk(8)`, `%%` as comment):
 
 ```
 $ fallocate -l 64M efiboot.img
 $ /sbin/gdisk efiboot.img
+%% create bios boot partition before the first alignment.
+%% to do so, sector alignment should be set to 34 (just after the first gpt).
 Command (? for help): x
 Expert command (? for help): l
 Enter the sector alignment value (1-65536, default = 2048): 34
@@ -54,19 +56,26 @@ Expert command (? for help): m
 Command (? for help): n
 Partition number (1-128, default 1): 1
 First sector (34-131038, default = 34) or {+-}size{KMGTP}: 34
-Last sector (34-131038, default = 131038) or {+-}size{KMGTP}: 2048
+Last sector (34-131038, default = 131038) or {+-}size{KMGTP}: 2047
 Current type is 'Linux filesystem'
+%% ef02 is 'BIOS boot partition'
 Hex code or GUID (L to show codes, Enter = 8300): ef02
+%% reset the alignment to 2048.
+Command (? for help): x
+Expert command (? for help): l
+Enter the sector alignment value (1-65536, default = 2048): 2048
+Expert command (? for help): m
 Command (? for help): n
-
-First sector (2048-131038, default = 2074) or {+-}size{KMGTP}: 
+%% use all remaining as the efi boot partition.
+First sector (2048-131038, default = 2048) or {+-}size{KMGTP}: 
 Last sector (2049-131018, default = 131018) or {+-}size{KMGTP}: 
 Current type is 'Linux filesystem'
+%% ef00 is 'EFI System'
 Hex code or GUID (L to show codes, Enter = 8300): ef00
 Command (? for help): p
 Number  Start (sector)    End (sector)  Size       Code  Name
-   1              34            2048   1007.5 KiB  EF02  BIOS boot partition
-   2            2074          131038   63.0 MiB    EF00  EFI System
+   1              34            2047   1007.0 KiB  EF02  BIOS boot partition
+   2            2048          131038   63.0 MiB    EF00  EFI System
 Command (? for help): w
 Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
 PARTITIONS!!
