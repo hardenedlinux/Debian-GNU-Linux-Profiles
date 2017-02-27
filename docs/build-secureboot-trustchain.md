@@ -13,7 +13,7 @@ The following procedures should all be done on a properly fortified host, for so
 The following packages should be installed (Note that currently efitools is only available in debian sid, and sbsigntool is only available in debian testing and sid.):
 
 ```
-# apt-get install gnutls-bin uuid-runtime efitools sbsigntool
+# apt-get install gnutls-bin uuid-runtime efitools sbsigntool udisks2 dosfstools
 ```
 
 In the blogs above there have been some commands to do the deed, but I believe, in order to resolve these structural dependency, `make(1)` should be used to ease the execution, so I wrote [this Makefile](../scripts/secureboot/Makefile) to build the trustchain. Although different keys had better be held in different administrators, they can all use this Makefile to perform their own duty.
