@@ -19,7 +19,7 @@ rsync libbind-dev libcurl-dev, libreadline-dev libgeoip-dev \
 libgoogle-perftools-dev libpcap-dev libsqlite3-dev libssl1.0-dev \
 libxml2-dev zlib1g-dev swig swig3.0 python-dev python3-dev git
 ```
-Currently the latest stable version of `Broker` depends on EXACT `actor-framework` version 0.15, which can hardly be built, so a Bro without Broker without Broker is going to be built:
+Currently the latest stable version of `Broker` depends on EXACT `actor-framework` version 0.15, which can hardly be built, so a Bro without Broker is going to be built:
 
 ```
 $ git clone --recursive git://git.bro.org/bro
