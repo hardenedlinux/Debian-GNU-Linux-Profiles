@@ -47,6 +47,14 @@ $ udisksctl unmount -b /dev/loop0p2
 $ udisksctl loop-delete -b /dev/loop0
 ```
 
+##### Sign Boot Loader
+
+Invoke [This Makefile](../scripts/secureboot/grub.mk) to generate and sign proper standalone grub (`grubx64.efi`) and shim (`BOOTX64.EFI`) for you, with existing db.key and db.crt as part of the trustchain. Proper [modules.lst](../scripts/secureboot/modules.lst) and [grub.cfg.embedded](../scripts/secureboot/grub.cfg.embedded) should also be provided.
+
+```
+$ make -f /path/to/grub.mk 
+```
+
 ##### Build and sign the Linux kernel
 
 Use [these instructions](https://github.com/hardenedlinux/grsecurity-reproducible-build) to build a linux kernel which would verify its modules' signature before loading them.
