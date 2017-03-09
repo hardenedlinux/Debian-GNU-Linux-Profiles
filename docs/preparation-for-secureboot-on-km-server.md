@@ -49,6 +49,8 @@ $ udisksctl loop-delete -b /dev/loop0
 
 ##### Sign Boot Loader
 
+It is possible to boot a linux kernel directly from UEFI via EFI stub, but it is not recommended for it needs kernels to be put in `EFI System Partition`, which most distros would not do automatically, as well as some other security issues, so I recommend to use signed boots to load signed kernel. 
+
 Invoke [This Makefile](../scripts/secureboot/grub.mk) to generate and sign proper standalone grub (`grubx64.efi`) and shim (`BOOTX64.EFI`) for you, with existing db.key and db.crt as part of the trustchain. Proper [modules.lst](../scripts/secureboot/modules.lst) and [grub.cfg.embedded](../scripts/secureboot/grub.cfg.embedded) should also be provided.
 
 ```
