@@ -8,6 +8,13 @@ Within a data center, a dedicated **Key Management Server** should exist to perf
 
 ##### File based trustchain building.
 
+efitools is only provided in sid repo. You can add it into /etc/apt/sources.list:
+```
+# Unstable repo main, contrib and non-free branches, no security updates here
+deb http://http.us.debian.org/debian unstable main non-free contrib
+deb-src http://http.us.debian.org/debian unstable main non-free contrib
+```
+
 Prerequested Packages for Debian 9:
 
 ```
