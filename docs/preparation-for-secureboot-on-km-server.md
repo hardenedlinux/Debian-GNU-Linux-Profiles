@@ -45,7 +45,7 @@ $ udisksctl mount -b /dev/loop0p2
 ```
 Install signed public keys and EFI utilities into the image.
 ```
-$ ln -s /media/${LOGNANE}/EFIBOOT EFIBOOT
+$ ln -s /media/${LOGNAME}/EFIBOOT EFIBOOT
 $ make install
 ```
 After that you can release the image
