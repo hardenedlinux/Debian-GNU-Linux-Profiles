@@ -1,6 +1,6 @@
 ## Mission impossible: Hardening the the core infrastructre on x86 server
 
-"Once upon a time, hackers lives in a world with full of libre/free software/firmware/hardware"...oh, wait, it's not happened yet. Not sure if we can make it happen. It's totally depends on the decision we make today. Some people might think we are already lost our freedom on x86. Because there are a bunch of [shitty binary blobs](https://www.coreboot.org/Binary_situation) during the boot/runtime process in x86, e.g: GBE( no big deal?), CPU microcode( Do we really believe the vendor don't leave a backdoor there? Ok, it's unlikely to happen because the "magic" constant shit is not hard to find but...possibility is still there?), VGA	BIOS( the 1st rule of OptionROM is do not talk about-_-), MRC( lacking of effort to do the reversing?), [Intel ME](https://github.com/hardenedlinux/firmware-anatomy/blob/master/hack_ME/me_info.md)( red alert....). We may have chance to build the libre/free SW/FW/HW on ARMv8 in the near future or wait for RISC-V for another decade? I don't know the answer. But I do know is there are huge number of desktop, server and embedded devices( did I fuc*ing say IoT shit?) running on x86, which need to be hardened. We try hard to build the hardening solution by free/libre software/firmware for x86. Maybe we( who's fuc* we?) still need to [try harder 2 be ourselves](http://phenoelit.org/stuff/Zeronights_Keynote.pdf).
+"Once upon a time, hackers lives in a world with full of libre/free software/firmware/hardware"...oh, wait, it's not happened yet. Not sure if we can make it happen. It's totally depends on the decision we make today. Some people might think we are already lost our freedom on x86. Because there are a bunch of [shitty binary blobs](https://www.coreboot.org/Binary_situation) during the boot/runtime process in x86, e.g: GBE( no big deal?), CPU microcode( Do we really believe the vendor don't leave a backdoor there? Ok, it's unlikely to happen because the "magic" constant shit is not hard to find but...possibility is still there?), VGA	BIOS( the 1st rule of OptionROM is do not talk about-_-), MRC( lacking of effort to do the reversing?), [Intel ME](https://github.com/hardenedlinux/firmware-anatomy/blob/master/hack_ME/me_info.md)( red alert....). We may have chance to build the libre/free core infrastructure( SW/FW/HW) on ARMv8 in the near future or wait for RISC-V for another decade? I don't know the answer. But I do know is there are huge number of desktop, server and embedded devices( did I fuc\*ing say IoT shit?) running on x86, which need to be hardened. We've been trying hard to build the hardening solution by free/libre software/firmware for x86. Maybe we( who's fuc\* we?) still need to [try harder 2 be ourselves](http://phenoelit.org/stuff/Zeronights_Keynote.pdf)....
 
 Free software community has been facing the big threats from firmware level for a long time. Those free software implementation of firmware, such as Libreboot/Coreboot is still hard to apply to diverse x86 hardware. The situation we have isn't optimistic according to the threat model.
 
@@ -8,21 +8,21 @@ Free software community has been facing the big threats from firmware level for 
 <pre>
 +--------------------------------------------------------------------------------------+
 |  Level  |  Threat: e.g:                   |  Defense gate                            |
-+--------------------------------------------------------------------------------------+
-| Ring 3  | compromised program with setuid | Compiler mitigation                      |
-+--------------------------------------------------------------------------------------+
-| Ring 0  | root priv esclation             | PaX/Grsecurity                           |
-+--------------------------------------------------------------------------------------+
-| Ring -1 | virtual machine escape          | PaX/Grsecurity + Situational hardening   |
-+--------------------------------------------------------------------------------------+
-| Ring -2 | bypass signature verify         | Secure boot + Situational hardening      |
-+--------------------------------------------------------------------------------------+
-| Ring -3 | Rootkit friendly ME             | Kill it?                                 |
-+--------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------------+
+| Ring 3  | compromised program with setuid     | Compiler mitigation                    |
++----------------------------------------------------------------------------------------+
+| Ring 0  | root priv esclation                 | PaX/Grsecurity                         |
++----------------------------------------------------------------------------------------+
+| Ring -1 | virtual machine escape              | PaX/Grsecurity + Situational hardening |
++----------------------------------------------------------------------------------------+
+| Ring -2 | bypass sig verify/SMM arbitrary RWX | Secure boot + Situational hardening    |
++----------------------------------------------------------------------------------------+
+| Ring -3 | Rootkit friendly ME                 | Kill it? Or you better run /(-)\       |
++----------------------------------------------------------------------------------------+
 </pre>
 
 
-We've been losing software freedom because ME, which is the most powerful demon from Ring -3 world. Since it's more likely an invincible enemy even Intel haven't disable SPI by adding a similar feature into the same physical package of processor( because it'd be harmful to OEM's interest?) yet and we'd still have some chances( illusion?) to build our defense for Ring -2 and above world. We are going to make UEFI Secure Boot, bootloader( Grub2), linux kernel and kernel modules on the chain of trust by signing/verify at each level. There are less than 5% of machines( let's say 100 servers...damn, how long can we neutralize the ME for 100 machines and finish the bunch of regression test to reduce the risk of business impact) are running *critical/important* production systems. We should do the hardening by its situation.
+We've been losing software freedom because ME, which is the most powerful demon from Ring -3 world. Since it's more likely an invincible enemy even Intel haven't disable SPI by adding a similar feature into the same physical package of processor( because it'd be harmful to OEM's interest?) yet and we'd still have some chances( illusion?) to build our defense for Ring -2 and above world. We are going to make UEFI Secure Boot, bootloader( Grub2), linux kernel and kernel modules on the chain of trust by signing/verify at each level. There are less than 5% of machines( let's say 100 servers...damn, how long can we neutralize the ME for 100 machines and finish the bunch of regression test due to reduce the risk of business impact) are running *critical/important* production systems. We should do the hardening by its situation.
 
 <pre>
 +--------------------------------------------------------------------------------------------------------------------------------------------+
@@ -38,20 +38,20 @@ We've been losing software freedom because ME, which is the most powerful demon 
 </pre>
 
 ### Demon from RING -3: a parallel world along side of x86
-Do you really understand what/why we're doing( is wrong?) all of this to protect our digital asset and privacy( is not a joke today?). Fortunately, we're getting closer to the current goal. First thing first, Intel ME can't be 100% disabled but we can restrict the power of Intel ME by minizing its functions. Plz follow [the instruction](https://hardenedlinux.github.io/firmware/2016/11/17/neutralize_ME_firmware_on_sandybridge_and_ivybridge.html). We've been testing on [some machines](https://github.com/hardenedlinux/hardenedlinux_profiles/tree/master/coreboot) and[ me_cleaner](https://github.com/corna/me_cleaner/) is done well. Hope more free software hackers and security research will spend more time on [Intel ME](https://github.com/hardenedlinux/firmware-anatomy/blob/master/hack_ME/me_info.md).
+Do you really understand what/why we're doing( is wrong?) all of this to protect our digital asset and privacy( is not a joke today?). Fortunately, we're getting closer to the current goal. First thing first, Intel ME can't be 100% disabled but we can restrict the power of Intel ME by minizing its functions. Plz follow [the instruction](https://hardenedlinux.github.io/firmware/2016/11/17/neutralize_ME_firmware_on_sandybridge_and_ivybridge.html). We've been testing on [some machines](https://github.com/hardenedlinux/hardenedlinux_profiles/tree/master/coreboot) and[ me_cleaner](https://github.com/corna/me_cleaner/) is done well. Hope more free software hackers and security research will join us to tearing [Intel ME](https://github.com/hardenedlinux/firmware-anatomy/blob/master/hack_ME/me_info.md) apart. Btw, hope [AMD will be more friendly](https://www.reddit.com/r/Amd/comments/5x4hxu/we_are_amd_creators_of_athlon_radeon_and_other/dekwva9/) to FLOSS community?
 
 
 ### Secure Boot and bootloaders( Grub2?)
-[Ways to build your own trustchain for secureboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/build-secureboot-trustchain.md)
-[Assemble GRUB executable for coreboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md)
-[Use GRUB with Secure Boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md)
-[Preparation for Secure Boot on Key Management Server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)
-[Set Up Unrestricted Secure Boot On supporting machine](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/setup-unrestricted-secureboot-on-supporting-machine.md)
+* [Ways to build your own trustchain for secureboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/build-secureboot-trustchain.md)
+* [Assemble GRUB executable for coreboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md)
+* [Use GRUB with Secure Boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md)
+* [Preparation for Secure Boot on Key Management Server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)
+* [Set Up Unrestricted Secure Boot On supporting machine](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/setup-unrestricted-secureboot-on-supporting-machine.md)
 
 
 ### Signed kernel?
 
-The signature signing has been integrated with [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build). Reproducible build is good and you can see how it work. The [only side-effect](https://github.com/hardenedlinux/grsecurity-reproducible-build#signature-siging-for-secure-boot) we found is signed kernel image produced by reproducible builds won't be identical. It won't affect other files. It doesn't matter if your build system is not being compromised in the 1st place;-)
+The signature signing has been integrated with [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build). Reproducible build is good and you can see [how it work](https://github.com/hardenedlinux/grsecurity-reproducible-build/blob/master/THEORY.md). The [only side-effect](https://github.com/hardenedlinux/grsecurity-reproducible-build#signature-siging-for-secure-boot) we found is signed kernel image produced by reproducible builds won't be identical. It won't affect other files. It doesn't matter if your build system is not being compromised in the 1st place;-)
 
 
 ### Signing Kernel Module
