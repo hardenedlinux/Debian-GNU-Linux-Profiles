@@ -72,9 +72,10 @@ Sign the vmlinuz with the DB key generated with above procedures.
 ```
 $ sbsign --key db.key --cert db.crt --output vmlinuz-some-version-amd64.efi.signed vmlinuz-some-version-amd64
 ```
-TODO: integrate this into the procedures to build and pack the kernel package.
+Reproducible builds for PaX/Grsecurity integrated the [signature signing](https://github.com/hardenedlinux/grsecurity-reproducible-build/#signature-siging-for-secure-boot) already.
 
 ###### References:
+
 ######[1] [Ways to build your own trustchain for secureboot.](./build-secureboot-trustchain.md)
 ######[2] [Use GRUB with Secure Boot](./grub-with-secure-boot.md), [This Makefile](../scripts/coreboot/grub.mk)
 ######[3] [Reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build)
