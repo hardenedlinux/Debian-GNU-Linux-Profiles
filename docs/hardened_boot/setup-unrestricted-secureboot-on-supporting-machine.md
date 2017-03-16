@@ -21,13 +21,13 @@ Plug the drive into one of the USB port of your physical machine, power the mach
 
 If the motherboard does support secure boot, there should be an option to set it to custom mode and manage the keys, like the picture below, otherwise, the motherboard either lacks such support or is locked down to Microsoft's keys. I have no plan to provide support for the latter, as least for now. 
 
-![SecureBootInterface](../resources/SAM_1141.JPG)
+![SecureBootInterface](../../resources/SAM_1141.JPG)
 
 Step into the `Key Management` interface, and use `Set ${KEY} from File` to browse and select key files on the USB drive.
 
-![KeyMgmt](../resources/SAM_1142.JPG)
-![SelectFS](../resources/SAM_1145.JPG)
-![SelectFile](../resources/SAM_1147.JPG)
+![KeyMgmt](../../resources/SAM_1142.JPG)
+![SelectFS](../../resources/SAM_1145.JPG)
+![SelectFile](../../resources/SAM_1147.JPG)
 
 Use the procedure above to set PK, KEK, DB, and DBX from file. With `System Mode state` changed to `User`, only EFI executables signed by DB keys could be executable.
 
