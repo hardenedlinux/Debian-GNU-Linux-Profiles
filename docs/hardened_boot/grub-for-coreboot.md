@@ -4,7 +4,7 @@
 
 ##### Generate an standalone ELF GRUB executable
 
-Similar to procedures to generate a standalone grub EFI executable mentioned in [this article](./grub-with-secure-boot.md), [This Makefile](../scripts/coreboot/grub.mk) could be used to generate a standalone grub ELF executable in order to integrate into coreboot images.
+Similar to procedures to generate a standalone grub EFI executable mentioned in [this article](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk) could be used to generate a standalone grub ELF executable in order to integrate into coreboot images.
 
 In order to use that makefile, you should install the binaries of the coreboot version of grub:
 
@@ -51,9 +51,9 @@ I recommend to leave one second for seabios before launching grub, in order to e
 ##### Configure files for coreboot.
 
 There should be a 0th config file integrated into the grub executable.
-In this scheme, [this file](../scripts/coreboot/grub.cfg.embedded) is a stub to load integrated font and run the 1st config file located in CBFS.
+In this scheme, [this file](../../scripts/coreboot/grub.cfg.embedded) is a stub to load integrated font and run the 1st config file located in CBFS.
 
-Exemplar [grub.cfg](../scripts/coreboot/grub.cfg) and [grubtest.cfg](../scripts/coreboot/grub.cfg) are those used by [libreboot](https://libreboot.org). You could insert them into the coreboot image with the following script:
+Exemplar [grub.cfg](../../scripts/coreboot/grub.cfg) and [grubtest.cfg](../../scripts/coreboot/grub.cfg) are those used by [libreboot](https://libreboot.org). You could insert them into the coreboot image with the following script:
 
 ```
 #!/bin/sh

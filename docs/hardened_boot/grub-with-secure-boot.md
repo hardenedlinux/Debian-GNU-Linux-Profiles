@@ -10,11 +10,11 @@ The most powerful bootloader [GRUB 2](https://www.gnu.org/software/grub/) will b
 
 In secure boot environment, you cannot load executable modules for grub on disk as usual modular grub installation does, for all executable must be signed here. Instead, a standalone grub EFI executable with all needed modules embedded should be generated.
 
-[This Makefile](../scripts/secureboot/grub.mk) would generate and sign proper standalone grub and shim for you, with existing db.key and db.crt as part of the trustchain. Because the DB key whose certificate is already imported into the firmware will be used to sign loaders and kernel, no key should be embedded into shim's executable.
+[This Makefile](../../scripts/secureboot/grub.mk) would generate and sign proper standalone grub and shim for you, with existing db.key and db.crt as part of the trustchain. Because the DB key whose certificate is already imported into the firmware will be used to sign loaders and kernel, no key should be embedded into shim's executable.
 
-The name of modules to embed are written in [modules.lst](../scripts/secureboot/modules.lst). Currently all provided modules are listed, you can strip them down to fit your usage more.
+The name of modules to embed are written in [modules.lst](../../scripts/secureboot/modules.lst). Currently all provided modules are listed, you can strip them down to fit your usage more.
 
-Aside of modules, a zero-level config file [grub.cfg.embedded](../scripts/secureboot/grub.cfg.embedded) should also be embedded, currently whose content is actually excerpted from the first menuentry of the common grub config file of the last release of [libreboot](https://libreboot.org/), which can be found from `resources/grub/config/menuentries/` inside the released source archive. The role of this config file is to find and load the config file installed by the operating system, just as libreboot's grub design.
+Aside of modules, a zero-level config file [grub.cfg.embedded](../../scripts/secureboot/grub.cfg.embedded) should also be embedded, currently whose content is actually excerpted from the first menuentry of the common grub config file of the last release of [libreboot](https://libreboot.org/), which can be found from `resources/grub/config/menuentries/` inside the released source archive. The role of this config file is to find and load the config file installed by the operating system, just as libreboot's grub design.
 
 ##### Deploy signed bootloaders to secure-boot-enabled system
 
@@ -38,7 +38,7 @@ Copy the kernel to the machine where DB keys are available, and then sign it:
 
 `$ sbsign --key db.key --cert db.crt --output vmlinuz-some-version-amd64.efi.signed vmlinuz-some-version-amd64`
 
-Then copy the signed kernel back to `/boot/` of the target machine, just beside the unsigned kernel, and apply [this patch](../scripts/secureboot/10_linux.diff) to `/etc/grub.d/10_linux`, in order to use `linuxefi` and `initrdefi` instead of the traditional variant on signed kernel.
+Then copy the signed kernel back to `/boot/` of the target machine, just beside the unsigned kernel, and apply [this patch](../../scripts/secureboot/10_linux.diff) to `/etc/grub.d/10_linux`, in order to use `linuxefi` and `initrdefi` instead of the traditional variant on signed kernel.
 
 Now regenerate the `/boot/grub/grub.cfg`:
 
