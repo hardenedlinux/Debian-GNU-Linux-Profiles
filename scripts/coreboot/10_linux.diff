@@ -1,0 +1,41 @@
+--- /etc/grub.d/10_linux.orig	2017-03-16 16:18:22.049876194 +0800
++++ /etc/grub.d/10_linux	2017-03-16 16:26:29.666997313 +0800
+@@ -176,7 +176,11 @@ EOF
+   fi
+   if test -d /sys/firmware/efi && test -e "${linux}.efi.signed"; then
+     sed "s/^/$submenu_indentation/" << EOF
+-	linux	${rel_dirname}/${basename}.efi.signed root=${linux_root_device_thisversion} ro ${args}
++	linuxefi	${rel_dirname}/${basename}.efi.signed root=${linux_root_device_thisversion} ro ${args}
++EOF
++  elif test -e "${linux}.sig"; then
++    sed "s/^/$submenu_indentation/" << EOF
++	linuxpgp	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
+ EOF
+   else
+     sed "s/^/$submenu_indentation/" << EOF
+@@ -191,9 +195,15 @@ EOF
+ 	echo	'$(echo "$message" | grub_quote)'
+ EOF
+     fi
+-    sed "s/^/$submenu_indentation/" << EOF
++    if test -d /sys/firmware/efi && test -e "${linux}.efi.signed"; then
++      sed "s/^/$submenu_indentation/" << EOF
++	initrdefi	${rel_dirname}/${initrd}
++EOF
++    else
++      sed "s/^/$submenu_indentation/" << EOF
+ 	initrd	${rel_dirname}/${initrd}
+ EOF
++    fi
+   fi
+   sed "s/^/$submenu_indentation/" << EOF
+ }
+@@ -281,7 +291,7 @@ is_top_level=true
+ while [ "x$list" != "x" ] ; do
+   linux=`version_find_latest $list`
+   case $linux in
+-    *.efi.signed)
++    *.efi.signed | *.sig)
+       # We handle these in linux_entry.
+       list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
+       continue

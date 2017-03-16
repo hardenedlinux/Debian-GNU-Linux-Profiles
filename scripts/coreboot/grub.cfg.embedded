@@ -1,5 +1,23 @@
 set prefix=(memdisk)/boot/grub
 
+function linuxpgp {
+    set check_signatures=enforce
+    linux ${@} module.sig_enforce=1
+    set check_signatures=no
+}
+
+function trustkeys {
+    set keystore="${1}"
+    for key in ${keystore}/*; do
+	trust ${key}
+    done
+}
+
 set root='cbfsdisk'
 loadfont (memdisk)/font.pf2
+
+if [ -d (cbfsdisk)/keys ] ; then
+    trustkeys (cbfsdisk)/keys
+fi
+
 source (cbfsdisk)/grub.cfg
