@@ -54,6 +54,11 @@ Do you really understand what/why we're doing( is wrong?) all of this to protect
 The signature signing has been integrated with [reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build). Reproducible build is good and you can see [how it work](https://github.com/hardenedlinux/grsecurity-reproducible-build/blob/master/THEORY.md). The [only side-effect](https://github.com/hardenedlinux/grsecurity-reproducible-build#signature-siging-for-secure-boot) we found is signed kernel image produced by reproducible builds won't be identical. It won't affect other files. It doesn't matter if your build system is not being compromised in the 1st place;-)
 
 
+## Why PaX/Grsecurity?
+
+Due to most packages on Debain 9 can be reproducible, why do we still need to reproducible builds by ourselves? KSPP is good starting point but far away from our hardening criteria. On non-technical( political?) side, KSPP is just a [new business model to Linux foundation](https://lwn.net/Articles/703000/). They have done nothing but a bunch of PR craps and [trying to take the credits](https://forums.grsecurity.net/viewtopic.php?f=7&t=4476) makes me feel sick. PaX/Grsecurity is the origins of kernel mitigation and it's still the strongest mitigation since 2001. Just like someone( I won't reveal your identity;-)) said that both mitigation and isolation are different beasts. We need them both but the 1st priority to us should be the 1st one. You might find anwsers in [Linux kernel mitigation checklist](https://hardenedlinux.github.io/system-security/2016/12/13/kernel_mitigation_checklist.html).
+
+
 ### Signing Kernel Module
 
 Generating a private key/certificate for signing kernel modules
