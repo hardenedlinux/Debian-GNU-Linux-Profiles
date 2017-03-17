@@ -4,7 +4,7 @@
 
 ##### Background
 
-Assuming that you have [made all needed preparations for secure boot on the key management server](./preparation-for-secureboot-on-km-server.md), now you can set secure boot up on machines with unrestricted uefi(i.e. it is possible to replace vendor-provided certificate for secure boot
+Assuming that you have [made all needed preparations for secure boot on the key management server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md), now you can set secure boot up on machines with unrestricted uefi(i.e. it is possible to replace vendor-provided certificate for secure boot
 with your own ones.)
 
 For the two scenes below, it is assumed that there has been a Debian GNU/Linux installation booted via UEFI on the disk of the machine.
@@ -21,13 +21,13 @@ Plug the drive into one of the USB port of your physical machine, power the mach
 
 If the motherboard does support secure boot, there should be an option to set it to custom mode and manage the keys, like the picture below, otherwise, the motherboard either lacks such support or is locked down to Microsoft's keys. I have no plan to provide support for the latter, as least for now. 
 
-![SecureBootInterface](../resources/SAM_1141.JPG)
+![SecureBootInterface](../../resources/SAM_1141.JPG)
 
 Step into the `Key Management` interface, and use `Set ${KEY} from File` to browse and select key files on the USB drive.
 
-![KeyMgmt](../resources/SAM_1142.JPG)
-![SelectFS](../resources/SAM_1145.JPG)
-![SelectFile](../resources/SAM_1147.JPG)
+![KeyMgmt](../../resources/SAM_1142.JPG)
+![SelectFS](../../resources/SAM_1145.JPG)
+![SelectFile](../../resources/SAM_1147.JPG)
 
 Use the procedure above to set PK, KEK, DB, and DBX from file. With `System Mode state` changed to `User`, only EFI executables signed by DB keys could be executable.
 
@@ -84,7 +84,7 @@ Copy signed boot loaders to the appropriate place, and register SHIM (`BOOTX64.E
 
 After that secure boot could be enabled in the firmware configuration interface, and the signed grub is able to parse `/boot/grub/grub.cfg`, but now the grub is still able to load unsigned kernels with `linux` command, so `linuxefi` should be used instead.
 
-Patch `/etc/grub.d/10_linux` with [this patch](../scripts/secureboot/10_linux.diff), then regenerate the `/boot/grub/grub.cfg`.
+Patch `/etc/grub.d/10_linux` with [this patch](../../scripts/secureboot/10_linux.diff), then regenerate the `/boot/grub/grub.cfg`.
 
 ```
 # patch /etc/grub.d/10_linux 10_linux.diff
@@ -94,6 +94,6 @@ Patch `/etc/grub.d/10_linux` with [this patch](../scripts/secureboot/10_linux.di
 After reboot, this target system will only load signed kernels BY DEFAULT, for `linux` module remains available inside the standalone grub. You can choose to modify the grub module list to exclude `linux` module in order to load signed kernel only, or to harden the os-installed grub config file, leaving `linux` module as a fallback mechanism only available to administrators.
 
 ###### References:
-######[1] [Ways to build your own trustchain for secureboot.](./build-secureboot-trustchain.md)
-######[2] [Use GRUB with Secure Boot](./grub-with-secure-boot.md), [This Makefile](../scripts/coreboot/grub.mk)
-######[3] [Preparation for Secureboot on key management server](./preparation-for-secureboot-on-km-server.md)
+######[1] [Ways to build your own trustchain for secureboot.](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/build-secureboot-trustchain.md)
+######[2] [Use GRUB with Secure Boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk)
+######[3] [Preparation for Secureboot on key management server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)
