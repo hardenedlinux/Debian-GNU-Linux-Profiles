@@ -105,7 +105,7 @@ Then you can test this image on a libvirt virtual machine using OVMF as boot fir
 
 ##### Create a virtual machine to perform test.
 
- You should have access to a host of virtual machine in order to perform test (The host could be your local machine provided that all the software needed are [installed and configured](./recommended_cluster_config.md)). The host should have OVMF available. If not, ask its administrator to install it:
+ You should have access to a host of virtual machine in order to perform test (The host could be your local machine provided that all the software needed are [installed and configured](../recommended_cluster_config.md)). The host should have OVMF available. If not, ask its administrator to install it:
  
 `# apt-get install ovmf`
  
