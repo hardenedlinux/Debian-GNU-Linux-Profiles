@@ -10,8 +10,6 @@ This command only available on UEFI platforms, but in reality, grub itself has t
 
 All we need is to wrap those mechanism with grub config script into a function able to be invoked like a builtin command, with similar interface like `linuxefi`, like this [grub.cfg.embedded](../../scripts/coreboot/grub.cfg.embedded):
 
-![embedded script](../../scripts/coreboot/grub.cfg.embedded)
-
 Function `linuxpgp` will first enable enforced signature verification, "load" linux kernel, with kernel command line option `module.sig_enforce=1` appended at the end of the command line, then disable enforced signature verification. This function could be used in place of `linux`, just as `linuxefi`.
 
 Every OpenPGP public keys put under (cbfsdisk)/keys (inside the firmware flash, not any external storage) would be trusted.
