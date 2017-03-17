@@ -152,9 +152,14 @@ Then regenerate the `/boot/grub/grub.cfg`.
 For now signed kernels is going to be loaded with `linuxpgp` function.
 
 ######Reference: 
-######[1] [The beta version of GRUB2's documents](https://dev.gentoo.org/~floppym/grub.html#Using-digital-signatures)
-######[2] manpages of grub-mkstandalone(1)
-######[3] Source code of grub
-######[4] [Latest release of libreboot](https://libreboot.org/release/stable/20160907/libreboot_r20160907_src.tar.xz)
-######[5] https://www.coreboot.org/SeaBIOS
-######[6] https://www.coreboot.org/GRUB2
+[1] [The beta version of GRUB2's documents](https://dev.gentoo.org/~floppym/grub.html#Using-digital-signatures)
+
+[2] manpages of grub-mkstandalone(1)
+
+[3] Source code of grub
+
+[4] [Latest release of libreboot](https://libreboot.org/release/stable/20160907/libreboot_r20160907_src.tar.xz)
+
+[5] https://www.coreboot.org/SeaBIOS
+
+[6] https://www.coreboot.org/GRUB2

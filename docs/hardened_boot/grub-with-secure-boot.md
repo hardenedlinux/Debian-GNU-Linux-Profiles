@@ -46,7 +46,9 @@ Now regenerate the `/boot/grub/grub.cfg`:
 
 After reboot, this target system will only load signed kernels BY DEFAULT, for `linux` module remains available inside the standalone grub. You can choose to modify the grub module list to exclude `linux` module in order to load signed kernel only, or to harden the os-installed grub config file, leaving `linux` module as a fallback mechanism only available to administrators.
 
-######Reference: 
-######[1] man page of sbsign
-######[2] Source code of grub
-######[3] [Latest release of libreboot](https://libreboot.org/release/stable/20160907/libreboot_r20160907_src.tar.xz)
+###### Reference: 
+[1] man page of sbsign
+
+[2] Source code of grub
+
+[3] [Latest release of libreboot](https://libreboot.org/release/stable/20160907/libreboot_r20160907_src.tar.xz)

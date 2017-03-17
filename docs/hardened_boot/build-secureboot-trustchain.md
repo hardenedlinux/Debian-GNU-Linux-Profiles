@@ -174,8 +174,11 @@ Note the command to generate `timestamp`, sign-efi-sig-list use `strptime(3)` wi
 
 There seems only libNSS-based `pesign(1)` able to sign efi executables with PKCS#11 modules, so a certdb directory should be create first.
 
-######Reference: 
-######[1] man page of sign-efi-sig-list, sbsign and pesign
-######[2] man page of certtool and smime (1ssl)
-######[3] Source code of sign-efi-sig-list
-######[4] [User:Pjones/SecureBootSmartCardDeployment](https://fedoraproject.org/wiki/User:Pjones/SecureBootSmartCardDeployment)
+#####Reference: 
+[1] man page of sign-efi-sig-list, sbsign and pesign
+
+[2] man page of certtool and smime (1ssl)
+
+[3] Source code of sign-efi-sig-list
+
+[4] [User:Pjones/SecureBootSmartCardDeployment](https://fedoraproject.org/wiki/User:Pjones/SecureBootSmartCardDeployment)

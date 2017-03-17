@@ -76,6 +76,8 @@ Reproducible builds for PaX/Grsecurity integrated the [signature signing](https:
 
 ###### References:
 
-######[1] [Ways to build your own trustchain for secureboot.](./build-secureboot-trustchain.md)
-######[2] [Use GRUB with Secure Boot](./grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk)
-######[3] [Reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build)
+[1] [Ways to build your own trustchain for secureboot.](./build-secureboot-trustchain.md)
+
+[2] [Use GRUB with Secure Boot](./grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk)
+
+[3] [Reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build)

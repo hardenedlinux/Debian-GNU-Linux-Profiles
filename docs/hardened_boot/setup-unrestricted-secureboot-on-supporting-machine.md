@@ -94,6 +94,8 @@ Patch `/etc/grub.d/10_linux` with [this patch](../../scripts/secureboot/10_linux
 After reboot, this target system will only load signed kernels BY DEFAULT, for `linux` module remains available inside the standalone grub. You can choose to modify the grub module list to exclude `linux` module in order to load signed kernel only, or to harden the os-installed grub config file, leaving `linux` module as a fallback mechanism only available to administrators.
 
 ###### References:
-######[1] [Ways to build your own trustchain for secureboot.](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/build-secureboot-trustchain.md)
-######[2] [Use GRUB with Secure Boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk)
-######[3] [Preparation for Secureboot on key management server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)
+1] [Ways to build your own trustchain for secureboot.](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/build-secureboot-trustchain.md)
+
+[2] [Use GRUB with Secure Boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk)
+
+[3] [Preparation for Secureboot on key management server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)
