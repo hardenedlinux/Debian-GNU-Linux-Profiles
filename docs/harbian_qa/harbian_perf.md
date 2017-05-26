@@ -13,11 +13,13 @@ Template:
 Compare the test results with the original Debian GNU/Linux:
 
 * params: --cpu 4 --io 2 --vm 2 --vm-bytes 2G --timeout 300s --metrics-brief
+
 | stress-ng       | Template       | Perf impact         |
 |:---------------:|:--------------:|:-------------------:|
 | CPU          	  | Critical       | ~3%                 |
 | I/O             | Critical       | ~28                 |
 | VM              | Critical       | N/A                 |
+
 
 * params: -n 700000 -c 100 http://127.0.0.1/test.php
 
