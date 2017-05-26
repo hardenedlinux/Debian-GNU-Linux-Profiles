@@ -2,11 +2,11 @@
 
 How much percentage of CPU usage are you gonna spend on security? The trade-off between performance and security is an old topic. Some performance benchmark can help us decide how we use PaX/Grsecurity features in the situational hardening. The testing environment is:
 
-GNU/Linux distro: Debian 9 Stretch
-Hardware: Intel(R) Xeon(R) CPU E3-1230 v5( Skylake), 8GB RAM, one SSD
-Kernel: [PaX/Grsecurity 4.9.x](https://github.com/minipli/linux-unofficial_grsec), thanks to minipli's matainence work.
-Tools: ab, stress-ng, fio
-Template:
+* OS: GNU/Linux distro: Debian 9 Stretch
+* Hardware: Intel(R) Xeon(R) CPU E3-1230 v5( Skylake), 8GB RAM, one SSD
+* Kernel: [PaX/Grsecurity 4.9.x](https://github.com/minipli/linux-unofficial_grsec), thanks to minipli's matainence work.
+* Tools: ab, stress-ng, fio
+* Template:
   * [Critical](https://github.com/hardenedlinux/hardenedlinux_profiles/blob/master/debian/config-4.9-grsec-critical.template): With most of PaX/Grsecurity features enabled. It will be used to protect, e.g: Ceph controller, key mgt server, etc.
   * Generic: With some of PaX/Grsecurity features enabled to gain more performance.
 
