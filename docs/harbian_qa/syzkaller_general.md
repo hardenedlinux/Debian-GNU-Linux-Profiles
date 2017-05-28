@@ -6,7 +6,7 @@ This guid will contain of three partitation.
 
 ## install golang and build syzkaller
 ### download and decompress 
-`wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz` 
+`wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz`  
 `tar -xvzf g o1.8.1.linux-amd64.tar.gz /home/root/go`  
 After that,the golang compiler will locat at /home/root/go. 
 
@@ -163,6 +163,6 @@ config.json for syz-maneger
                ]
 }
 ```
-Then,run the syz-maneger with configure file.
+Then,run the syz-maneger with configure file.  
 `syz-manager -config config.json`  
 Then open your browser and enter 127.0.0.1：50000,there is a monitor of all test VM you run.  
