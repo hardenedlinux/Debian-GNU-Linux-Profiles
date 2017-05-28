@@ -1,61 +1,61 @@
-#Kernel QA with syzkaller and qemu
-This guid will contain of three partitation.
+# Kernel QA with syzkaller and qemu 
+This guid will contain of three partitation. 
 - Build syzkaller
 - Install and configure a VM with syzakaller support
 - Modify a fit configure
 
-##install golang and build syzkaller
-###download and decompress
-`wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz`
-`tar -xvzf go1.8.1.linux-amd64.tar.gz /home/root/go`
-After that,the golang compiler will located at /home/root/go.
+## install golang and build syzkaller
+### download and decompress 
+`wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz` 
+`tar -xvzf g o1.8.1.linux-amd64.tar.gz /home/root/go`  
+After that,the golang compiler will located at /home/root/go. 
 
-###Add line to bashrc
-Add the follow-up option to  ~/.bashrc
-- The path of golang compiler pack:
+### Add line to bashrc  
+Add the follow-up option to  ~/.bashrc  
+- The path of golang compiler pack:  
 
-`export GOROOT=/home/root/go`
-- The diryory golang work in:
+`export GOROOT=/home/root/go`  
+- The diryory golang work in:  
 
-`export GOPATH=/home/root/syzkalls/`
-- Syzkaller binary located at:
+`export GOPATH=/home/root/syzkalls/`  
+- Syzkaller binary located at:  
 
-`export PATH=/home/root/syzkalls/bin:$PATH`
-The $(GOROOT) is the dirtory of golang compiler binary.When you run "go" on your machine,the basic work dirtory is $GOPATH.Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.
+`export PATH=/home/root/syzkalls/bin:$PATH`  
+The $(GOROOT) is the dirtory of golang compiler binary.When you run "go" on your machine,the basic work dirtory is $GOPATH.Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.  
 
-###Download the syz source and build
-`go get -u -d -v github.com/google/syzkaller/...`
-After a long time for downloading,run:
-`cd $(GOPATH)/src/github.com/google/syzkaller`
-`make -j4`
-`cp $(GOPATH)/src/github.com/google/syzkaller/bin $(GOPATH)/`
-After that, you will find syz-* executable under the dirtory $(GOPATH)/bin.
+### Download the syz source and build
+`go get -u -d -v github.com/google/syzkaller/...`  
+After a long time for downloading,run:  
+`cd $(GOPATH)/src/github.com/google/syzkaller`  
+`make -j4`  
+`cp $(GOPATH)/src/github.com/google/syzkaller/bin $(GOPATH)/`  
+After that, you will find syz-* executable under the dirtory $(GOPATH)/bin.  
 
-##Install vm with syzkaller support
-###Install a vm on qemu
-`qemu-img create /PATH/TO/YOUR/VM_HDA $(SIZE)G`
-This cmd will create a image "/PATH/TO/YOUR/VM_HDA" with size "$(SIZE)G"
+## Install vm with syzkaller support  
+### Install a vm on qemu  
+`qemu-img create /PATH/TO/YOUR/VM_HDA $(SIZE)G`  
+This cmd will create a image "/PATH/TO/YOUR/VM_HDA" with size "$(SIZE)G"  
 
-`qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA -enable-kvm -cdrom /PATH/TO/YOUR/IMG -boot d`
--cdrom is the livecd iso dowload from net
-- sshd should be enable when installed
+`qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA -enable-kvm -cdrom /PATH/TO/YOUR/IMG -boot d`  
+-cdrom is the livecd iso dowload from net  
+- sshd should be enable when installed  
 
-<b>Run VM with sshd:</b>
+<b>Run VM with sshd:</b>  
 
-`qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA --enable-kvm -net nic -net user,host=10.0.2.10,hostfwd=tcp::$(SSH_PORT)-:22`
-$(SSH_PORT) can be specify as your willing.
+`qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA --enable-kvm -net nic -net user,host=10.0.2.10,hostfwd=tcp::$(SSH_PORT)-:22`  
+$(SSH_PORT) can be specify as your willing.  
 
-###Set VM login without password
-<b>run in localhost with a qemu running:</b>
-`ssh-keygen -t rsa`
-this cmdline will generate two key,public key id_isa.pub and pravite id_isa
-`scp id_rsa.pub -P $(SSH_PORT) root@vm:/root/.ssh/id_isa.pub`
-copy public key to VM.
-###Edit sshd configure on your VM
-<b>login to vm guest by ssh:</b>
-ssh -p $(SSH_PORT) root@127.0.0.1
-<b>check option flowing:</b>
-nano /etc/ssh/sshd_config
+### Set VM login without password  
+<b>run in localhost with a qemu running:</b>  
+`ssh-keygen -t rsa`  
+this cmdline will generate two key,public key id_isa.pub and pravite id_isa  
+`scp id_rsa.pub -P $(SSH_PORT) root@vm:/root/.ssh/id_isa.pub`  
+copy public key to VM.  
+### Edit sshd configure on your VM  
+<b>login to vm guest by ssh:</b>  
+ssh -p $(SSH_PORT) root@127.0.0.1  
+<b>check option flowing:</b>  
+nano /etc/ssh/sshd_config  
 ```
 PermitRootLogin without-password
 
@@ -68,22 +68,22 @@ PermitEmptyPasswords no
 PasswordAuthentication no
 
 UsePAM no
-```
-run`sudo /etc/init.d/ssh restart`restart the sshd.
+```  
+run`sudo /etc/init.d/ssh restart`restart the sshd.  
 
-###Verify the public key login is ok
-<b>Run the flowing cmdline on localhost:</b>
-`qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA --enable-kvm -net nic -net user,host=10.0.2.10,hostfwd=tcp::23505-:22`
-Try to ssh to VM:
-`ssh -p $(SSH_PORT)  -i ssh_key/id_rsa root@127.0.0.1 -v`
+### Verify the public key login is ok  
+<b>Run the flowing cmdline on localhost:</b>  
+`qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA --enable-kvm -net nic -net user,host=10.0.2.10,hostfwd=tcp::23505-:22`  
+Try to ssh to VM:  
+`ssh -p $(SSH_PORT)  -i ssh_key/id_rsa root@127.0.0.1 -v`  
 
-###Copy syzkaller binary to vm
-`scp -P $(SSH_PORT) -i ~/.ssh/id_rsa  -r $(GOPATH)/bin root@127.0.0.1:/root/bin`
-<b>Add PATH to environment in vm:</b>
-`export PATH=/home/root/bin:&PATH`
+### Copy syzkaller binary to vm  
+`scp -P $(SSH_PORT) -i ~/.ssh/id_rsa  -r $(GOPATH)/bin root@127.0.0.1:/root/bin`  
+<b>Add PATH to environment in vm:</b>  
+`export PATH=/home/root/bin:&PATH`  
 
-##Run syzkaller with custom kernel
-###Check the configure option follow-up
+## Run syzkaller with custom kernel
+### Check the configure option follow-up
 you can simplely make defconfig and then modify the option you need.
 For code coverage collection:
 ```
@@ -118,21 +118,21 @@ CONFIG_DEBUG_ATOMIC_SLEEP=y
 CONFIG_PROVE_RCU=y
 CONFIG_DEBUG_VM=y
 ```
-Disable the following configs:
+Disable the following configs:  
 ```
 # CONFIG_RANDOMIZE_BASE is not set
 ```
-Increase RCU stall timeout to reduce false positive rate:
+Increase RCU stall timeout to reduce false positive rate:  
 ```
 CONFIG_RCU_CPU_STALL_TIMEOUT=60
 ```
-Try the follow-up cmdline to test:
+Try the follow-up cmdline to test:  
 `qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA --enable-kvm -net nic -net
 -kernel /PATH/TO/KERNEL/arch/x86_64/boot/bzImage -initrd
-/PATH/TO/INITRD/initrd.img -append root=/dev/sda1 user,host=10.0.2.10,hostfwd=tcp::$(SSH_PORT)-:22`
+/PATH/TO/INITRD/initrd.img -append root=/dev/sda1 user,host=10.0.2.10,hostfwd=tcp::$(SSH_PORT)-:22`  
 
-###Run syzkaller with a generial configure
-config.json for syz-maneger
+### Run syzkaller with a generial configure  
+config.json for syz-maneger  
 ```
 {
 	"http": "127.0.0.1:50000",                        http server specify
@@ -164,5 +164,5 @@ config.json for syz-maneger
 }
 ```
 Then,run the syz-maneger with configure file.
-`syz-manager -config config.json`
-Then open your browser and enter 127.0.0.1：50000,there is a monitor of all test VM you run.
+`syz-manager -config config.json`  
+Then open your browser and enter 127.0.0.1：50000,there is a monitor of all test VM you run.  
