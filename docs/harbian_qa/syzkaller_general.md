@@ -8,7 +8,7 @@ This guid will contain of three partitation.
 ### download and decompress 
 `wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz` 
 `tar -xvzf g o1.8.1.linux-amd64.tar.gz /home/root/go`  
-After that,the golang compiler will located at /home/root/go. 
+After that,the golang compiler will locat at /home/root/go. 
 
 ### Add line to bashrc  
 Add the follow-up option to  ~/.bashrc  
@@ -53,9 +53,9 @@ this cmdline will generate two key,public key id_isa.pub and pravite id_isa
 copy public key to VM.  
 ### Edit sshd configure on your VM  
 <b>login to vm guest by ssh:</b>  
-ssh -p $(SSH_PORT) root@127.0.0.1  
+`ssh -p $(SSH_PORT) root@127.0.0.1`  
 <b>check option flowing:</b>  
-nano /etc/ssh/sshd_config  
+`nano /etc/ssh/sshd_config`  
 ```
 PermitRootLogin without-password
 
