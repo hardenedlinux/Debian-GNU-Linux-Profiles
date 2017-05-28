@@ -57,7 +57,7 @@ static struct file_operations a = {
                                 .write = proc_write,
 };
 ```
-there is only one funtion was shown here(with heap overflow code),full code is attach at the end (modules initlization,compiling will not be discussed in this article):
+there is only one funtion was shown here(with heap overflow code),full code is attach under the same dirtory (modules initlization,compiling will not be discussed in this article):
 ```
 static ssize_t proc_write (struct file *proc_file, const char __user *proc_user, size_t n, loff_t *loff)
 {
@@ -70,7 +70,6 @@ static ssize_t proc_write (struct file *proc_file, const char __user *proc_user,
 ```
 Put the module code into kernel build tree and build with kernel.To verify if the module  was loaded,you can run this in your VM:  
 `ls /proc/test`  
-- You can found the full code under the same dirtory.
 
 ## Modify config file and run syzkaller  
 Because we should aim at fileoperations to touch off heap overflow,add enable:
