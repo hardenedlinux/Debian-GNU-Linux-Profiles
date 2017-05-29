@@ -5,7 +5,7 @@ There is three steps in this guide:
 - run syzkaller to hunt the bug
 
 ## Add test rule to syzkaller  
-The rule is written on the *.txt file under the dirtory $(SYZKALLER_SOURCE)/sys/.After  translation by syz-exract,a *.const format will be generated under the same diretory.Finally rebuild the syzkaller with new rule.
+The rule is written on the *.txt file under the dirtory $(SYZKALLER_SOURCE)/sys/. After  translation by syz-exract, a *.const format will be generated under the same diretory. Finally rebuild the syzkaller with new rule.
 
 ### The grammer of *.txt  
 ```
@@ -15,41 +15,41 @@ proc_open_flags = O_RDONLY, O_WRONLY, O_RDWR, O_APPEND, FASYNC, O_CLOEXEC, O_CRE
 proc_open_mode = S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, S_IROTH, S_IWOTH, S_IXOTH
 ```
 
-A declaration of a system call contain of system call name,argument and return value,the format of system call name show as following:  
+A declaration of a system call contain of system call name, argument and return value, the format of system call name show as following:  
 `SyscallName$Type`  
-The "SyscallName' before '$' is the name of system call,the interface proved by kernel,the "Type" after '$' is the specific type of the system call.In my example here:  
+The "SyscallName' before '$' is the name of system call, the interface proved by kernel, the "Type" after '$' is the specific type of the system call. In my example here:  
 `open$proc`  
-It means the system call "open" with a limited tpye "proc",the name is determined by the writer,the limit is determined by the follow-up argument,the format of the arguement as follow:  
+It means the system call "open" with a limited tpye "proc", the name is determined by the writer, the limit is determined by the follow-up argument, the format of the arguement as follow:  
 `ArgumentName ArgumentType[Limit]`  
-ArgumentName is the name of Argument,and ArgumentType is the type of it.In my example,there are several types of argument just like string、flags,etc.The "[Limit]" will limit the value of the argument,syzkaller will generate a random value if it's not specific.  
+ArgumentName is the name of Argument, and ArgumentType is the type of it. In my example, there are several types of argument just like string, flags, etc.The "[Limit]" will limit the value of the argument, syzkaller will generate a random value if it's not specific.  
 ```
 mode flags[proc_open_mode]
 proc_open_mode = ...
 ```
-In our example,the argument "mode" with tpye "flags" would pick out a number of value from “proc_open_mode = ......”.  
-At the end of declaration is the return value.In my example "fd" is the description of file.  
+In our example, the argument "mode" with tpye "flags" would pick out a number of value from “proc_open_mode = ......”.  
+At the end of declaration is the return value. In my example "fd" is the description of file.  
 Some general declaration of system call is writen down in source tree $(SYZKALLER_SOURCE)/sys/sys.txt.  
 - More infomation about programer can be found   https://github.com/google/syzkaller/tree/master/sys/README.md  
 
-In my example,heap overflow can be touch off by writing to /proc/test.So,we should limit the argument "file" in "open" to "/proc/test",others can referen the sys.txt.
+In my example, heap overflow can be touch off by writing to /proc/test. So, we should limit the argument "file" in "open" to "/proc/test", others can referen the sys.txt.
 
 ### Rebuild syzkaller  
-cd into source tree $(SYZKALLER_SOURCE),run:
+cd into source tree $(SYZKALLER_SOURCE), run:
 ```
 make clean
 make bin/syz-extract
 bin/syz-extract -arch amd64 -linux /PATH/TO/LINUX/SOURCE sys/YourRule.txt
 make all
 ```
-"syz-extract":-arch is the Architecture of you test machine，-linux is the kernel build tree will be test.  
+"syz-extract":-arch is the Architecture of you test machine, -linux is the kernel build tree will be test.  
 ### Copy the binary to test machine  
-run your virtual machine，then cd into your syzkaller build dirtory run：
+run your virtual machine, then cd into your syzkaller build dirtory run：
 `scp -P $(YOUR_PORT) -i ~/.ssh/rsa -r syzkaller/bin root@127.0.0.1:$(YOUR_PATH)`  
 - $(YOUR_PORT) specific by your qemu flags
 - $(YOUR_PATH) should be added to environment on your VM.
 
 ## Kernel module with overflow
-We will write a kernel module with heap overflow,the module proves a proc filesystem interface under /proc/test,the fileoperations of /proc/test will call the funtion with heap overflow:
+We will write a kernel module with heap overflow, the module proves a proc filesystem interface under /proc/test, the fileoperations of /proc/test will call the funtion with heap overflow:
 ```
 static struct file_operations a = {
                                 .open = proc_open,
@@ -57,7 +57,7 @@ static struct file_operations a = {
                                 .write = proc_write,
 };
 ```
-there is only one funtion was shown here(with heap overflow code),full code is attach under the same dirtory (modules initlization,compiling will not be discussed in this article):
+there is only one funtion was shown here( with heap overflow code), full code is attach under the same dirtory (modules initlization, compiling will not be discussed in this article):
 ```
 static ssize_t proc_write (struct file *proc_file, const char __user *proc_user, size_t n, loff_t *loff)
 {
@@ -68,11 +68,11 @@ static ssize_t proc_write (struct file *proc_file, const char __user *proc_user,
     return 0;
 }
 ```
-Put the module code into kernel build tree and build with kernel.To verify if the module  was loaded,you can run this in your VM:  
+Put the module code into kernel build tree and build with kernel. To verify if the module  was loaded, you can run this in your VM:  
 `ls /proc/test`  
 
 ## Modify config file and run syzkaller  
-Because we should aim at fileoperations to touch off heap overflow,add enable:
+Because we should aim at fileoperations to touch off heap overflow, add enable:
 ```
 "enable_syscalls": [
                 "open$proc",
@@ -83,7 +83,7 @@ Because we should aim at fileoperations to touch off heap overflow,add enable:
 ```
 Then run the syzkaller:  
 `bin/syz-manager -config /PATH/TO/YOUR/CONFIG  -v 10`  
-Open your browser and enter 127.0.0.1：50000,after a minute:  
+Open your browser and enter 127.0.0.1：50000, after a minute:  
 The crash log can be shown as following：
 ```
 PROC_DEV:into open!
@@ -124,4 +124,4 @@ Dumping ftrace buffer:
    (ftrace buffer empty)
 Kernel Offset: disabled
 ```
-This is the call trace print by kernel when kernel is crash,we can found it is the heap overflow in Sproc_write+0x64/0x90 drivers/mod_test/test.c:45.
+This is the call trace print by kernel when kernel is crash, we can found it is the heap overflow in Sproc_write+0x64/0x90 drivers/mod_test/test.c:45.
