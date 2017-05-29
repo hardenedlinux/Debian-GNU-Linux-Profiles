@@ -15,13 +15,14 @@ Add the follow-up option to  ~/.bashrc
 - The path of golang compiler pack:  
 
 `export GOROOT=/home/root/go`  
+`export PATH=$GOROOT/bin;$PATH`  
 - The diryory golang work in:  
 
 `export GOPATH=/home/root/syzkalls/`  
 - Syzkaller binary located at:  
 
 `export PATH=/home/root/syzkalls/bin:$PATH`  
-The $(GOROOT) is the dirtory of golang compiler binary.When you run "go" on your machine,the basic work directory is $GOPATH.Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.  
+The $(GOROOT) is the directory of golang compiler binary.When you run "go" on your machine,the basic work directory is $GOPATH.Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.  
 
 ### Download the syz source and build
 `go get -u -d -v github.com/google/syzkaller/...`  
