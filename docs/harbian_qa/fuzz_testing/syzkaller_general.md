@@ -7,8 +7,8 @@ This guid will contain of three partitation.
 ## install golang and build syzkaller
 ### download and decompress 
 `wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz`  
-`tar -xvzf g o1.8.1.linux-amd64.tar.gz /home/root/go`  
-After that,the golang compiler will locat at /home/root/go. 
+`tar -xvzf go1.8.1.linux-amd64.tar.gz -C /home/root/go`  
+After that,the golang compiler will locate at /home/root/go. 
 
 ### Add line to bashrc  
 Add the follow-up option to  ~/.bashrc  
