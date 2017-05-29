@@ -21,7 +21,7 @@ The "SyscallName' before '$' is the name of system call, the interface proved by
 `open$proc`  
 It means the system call "open" with a limited tpye "proc", the name is determined by the writer, the limit is determined by the follow-up argument, the format of the arguement as follow:  
 `ArgumentName ArgumentType[Limit]`  
-ArgumentName is the name of Argument, and ArgumentType is the type of it. In my example, there are several types of argument just like string, flags, etc.The "[Limit]" will limit the value of the argument, syzkaller will generate a random value if it's not specific.  
+ArgumentName is the name of Argument, and ArgumentType is the type of it. In my example, there are several types of argument just like string, flags, etc. The "[Limit]" will limit the value of the argument, syzkaller will generate a random value if it's not specific.  
 ```
 mode flags[proc_open_mode]
 proc_open_mode = ...
