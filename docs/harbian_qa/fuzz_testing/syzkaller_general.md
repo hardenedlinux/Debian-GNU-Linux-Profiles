@@ -22,7 +22,7 @@ Add the follow-up option to  ~/.bashrc
 - Syzkaller binary located at:  
 
 `export PATH=/home/root/syzkalls/bin:$PATH`  
-The $(GOROOT) is the directory of golang compiler binary.When you run "go" on your machine,the basic work directory is $GOPATH. Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.  
+The $(GOROOT) is the directory of golang compiler binary. When you run "go" on your machine, the basic work directory is $GOPATH. Final option is where the syzkaller binary where we will use. Both of them can be modified as your willing.  
 
 ### Download the syz source and build
 `go get -u -d -v github.com/google/syzkaller/...`  
@@ -49,7 +49,7 @@ $(SSH_PORT) can be specify as your willing.
 ### Set VM login without password  
 <b>run in localhost with a qemu running:</b>  
 `ssh-keygen -t rsa`  
-this cmdline will generate two key,public key id_isa.pub and pravite id_isa  
+this cmdline will generate two keys, public key id_isa.pub and pravite id_isa  
 `scp id_rsa.pub -P $(SSH_PORT) root@vm:/root/.ssh/id_isa.pub`  
 copy public key to VM.  
 ### Edit sshd configure on your VM  
