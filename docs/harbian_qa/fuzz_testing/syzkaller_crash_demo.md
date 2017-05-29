@@ -57,7 +57,7 @@ static struct file_operations a = {
                                 .write = proc_write,
 };
 ```
-there is only one funtion was shown here( with heap overflow code), full code is attach under the same dirtory (modules initlization, compiling will not be discussed in this article):
+there is only one funtion was shown here( with heap overflow code), full code is attach under the same dirtory( modules initlization, compiling will not be discussed in this article):
 ```
 static ssize_t proc_write (struct file *proc_file, const char __user *proc_user, size_t n, loff_t *loff)
 {
@@ -83,7 +83,7 @@ Because we should aim at fileoperations to touch off heap overflow, add enable:
 ```
 Then run the syzkaller:  
 `bin/syz-manager -config /PATH/TO/YOUR/CONFIG  -v 10`  
-Open your browser and enter 127.0.0.1：50000, after a minute:  
+Open your browser and enter 127.0.0.1:50000, after a minute:  
 The crash log can be shown as following：
 ```
 PROC_DEV:into open!
