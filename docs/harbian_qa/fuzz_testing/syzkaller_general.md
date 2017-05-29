@@ -27,9 +27,9 @@ The $(GOROOT) is the directory of golang compiler binary.When you run "go" on yo
 ### Download the syz source and build
 `go get -u -d -v github.com/google/syzkaller/...`  
 After a long time for downloading,run:  
-`cd $(GOPATH)/src/github.com/google/syzkaller`  
+`cd $GOPATH/src/github.com/google/syzkaller`  
 `make -j4`  
-`cp $(GOPATH)/src/github.com/google/syzkaller/bin $(GOPATH)/`  
+`cp $GOPATH/src/github.com/google/syzkaller/bin $GOPATH/ -af`  
 After that, you will find syz-* executable under the dirtory $(GOPATH)/bin.  
 
 ## Install vm with syzkaller support  
