@@ -8,7 +8,7 @@ This guid will contain of three partitation.
 ### download and decompress 
 `wget https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz`  
 `tar -xvzf go1.8.1.linux-amd64.tar.gz -C /home/root/go`  
-After that,the golang compiler will locate at /home/root/go. 
+After that, the golang compiler will locate at /home/root/go. 
 
 ### Add line to bashrc  
 Add the follow-up option to  ~/.bashrc  
@@ -22,11 +22,11 @@ Add the follow-up option to  ~/.bashrc
 - Syzkaller binary located at:  
 
 `export PATH=/home/root/syzkalls/bin:$PATH`  
-The $(GOROOT) is the directory of golang compiler binary.When you run "go" on your machine,the basic work directory is $GOPATH.Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.  
+The $(GOROOT) is the directory of golang compiler binary.When you run "go" on your machine,the basic work directory is $GOPATH. Final option is where the syzkaller binary where we will use.Both of them can be modified as your willing.  
 
 ### Download the syz source and build
 `go get -u -d -v github.com/google/syzkaller/...`  
-After a long time for downloading,run:  
+After a long time for downloading, run:  
 `cd $GOPATH/src/github.com/google/syzkaller`  
 `make -j4`  
 `cp $GOPATH/src/github.com/google/syzkaller/bin $GOPATH/ -af`  
@@ -164,6 +164,6 @@ config.json for syz-maneger
                ]
 }
 ```
-Then,run the syz-maneger with configure file.  
+Then, run the syz-maneger with configure file.  
 `syz-manager -config config.json`  
-Then open your browser and enter 127.0.0.1：50000,there is a monitor of all test VM you run.  
+Then open your browser and enter 127.0.0.1：50000, there is a monitor of all test VM you run.  
