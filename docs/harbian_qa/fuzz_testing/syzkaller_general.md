@@ -1,5 +1,5 @@
 # Kernel QA with syzkaller and qemu 
-This guid will contain of three partitation. 
+This guide will contain of three partitation. 
 - Build syzkaller
 - Install and configure a VM with syzakaller support
 - Modify a fit configure
