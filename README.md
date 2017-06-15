@@ -1,6 +1,6 @@
 # Debian-GNU-Linux-Profiles
 
-###Done  
+### Done  
 
 [SSL/TLS Mutual Authentication in Webdav](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ssl-tls-mutual-authentication-in-webdav.md)  
 [SSL/TLS Mutual Authentication in Gitlab](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ssl-tls-mutual-authentication-in-gitlab.md)  
@@ -15,7 +15,7 @@
 [Domain based routing on openwrt](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/domain-name-based-routing.md)  
 [Ways to build your own trustchain for secureboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/build-secureboot-trustchain.md)  
 
-###Todo-list
+### Todo-list
 DRBD in HA   
 LVM Best Practice   
 Soft Raid in Debian   
