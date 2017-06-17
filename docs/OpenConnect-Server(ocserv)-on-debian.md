@@ -1,17 +1,17 @@
-####Keyword: Ciper suites, Hardened, GnuTLS, Public Authentication
+#### Keyword: Ciper suites, Hardened, GnuTLS, Public Authentication
 
-####Scenario
+#### Scenario
 
 Using Cisco Anyconnect to tunnel all traffic. Ocserv is an Anyconnect compatible server. Anyconnect is widely used in company and university.
 This *protocol* is too special to forbidden :). So it's necessary and very useful in remote access. It build with GnuTLS, so we can custom our cipher suite.
 For security purpose, we use `Public key` for authentication(at least).
 
-####Download sourcecode
+#### Download sourcecode
 
     $ wget ftp://ftp.infradead.org/pub/ocserv/ocserv-0.11.5.tar.xz
     $ wget ftp://ftp.infradead.org/pub/ocserv/ocserv-0.11.5.tar.xz.sig
 
-####Verify sourcecode
+#### Verify sourcecode
 
     $ gpg --search-keys 0x7F343FA7
     
@@ -34,7 +34,7 @@ For security purpose, we use `Public key` for authentication(at least).
     gpg:          There is no indication that the signature belongs to the owner.
     Primary key fingerprint: 56EE 7FA9 E817 3B19 FE86  268D 7637 1274 7F34 3FA7
 
-####Build dependencies[1]
+#### Build dependencies[1]
 
     $ sudo apt-get update
     $ sudo apt install libgnutls28-dev libev-dev build-essential autogen pkg-config libprotobuf-c0-dev
@@ -50,11 +50,11 @@ Optional dependencies that enable specific functionality
     $ sudo apt install libreadline-dev  #for occtl
     $ sudo apt install libsystemd-dev  #for systemd
 
-####Extract files
+#### Extract files
 
     tar xvf ocserv-0.11.5.tar.xz
 
-####Configure
+#### Configure
 
     $ cd ocserv-0.11.5
     $ ./configure
@@ -70,7 +70,7 @@ Add daemon user
 
     $ sudo useradd -r -s /bin/false ocservdaemon
 
-####Generating needed key and certificate
+#### Generating needed key and certificate
 
 Generate Self-sign Root Certificate Authority
 
@@ -186,7 +186,7 @@ gen-client-rsa-key-and-cert.sh
     gen_template
     gen_client_cert
 
-####Generate p12 format certificate
+#### Generate p12 format certificate
 
 for ecdsa key
 
@@ -196,7 +196,7 @@ for rsa key
 
     certtool --to-p12 --load-privkey vpn-client-rsa-key.pem --pkcs-cipher 3des-pkcs12 --load-certificate vpn-client-rsa-cert.pem --outfile vpn-client-rsa.p12 --outder
 
-####Server certificate
+#### Server certificate
 
 [Let's encrypt](https://letsencrypt.org) is recommended
 You can get a certificate by using certbot([https://certbot.eff.org/](https://certbot.eff.org/))
@@ -205,7 +205,7 @@ You can get a certificate by using certbot([https://certbot.eff.org/](https://ce
 
 It will using your server's 443 port to verify it.
 
-####Cipher Suite select(for RSA keys)
+#### Cipher Suite select(for RSA keys)
 
     $ gnutls-cli --priority SECURE256:%PROFILE_MEDIUM:%SERVER_PRECEDENCE:-ECDHE-ECDSA:-RSA:-DHE-RSA:-AES-256-CBC:-CAMELLIA-256-CBC:-VERS-TLS1.1:-VERS-TLS1.0:-VERS-DTLS1.0:-VERS-DTLS1.2 -l
     Cipher suites for SECURE256:%PROFILE_MEDIUM:%SERVER_PRECEDENCE:-ECDHE-ECDSA:-RSA:-DHE-RSA:-AES-256-CBC:-CAMELLIA-256-CBC:-VERS-TLS1.1:-VERS-TLS1.0:-VERS-DTLS1.0:-VERS-DTLS1.2
@@ -259,7 +259,7 @@ So, here is our cipher suites:
 
     tls-priorities = "SECURE256:%PROFILE_MEDIUM:%SERVER_PRECEDENCE:-ECDHE-ECDSA:-DHE-RSA:-RSA:-AES-256-CBC:-CAMELLIA-256-CBC:-VERS-TLS1.1:-VERS-TLS1.0:-VERS-DTLS1.0:-VERS-DTLS1.2"
 
-####Cipher Suite select(for ECDSA keys)
+#### Cipher Suite select(for ECDSA keys)
 
     $ gnutls-cli --priority SECURE256:%PROFILE_MEDIUM:%SERVER_PRECEDENCE:-ECDHE-RSA:-RSA:-DHE-RSA:-AES-256-CBC:-CAMELLIA-256-CBC:-VERS-TLS1.1:-VERS-TLS1.0:-VERS-DTLS1.0:-VERS-DTLS1.2 -l
     Cipher suites for SECURE256:%PROFILE_MEDIUM:%SERVER_PRECEDENCE:-ECDHE-RSA:-RSA:-DHE-RSA:-AES-256-CBC:-CAMELLIA-256-CBC:-VERS-TLS1.1:-VERS-TLS1.0:-VERS-DTLS1.0:-VERS-DTLS1.2
@@ -312,7 +312,7 @@ So, here is our cipher suites:
 
     tls-priorities = "SECURE256:%SERVER_PRECEDENCE:-ECDHE-RSA:-DHE-RSA:-RSA:-AES-256-CBC:-CAMELLIA-256-CBC:-VERS-TLS1.1:-VERS-TLS1.0:-VERS-DTLS1.0:-VERS-DTLS1.2"
 
-####ocserv.conf
+#### ocserv.conf
 
     # User authentication method. Could be set multiple times and in 
     # that case all should succeed. To enable multiple methods use
@@ -945,7 +945,7 @@ So, here is our cipher suites:
 
 Please read this configuration file carefully. You could make it work out of box by specific the `server-cert =`, `server-key =` and `ca-cert =`.
 
-####Enable Systemd
+#### Enable Systemd
 
     $ sudo bash -c 'cat> /lib/systemd/system/ocserv.service' << EOF
     [Unit]
@@ -967,7 +967,7 @@ Please read this configuration file carefully. You could make it work out of box
     $ sudo systemctl enable ocserv
     $ sudo systemctl start ocserv
 
-####Firewall
+#### Firewall
 
     $ sudo vim /etc/sysctl.d/99-sysctl.conf
     
@@ -989,7 +989,7 @@ Please read this configuration file carefully. You could make it work out of box
 
     $ chmod +x /etc/network/if-pre-up.d/iptables
 
-####Client side support
+#### Client side support
 
 iOS  
 
@@ -1017,7 +1017,7 @@ Linux
 	Openconnect http://www.infradead.org/openconnect/  
 
 In our cipher suites, it would work with Anyconnect and OpenConnect :)
-####Reference:
+#### Reference:
 
 [1] https://gitlab.com/ocserv/ocserv   
 [2] https://www.gnutls.org/manual/html_node/Supported-ciphersuites.html   
