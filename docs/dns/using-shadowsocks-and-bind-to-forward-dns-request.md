@@ -74,7 +74,7 @@ shadowsocks tunnel
 
 #### Using bind server to make a full function DNS Server
 
-You can find [Basic bind9 configuration for lan](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/basic-bind9-cfg-for-lan.md)
+You can find [Basic bind9 configuration for lan](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/dns/basic-bind9-cfg-for-lan.md)
 
 And setting it as recursive DNS
 

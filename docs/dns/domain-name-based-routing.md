@@ -4,7 +4,7 @@
 
 ##### Basic configuration
 
-ISP-provided DNS are suspectable, they can be polluted, poisoned, etc, so [deploy your own recursive DNS server is recommended.](./basic-bind9-cfg-for-lan.md) I have developed [a scheme solely using Bind9](https://persmule.github.io/personal-dns-server), but it is mainly designed for solitary laptops.
+ISP-provided DNS are suspectable, they can be polluted, poisoned, etc, so [deploy your own recursive DNS server is recommended.](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/dns/basic-bind9-cfg-for-lan.md) I have developed [a scheme solely using Bind9](https://persmule.github.io/personal-dns-server), but it is mainly designed for solitary laptops.
 
 For a local area network, the whole system could be deployed more modular. In this scheme, [OpenWRT](https://openwrt.org/) is used on the gateway, while independent recursive DNS server is based on Bind9.
 

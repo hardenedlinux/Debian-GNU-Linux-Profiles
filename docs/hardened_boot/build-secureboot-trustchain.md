@@ -16,9 +16,9 @@ The following packages should be installed (Note that currently efitools is only
 # apt-get install gnutls-bin uuid-runtime efitools sbsigntool udisks2 dosfstools
 ```
 
-In the blogs above there have been some commands to do the deed, but I believe, in order to resolve these structural dependency, `make(1)` should be used to ease the execution, so I wrote [this Makefile](../../scripts/secureboot/Makefile) to build the trustchain. Although different keys had better be held in different administrators, they can all use this Makefile to perform their own duty.
+In the blogs above there have been some commands to do the deed, but I believe, in order to resolve these structural dependency, `make(1)` should be used to ease the execution, so I wrote [this Makefile](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/secureboot/Makefile) to build the trustchain. Although different keys had better be held in different administrators, they can all use this Makefile to perform their own duty.
 
-To create certificates in batch, template files are needed, some exemplative files are provided in [this directory](../../scripts/secureboot/)
+To create certificates in batch, template files are needed, some exemplative files are provided in [this directory](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/secureboot/)
 
 Run `make auth` to create .auth files which UEFI with secure boot feature accepts, 
 
@@ -105,7 +105,7 @@ Then you can test this image on a libvirt virtual machine using OVMF as boot fir
 
 ##### Create a virtual machine to perform test.
 
- You should have access to a host of virtual machine in order to perform test (The host could be your local machine provided that all the software needed are [installed and configured](../recommended_cluster_config.md)). The host should have OVMF available. If not, ask its administrator to install it:
+ You should have access to a host of virtual machine in order to perform test (The host could be your local machine provided that all the software needed are [installed and configured](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/recommended_cluster_config.md)). The host should have OVMF available. If not, ask its administrator to install it:
  
 `# apt-get install ovmf`
  
@@ -141,7 +141,7 @@ The image could also be used on physical machine if written to a usb drive.
 
 ##### Experimental PKCS#11 based trustchain building (not fully working).
 
-Private keys should be stored in hardware module (e.g. PKCS#11 ones), so I developed the [modified Makefile](../../scripts/secureboot/Makefile.p11). 
+Private keys should be stored in hardware module (e.g. PKCS#11 ones), so I developed the [modified Makefile](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/scripts/secureboot/Makefile.p11). 
 
 Unfortunately, this scheme has not yet been able to produce valid signed efi executable, as well as usable nopk.auth, only the main trustchain is valid. I hope someone could help us to improve this scheme.
 

@@ -21,7 +21,7 @@ Prerequested Packages for Debian 9:
 # apt-get install gnutls-bin uuid-runtime efitools sbsigntool udisks2 dosfstools make grub-efi-amd64-bin shim
 ```
 
-Invoke [this Makefile](../../scripts/secureboot/Makefile) to build the trustchain. (You had better do it in a separate directory.)
+Invoke [this Makefile](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/secureboot/Makefile) to build the trustchain. (You had better do it in a separate directory.)
 ```
 $ make [-f path/to/this/Makefile] auth
 ```
@@ -58,7 +58,7 @@ $ udisksctl loop-delete -b /dev/loop0
 
 It is possible to boot a linux kernel directly from UEFI via EFI stub, but it is not recommended for it needs kernels to be put in `EFI System Partition`, which most distros would not do automatically, as well as some other security issues, so I recommend to use signed boots to load signed kernel. 
 
-Invoke [This Makefile](../../scripts/secureboot/grub.mk) to generate and sign proper standalone grub (`grubx64.efi`) and shim (`BOOTX64.EFI`) for you, with existing db.key and db.crt as part of the trustchain. Proper [modules.lst](../../scripts/secureboot/modules.lst) and [grub.cfg.embedded](../../scripts/secureboot/grub.cfg.embedded) should also be provided.
+Invoke [This Makefile](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/secureboot/grub.mk) to generate and sign proper standalone grub (`grubx64.efi`) and shim (`BOOTX64.EFI`) for you, with existing db.key and db.crt as part of the trustchain. Proper [modules.lst](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/secureboot/modules.lst) and [grub.cfg.embedded](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/secureboot/grub.cfg.embedded) should also be provided.
 
 ```
 $ make -f /path/to/grub.mk 
@@ -78,6 +78,6 @@ Reproducible builds for PaX/Grsecurity integrated the [signature signing](https:
 
 [1] [Ways to build your own trustchain for secureboot.](./build-secureboot-trustchain.md)
 
-[2] [Use GRUB with Secure Boot](./grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk)
+[2] [Use GRUB with Secure Boot](./grub-with-secure-boot.md), [This Makefile](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/grub.mk)
 
 [3] [Reproducible builds for PaX/Grsecurity](https://github.com/hardenedlinux/grsecurity-reproducible-build)

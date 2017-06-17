@@ -8,7 +8,7 @@ On UEFI platforms, `GRUB` implements a command `linuxefi` to load linux kernel o
 
 This command only available on UEFI platforms, but in reality, grub itself has the mechanism to import gpg public keys, and use them to verify detached signature for any file. it even has an option to make it implicitly verify any file before load it into ram.
 
-All we need is to wrap those mechanism with grub config script into a function able to be invoked like a builtin command, with similar interface like `linuxefi`, like this [grub.cfg.embedded](../../scripts/coreboot/grub.cfg.embedded):
+All we need is to wrap those mechanism with grub config script into a function able to be invoked like a builtin command, with similar interface like `linuxefi`, like this [grub.cfg.embedded](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/grub.cfg.embedded):
 
 Function `linuxpgp` will first enable enforced signature verification, "load" linux kernel, with kernel command line option `module.sig_enforce=1` appended at the end of the command line, then disable enforced signature verification. This function could be used in place of `linux`, just as `linuxefi`.
 
@@ -18,7 +18,7 @@ This script will be embedded into the standalone ELF GRUB executable, to extend 
 
 ##### Generate an standalone ELF GRUB executable
 
-Similar to procedures to generate a standalone grub EFI executable mentioned in [this article](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md), [This Makefile](../../scripts/coreboot/grub.mk) could be used to generate a standalone grub ELF executable in order to integrate into coreboot images. Proper [modules.lst](../../scripts/coreboot/modules.lst) and [instmod.lst](../../scripts/coreboot/instmod.lst) should also be provided.
+Similar to procedures to generate a standalone grub EFI executable mentioned in [this article](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md), [This Makefile](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/grub.mk) could be used to generate a standalone grub ELF executable in order to integrate into coreboot images. Proper [modules.lst](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/modules.lst) and [instmod.lst](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/instmod.lst) should also be provided.
 
 In order to use that makefile, you should install the binaries of the coreboot version of grub:
 
@@ -85,7 +85,7 @@ I recommend to leave one second for seabios before launching grub, in order to e
 
 ##### Second stage grub config file for coreboot.
 
-Exemplar [grub.cfg](../../scripts/coreboot/grub.cfg) and [grubtest.cfg](../../scripts/coreboot/grub.cfg) are those used by [libreboot](https://libreboot.org). You could insert them into the coreboot image with the following script:
+Exemplar [grub.cfg](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/grub.cfg) and [grubtest.cfg](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/coreboot/grub.cfg) are those used by [libreboot](https://libreboot.org). You could insert them into the coreboot image with the following script:
 
 ```
 #!/bin/sh
