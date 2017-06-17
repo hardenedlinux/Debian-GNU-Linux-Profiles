@@ -50,7 +50,10 @@ In order to use this option, you should have authentication material for both th
 Besides the host expression (ip address, hostname, etc) for the target host should be in the sight of the proxy host (mc.host.xxx.com for above example), NOT the local host, as the direct network connection to the target host is made from the proxy host.
 
 ######Reference: 
-######[1] man page ssh(1) and ssh_config(5)
-######[2] [The recommended configs of host computers and management console running Debian GNU/Linux within clusters](../recommended_cluster_config.md)
-######[3] [Ways to authenticate yourself to a remote virtual machine host](./auth_to_remote_virtual_host.md)
-######[4] [Powerful ssh(1) options you don't know](./powerful-ssh-options-you-dont-know.md)
+[1] man page ssh(1) and ssh_config(5)
+
+[2] [The recommended configs of host computers and management console running Debian GNU/Linux within clusters](../recommended_cluster_config.md)
+
+[3] [Ways to authenticate yourself to a remote virtual machine host](./auth_to_remote_virtual_host.md)
+
+[4] [Powerful ssh(1) options you don't know](./powerful-ssh-options-you-dont-know.md)

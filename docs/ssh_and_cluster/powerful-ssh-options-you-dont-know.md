@@ -119,5 +119,6 @@ after you pass the authentication to both a and b, you will get a command prompt
 Enable zlib compression on the SSH connection level, which means all multiplexed streams benefits from it.
 
 ######Reference: 
-######[1] man page ssh(1) and ssh_config(5)
-######[2] https://en.wikipedia.org/wiki/Tunneling_protocol#Secure_Shell_tunneling
+[1] man page ssh(1) and ssh_config(5)
+
+[2] https://en.wikipedia.org/wiki/Tunneling_protocol#Secure_Shell_tunneling

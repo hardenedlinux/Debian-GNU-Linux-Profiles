@@ -51,13 +51,15 @@ If the PKCS#11 module you use is backed by a removable hardware (e.g. a smartcar
 
 `$ ssh-add -d file ...` can be used to forget key files.
 
-With all authentication key remembered by `ssh-agent`(1), you can write and use scripts like _[virsh-list-cluster.sh](../scripts/vm-managements/virsh-list-cluster.sh)_ to query every host inside a cluster, with no need to get authenticated for every single hosts separately.
+With all authentication key remembered by `ssh-agent`(1), you can write and use scripts like _[virsh-list-cluster.sh](../../scripts/vm-managements/virsh-list-cluster.sh)_ to query every host inside a cluster, with no need to get authenticated for every single hosts separately.
 
 ##### Via TLS
 
 TBD
 
 ######Reference: 
-######[1] man pages for ssh(1), ssh-keygen(1), ssh-add(1), ssh-agent(1), ssh-copy-id(1)
-######[2] https://wiki.archlinux.org/index.php/GNOME/Keyring
-######[3] https://stribika.github.io/2015/01/04/secure-secure-shell.html
+[1] man pages for ssh(1), ssh-keygen(1), ssh-add(1), ssh-agent(1), ssh-copy-id(1)
+
+[2] https://wiki.archlinux.org/index.php/GNOME/Keyring
+
+[3] https://stribika.github.io/2015/01/04/secure-secure-shell.html
