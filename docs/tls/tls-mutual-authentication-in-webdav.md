@@ -1,4 +1,4 @@
-## SSL/TLS Mutual Authentication in Webdav
+## TLS Mutual Authentication in Webdav
 ##### Copyright (c) TYA
 ##### Homepage: http://tya.company/
 
