@@ -10,7 +10,7 @@ In this article, ssh(1) options will be express with the format mentioned within
 
 ##### Basic philosophy for cluster management.
 
-As mentioned in _[The recommended configs of host computers and management console running Debian GNU/Linux within clusters](./recommended_cluster_config.md)_, it is assumed that a cluster consists of a shared storage infrastructure, several worker hosts, within which virtual guests are running, and a special "host" used as a management console (abbreviated as MC, below). All those hosts is connected within the same subnet and able to communicate with each other, as well as guests, possibly. 
+As mentioned in _[The recommended configs of host computers and management console running Debian GNU/Linux within clusters](../recommended_cluster_config.md)_, it is assumed that a cluster consists of a shared storage infrastructure, several worker hosts, within which virtual guests are running, and a special "host" used as a management console (abbreviated as MC, below). All those hosts is connected within the same subnet and able to communicate with each other, as well as guests, possibly. 
 
 Additionally, only the MC is assumed to be able to accept incoming login requests for administration from the outside of the subnet, which may be accomplished by network configuration, or firewalls.
 
@@ -51,6 +51,6 @@ Besides the host expression (ip address, hostname, etc) for the target host shou
 
 ######Reference: 
 ######[1] man page ssh(1) and ssh_config(5)
-######[2] [The recommended configs of host computers and management console running Debian GNU/Linux within clusters](./recommended_cluster_config.md)
+######[2] [The recommended configs of host computers and management console running Debian GNU/Linux within clusters](../recommended_cluster_config.md)
 ######[3] [Ways to authenticate yourself to a remote virtual machine host](./auth_to_remote_virtual_host.md)
 ######[4] [Powerful ssh(1) options you don't know](./powerful-ssh-options-you-dont-know.md)
