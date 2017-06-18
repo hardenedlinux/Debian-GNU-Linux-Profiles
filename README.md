@@ -10,16 +10,16 @@
 [Using UPS with NUT](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ha/using-ups-with-nut.md)
 
 #### Harbian QA
-[Benchmarking PaX/Grsecurity kernel on Debian GNU/Linux](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/harbian_perf.md)
-[Syzkaller crash DEMO](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/fuzz_testing/syzkaller_crash_demo.md)
+[Benchmarking PaX/Grsecurity kernel on Debian GNU/Linux](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/harbian_perf.md)  
+[Syzkaller crash DEMO](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/fuzz_testing/syzkaller_crash_demo.md)  
 [Kernel QA with syzkaller and qemu](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/fuzz_testing/syzkaller_general.md)
 
 #### Hardened boot
 [Ways to build your own trustchain for secureboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/build-secureboot-trustchain.md)  
-[Debian Hardened boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/debian_hardened_boot.md)
-[Grub for Coreboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md)
-[Grub for Secure boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md)
-[Preparation for Secure Boot on Key Management Server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)
+[Debian Hardened boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/debian_hardened_boot.md)  
+[Grub for Coreboot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md)  
+[Grub for Secure boot](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-with-secure-boot.md)  
+[Preparation for Secure Boot on Key Management Server](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/preparation-for-secureboot-on-km-server.md)  
 [Set Up Unrestricted Secure Boot On supporting machine](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/setup-unrestricted-secureboot-on-supporting-machine.md)
 
 #### IDS
