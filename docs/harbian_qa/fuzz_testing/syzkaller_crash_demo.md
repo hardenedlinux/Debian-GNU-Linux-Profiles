@@ -1,13 +1,13 @@
 # Syzkaller crash DEMO
-There is three steps in this guide:
-- add rule to touch heap overflow into syzkaller and rebuild
-- compile kernel with heap overflow code
-- run syzkaller to hunt the bug
+There are three steps in this guide:
+- Adding rules for causing heap overflow into syzkaller and rebuilding it
+- Compiling kernel with heap overflow code
+- Running syzkaller to hunt the bug
 
-## Add test rule to syzkaller  
-The rule is written on the *.txt file under the dirtory $(SYZKALLER_SOURCE)/sys/. After  translation by syz-exract, a *.const format will be generated under the same diretory. Finally rebuild the syzkaller with new rule.
+## Add test rules to syzkaller  
+The rule is written on the *.txt file under the directory $(SYZKALLER_SOURCE)/sys/. It will be translated to *.const file under the same directory by syz-exract. Then we can rebuild syzkaller with new rule.
 
-### The grammer of *.txt  
+### The grammar of *.txt  
 ```
 open$proc(file ptr[in, string["/proc/test"]], flags flags[proc_open_flags], mode flags[proc_open_mode]) fd
 ...
@@ -17,7 +17,7 @@ proc_open_mode = S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, S_IROTH, 
 
 A declaration of a system call contain of system call name, argument and return value, the format of system call name show as following:  
 `SyscallName$Type`  
-The "SyscallName' before '$' is the name of system call, the interface proved by kernel, the "Type" after '$' is the specific type of the system call. In my example here:  
+The "SyscallName" before '$' is the name of system call, the interface provided by kernel, the "Type" after '$' is the specific type of the system call. In my example here:  
 `open$proc`  
 It means the system call "open" with a limited tpye "proc", the name is determined by the writer, the limit is determined by the follow-up argument, the format of the arguement as follow:  
 `ArgumentName ArgumentType[Limit]`  
@@ -49,7 +49,7 @@ run your virtual machine, then cd into your syzkaller build dirtory run：
 - $(YOUR_PATH) should be added to environment on your VM.
 
 ## Kernel module with overflow
-We will write a kernel module with heap overflow, the module proves a proc filesystem interface under /proc/test, the fileoperations of /proc/test will call the funtion with heap overflow:
+We will write a kernel module with heap overflow, the module provides a proc filesystem interface under /proc/test, the fileoperations of /proc/test will call the funtion with heap overflow:
 ```
 static struct file_operations a = {
                                 .open = proc_open,
@@ -57,7 +57,7 @@ static struct file_operations a = {
                                 .write = proc_write,
 };
 ```
-there is only one funtion was shown here( with heap overflow code), full code is attach under the same dirtory( modules initlization, compiling will not be discussed in this article):
+there is only one function was shown here( with heap overflow code), full code is attached under the same directory(modules initlization, compiling will not be discussed in this article):
 ```
 static ssize_t proc_write (struct file *proc_file, const char __user *proc_user, size_t n, loff_t *loff)
 {
@@ -68,11 +68,11 @@ static ssize_t proc_write (struct file *proc_file, const char __user *proc_user,
     return 0;
 }
 ```
-Put the module code into kernel build tree and build with kernel. To verify if the module  was loaded, you can run this in your VM:  
+Put the module code into kernel build tree and build with kernel. To verify if the module was loaded, you can run this in your VM:  
 `ls /proc/test`  
 
 ## Modify config file and run syzkaller  
-Because we should aim at fileoperations to touch off heap overflow, add enable:
+In order to test fileoperatiosn, enable these options in configuration:
 ```
 "enable_syscalls": [
                 "open$proc",
@@ -124,4 +124,4 @@ Dumping ftrace buffer:
    (ftrace buffer empty)
 Kernel Offset: disabled
 ```
-This is the call trace print by kernel when kernel is crash, we can found it is the heap overflow in Sproc_write+0x64/0x90 drivers/mod_test/test.c:45.
+This is the call trace printed by kernel when kernel crashes, we can find it is a heap overflow in Sproc_write+0x64/0x90 drivers/mod_test/test.c:45.
