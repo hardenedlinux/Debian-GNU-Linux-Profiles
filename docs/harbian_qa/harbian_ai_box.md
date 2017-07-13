@@ -74,7 +74,7 @@ RUN THE TEST PROGRAM!
 </pre>
 
 ## Benchark
-You can compile the tensorflow manually for running [cifar10 example](https://github.com/tobigithub/tensorflow-deep-learning/wiki/cifar10-example).
+You can [compile the tensorflow manually](https://www.tensorflow.org/install/install_sources) for running [cifar10 example](https://github.com/tobigithub/tensorflow-deep-learning/wiki/cifar10-example).
 
 
 TODO:
