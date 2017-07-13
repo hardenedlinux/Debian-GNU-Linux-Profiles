@@ -29,7 +29,7 @@ deb-src http://security.debian.org/ stretch/updates main contrib non-free
 Install the Nvidia's driver and CUDA toolkit:
 <pre>
 apt-get install nvidia-cuda-dev nvidia-cuda-toolkit  nvidia-driver nvidia-kernel-dkms 
-<pre>
+</pre>
 
 The building stage of kernel module will fail and you should [apply this patch](https://github.com/hardenedlinux/hardenedlinux_profiles/blob/master/debian/grsec-nvidia-375.66.patch) to the LKM at first and then:
 <pre>
