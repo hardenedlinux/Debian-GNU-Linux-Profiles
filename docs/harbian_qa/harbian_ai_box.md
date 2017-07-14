@@ -76,6 +76,12 @@ RUN THE TEST PROGRAM!
 ## Benchark
 You can [compile the tensorflow manually](https://www.tensorflow.org/install/install_sources) for running [cifar10 example](https://github.com/tobigithub/tensorflow-deep-learning/wiki/cifar10-example).
 
+We will share some test results of cifar10_train.py:
+
+| GPU                  | examples/sec | sec/batch |
+|----------------------|--------------|-----------|
+| GeForce GTX 970      | 4262.5       |  0.030    |
+
 
 TODO:
    * ???
