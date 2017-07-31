@@ -58,4 +58,17 @@ chipsec_main -i -n -m tools.uefi.whitelist -a check,efi_lenovo.json,/fw-content/
 </pre>
 
 
+### Hardening the coreboot
+
+coreboot is a popular free/libre implementation of firmware for diverse hardware platforms. We've been using it on [x86](https://github.com/hardenedlinux/hardenedlinux_profiles/tree/master/coreboot) and [RISC-V](https://github.com/hardenedlinux/embedded-iot_profile/tree/master/docs/riscv) for a while. The philosophy of coreboot might assumed that the user know the risk while they enjoying their freedom( "super developer" mode?) because coreboot won't enable some security mechanism at boot time by default:
+
+![](https://pbs.twimg.com/media/DGEaPmEUQAAuP8u.jpg:large)
+
+We shouldn't use the same method to assess the security risk of coreboot with "traditional" UEFI implementations by vendors. Because there are some differences, e.g: coreboot doesn't have some EFI runtime features and the SMM code size is usually smaller than UEFI. But there are [some exploitable bugs](https://recon.cx/2017/montreal/resources/slides/RECON-MTL-2017-DiggingIntoTheCoreOfBoot.pdf) that we should aware of. Some security mechanism can be enabled at runtime, while other has to do it manually. Thanks to CHIPSEC's hardware abstraction layer, it's easy to implement the [script of enablement](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/scripts/harbian_fw/fw_hardening_runtime.py) of security mechanism, which get rid of us from those 0ld hard coded days;-)
+
+
 ### Reference
+
+[1] [coreboot](https://www.coreboot.org/)
+
+[2] [Info about firmware security](https://github.com/hardenedlinux/firmware-anatomy/blob/master/hack_ME/firmware_security.md)
