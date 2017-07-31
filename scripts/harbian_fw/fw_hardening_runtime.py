@@ -1,5 +1,6 @@
 # Hardening tweaks via CHIPSEC framework:
-#	Enabling some security features at runtime in case of which vendor provided implementation improperly
+#	Enabling some security features at runtime in case of which vendor provided implementation improperly.
+# WARNING: Please note that this script might put your prodcution at risk
 
 from chipsec.chipset import *
 
@@ -25,11 +26,58 @@ def D_LCK_set():
 def BIOS_WP_set():
 	regval = cs.read_register( 'BC')
 	ble = cs.get_control( 'BiosLockEnable')
-	if ble != 1:
+        bioswe = cs.get_control( 'BiosWriteEnable')
+
+	if ble != 1 or bioswe != 0:
+		bioswe = cs.set_control( 'BiosWriteEnable', 0)
 		ble = cs.set_control( 'BiosLockEnable', 1)
-		print "BLE is enabled!"
+		print "BLE & BIOSWE are looking good!"
 	else:
 		print "BLE is set already!"
+
+def BIOS_TS_set():
+        bild = cs.get_control( 'BiosInterfaceLockDown')
+
+        if bild != 1:
+                cs.set_control( 'BiosInterfaceLockDown', 1)
+                print "BiosInterfaceLockDown (BILD) is enabled!"
+        else:
+                print "BILD is set already!"
+
+def TSEG_LOCK_set():
+        tseg_base_lock = cs.get_control( 'TSEGBaseLock')
+        tseg_limit_lock = cs.get_control( 'TSEGLimitLock')
+
+        if tseg_base_lock !=1 or tseg_limit_lock !=1:
+                cs.set_control( 'TSEGBaseLock', 1)
+                cs.set_control( 'TSEGLimitLock', 1)
+                print "TSEGBase & TSEGLimit are locked!"
+        else:
+                print"TSEGBase & TSEGLimit are set already!"
+
+def SPI_LOCK_set():
+        flockdn = cs.get_control( 'FlashLockDown')
+
+        if flockdn != 1:
+                cs.set_control( 'FlashLockDown', 1)
+                print "FLOCKDN is locked!"
+        else:
+                print "FLOCKDN is set already!"
+
+def BIOS_SMI_set():
+        tco_en = cs.get_control( 'TCOSMIEnable')
+        gbl_smi_en = cs.get_control( 'GlobalSMIEnable')
+        tco_lock = cs.get_control( 'TCOSMILock')
+        smi_lock = cs.get_control( 'SMILock')
+
+        if tco_en != 1 or gbl_smi_en != 1:
+                return -1
+        elif tco_lock != 1 or smi_lock != 1:
+                cs.set_control( 'TCOSMILock', 1)
+                cs.set_control( 'SMILock', 1)
+                print "TCO/SMI are locked!"
+        else:
+                print "TCO/SMI are set already!"
 
 if __name__ == '__main__':
     	# hardening init...
@@ -41,3 +89,15 @@ if __name__ == '__main__':
 
 	# common.bios_wp
 	BIOS_WP_set()
+
+        # common.bios_ts
+        BIOS_TS_set()
+
+        # smm_dma
+        TSEG_LOCK_set()
+
+        # common.spi_lock
+        SPI_LOCK_set()
+
+        # common.bios_smi
+        BIOS_SMI_set()
