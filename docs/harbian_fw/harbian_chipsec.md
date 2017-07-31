@@ -37,6 +37,12 @@ According to the [firmware security training](https://github.com/advanced-threat
 | Access permissions to UEFI variables defined in UEFI Spec | common.uefi.access_uefispec | [UEFI 2.4 Spec](http://uefi.org/) |
 | Module to detect PE/TE Header Confusion Vulnerability | tools.secureboot.te | [All Your Boot Are Belong To Us](https://cansecwest.com/slides/2014/AllYourBoot_csw14-intel-final.pdf) |
 | Module to detect SMI input pointer validation vulnerabilities | tool.smm.smm_ptr | [CanSecWest 2015](https://cansecwest.com/slides/2015/A%20New%20Class%20of%20Vulnin%20SMI%20-%20Andrew%20Furtak.pdf) |
+| SPI Flash Descriptor Security Override Pin-Strap | common.spi_fdopss | FLOCKDN |
+| IA32 Feature Control Lock | common.ia32cfg | IA32_Feature_Control MSR lock bit |
+| Protected RTC memory locations | common.rtclock | ?? |
+| S3 Resume Boot-Script Protections | common.uefi.s3bootscript | ?? |
+| Host Bridge Memory Map Locks | memconfig | PCI cfg |
+
 
 ### Firmware whitelist management for the data center
 
