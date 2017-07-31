@@ -26,6 +26,8 @@ According to the [firmware security training](https://github.com/advanced-threat
 | SMRAM Locking   | common.smm        | [CanSecWest 2006](http://www.ssi.gouv.fr/archive/fr/sciences/fichiers/lti/cansecwest2006-duflot.pdf)|
 | BIOS Keyboard Buffer Sanitization | common.bios_kbrd_buffer | [DEFCON 16](http://www.slideshare.net/endrazine/defcon-16-bypassing-preboot-authentication-passwords-by-instrumenting-the-bios-keyboard-buffer-practical-low-level-attacks-against-x86-preboot-authentication-software) |
 | SMRR Configuration | common.smrr | [ITL 2009](http://www.invisiblethingslab.com/resources/misc09/smm_cache_fun.pdf), [CanSecWest 2009](http://cansecwest.com/csw09/csw09-duflot.pdf) |
+| BIOS Protection | common.bios_wp | [BlackHat USA 2009](http://www.blackhat.com/presentations/bh-usa-09/WOJTCZUK/BHUSA09-Wojtczuk-AtkIntelBios-SLIDES.pdf), [CanSecWest 2013](https://cansecwest.com/slides/2013/Evil Maid Just Got Angrier.pdf), [Black Hat](http://c7zero.info/stuff/Windows8SecureBoot_Bulygin-Furtak-Bazhniuk_BHUSA2013.pdf) [2013](https://www.blackhat.com/us-13/briefings.html), [NoSuchCon 2013](http://www.nosuchcon.org/talks/D2_01_Butterworth_BIOS_Chronomancy.pdf) |
+| SPI Controller Locking | common.spi_lock | [Flashrom](http://www.flashrom.org/), [Copernicus](http://www.mitre.org/capabilities/cybersecurity/overview/cybersecurity-blog/copernicus-question-your-assumptions-about) |
 
 ### Firmware whitelist management for the data center
 
