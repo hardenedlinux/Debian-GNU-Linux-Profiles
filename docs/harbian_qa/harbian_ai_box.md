@@ -81,7 +81,7 @@ We will share some test results of cifar10_train.py:
 | GPU                  | examples/sec | sec/batch |
 |----------------------|--------------|-----------|
 | GeForce GTX 970      | 4262.5       |  0.030    |
-
+| GeForce GTX 1080 Ti  | 9710.3       |  0.013    |
 
 TODO:
    * ???
