@@ -112,7 +112,7 @@ auth cluster required = cephx
 auth service required = cephx
 auth client required = cephx
 osd journal size = 1024
-osd pool default size = 2
+osd pool default size = 3
 osd pool default min size = 1
 osd pool default pg num = 333
 osd pool default pgp num = 333
@@ -271,6 +271,108 @@ save it into `auto_add_osd_hdd.sh` file and use it `bash auto_add_osd_hdd.sh sdc
 Be careful, this script will format your harddrive, cause you lost all you data in the device you put it.
 So really careful.
 
+### A small cluster (3 storage node)
+
+Each node has 6 * 6 TB Hard Drive, and 1 * 1.2 TB PCIE SSD.
+
+So after we running previous `auto_add_osd_hdd.sh` with every HDD. we can get a osd tree like this
+
+```
+root@cephmon0# ceph osd tree
+ID WEIGHT   TYPE NAME              UP/DOWN REWEIGHT PRIMARY-AFFINITY 
+-1 18.00000 root default                                             
+-2  6.00000     host cephnode0                                       
+ 0  1.00000         osd.0               up  1.00000          1.00000 
+ 1  1.00000         osd.1               up  1.00000          1.00000 
+ 2  1.00000         osd.2               up  1.00000          1.00000 
+ 3  1.00000         osd.3               up  1.00000          1.00000 
+ 4  1.00000         osd.4               up  1.00000          1.00000 
+ 5  1.00000         osd.5               up  1.00000          1.00000 
+-3  6.00000     host cephnode1                                       
+ 6  1.00000         osd.6               up  1.00000          1.00000 
+ 7  1.00000         osd.7               up  1.00000          1.00000 
+ 8  1.00000         osd.8               up  1.00000          1.00000 
+10  1.00000         osd.10              up  1.00000          1.00000 
+11  1.00000         osd.11              up  1.00000          1.00000 
+ 9  1.00000         osd.9               up  1.00000          1.00000 
+-4  6.00000     host cephnode2                                       
+12  1.00000         osd.12              up  1.00000          1.00000 
+13  1.00000         osd.13              up  1.00000          1.00000 
+14  1.00000         osd.14              up  1.00000          1.00000 
+15  1.00000         osd.15              up  1.00000          1.00000 
+16  1.00000         osd.16              up  1.00000          1.00000 
+17  1.00000         osd.17              up  1.00000          1.00000 
+```
+But there is not enough, because at this time. The cluster got shitty performance.
+
+#### Simply benchmark
+
+##### No split network, only use one 1Gb network adapter, using jemalloc, no other tuning
+
+Note: `rbd` is default pool 
+
+HDD 4k write
+```
+rados bench -p rbd 100 write --no-cleanup -b 4096
+
+Total time run:         100.269021
+Total writes made:      41043
+Write size:             4096
+Object size:            4096
+Bandwidth (MB/sec):     1.59894
+Stddev Bandwidth:       0.647372
+Max bandwidth (MB/sec): 3.28125
+Min bandwidth (MB/sec): 0.269531
+Average IOPS:           409
+Stddev IOPS:            165
+Max IOPS:               840
+Min IOPS:               69
+Average Latency(s):     0.0390722
+Stddev Latency(s):      0.074392
+Max latency(s):         1.47944
+Min latency(s):         0.00260458
+```
+
+HDD 4k seq read
+```
+rados bench -p rbd 100 seq
+
+Total time run:       1.828573
+Total reads made:     41043
+Read size:            4096
+Object size:          4096
+Bandwidth (MB/sec):   87.6772
+Average IOPS          22445
+Stddev IOPS:          0
+Max IOPS:             22173
+Min IOPS:             22173
+Average Latency(s):   0.000708072
+Max latency(s):       0.0306722
+Min latency(s):       0.000413685
+```
+
+HDD 4k rand read
+
+```
+rados bench -p rbd 100 rand
+
+Total time run:       100.000634
+Total reads made:     2365143
+Read size:            4096
+Object size:          4096
+Bandwidth (MB/sec):   92.3878
+Average IOPS:         23651
+Stddev IOPS:          392
+Max IOPS:             24434
+Min IOPS:             22737
+Average Latency(s):   0.000671967
+Max latency(s):       0.0171427
+Min latency(s):       0.000319885
+```
+
+As we can see, we really need some tuning.
+
+#### SSD Cache Tiering
 
 
 
