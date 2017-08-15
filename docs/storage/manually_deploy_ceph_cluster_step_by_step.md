@@ -25,10 +25,56 @@ root@cephmon0# dpkg -i *.deb
 ##### Build Ceph from github (build with jemalloc)
 
 ```
-git 
+git clone https://github.com/ceph/ceph.git
+cd ceph
+git checkout v10.2.9
+```
+modify `debian/rules` file and add `extraopts += --without-tcmalloc --with-jemalloc` under `extraopts += --without-tcmalloc --with-jemalloc`
+
+Dealing the dependencies
+```
+apt-get install debhelper
+dpkg-checkbuilddeps        # make sure we have all dependencies
+```
+And follow the missing dependencies list to get all the missing dependencies
+
+After that build ceph
+
+```
+dpkg-buildpackage
 ```
 
-
+```
+$ cd ../
+$ ls
+ceph					 libcephfs1_10.2.9-1_amd64.deb
+ceph-base_10.2.9-1_amd64.deb		 librados-dev_10.2.9-1_amd64.deb
+ceph-common-dbg_10.2.9-1_amd64.deb	 librados2-dbg_10.2.9-1_amd64.deb
+ceph-common_10.2.9-1_amd64.deb		 librados2_10.2.9-1_amd64.deb
+ceph-fs-common-dbg_10.2.9-1_amd64.deb	 libradosstriper-dev_10.2.9-1_amd64.deb
+ceph-fs-common_10.2.9-1_amd64.deb	 libradosstriper1-dbg_10.2.9-1_amd64.deb
+ceph-fuse-dbg_10.2.9-1_amd64.deb	 libradosstriper1_10.2.9-1_amd64.deb
+ceph-fuse_10.2.9-1_amd64.deb		 librbd-dev_10.2.9-1_amd64.deb
+ceph-mds-dbg_10.2.9-1_amd64.deb		 librbd1-dbg_10.2.9-1_amd64.deb
+ceph-mds_10.2.9-1_amd64.deb		 librbd1_10.2.9-1_amd64.deb
+ceph-mon-dbg_10.2.9-1_amd64.deb		 librgw-dev_10.2.9-1_amd64.deb
+ceph-mon_10.2.9-1_amd64.deb		 librgw2-dbg_10.2.9-1_amd64.deb
+ceph-osd-dbg_10.2.9-1_amd64.deb		 librgw2_10.2.9-1_amd64.deb
+ceph-osd_10.2.9-1_amd64.deb		 python-ceph_10.2.9-1_amd64.deb
+ceph-resource-agents_10.2.9-1_amd64.deb  python-cephfs_10.2.9-1_amd64.deb
+ceph-test-dbg_10.2.9-1_amd64.deb	 python-rados_10.2.9-1_amd64.deb
+ceph-test_10.2.9-1_amd64.deb		 python-rbd_10.2.9-1_amd64.deb
+ceph_10.2.9-1.dsc			 radosgw-dbg_10.2.9-1_amd64.deb
+ceph_10.2.9-1.tar.gz			 radosgw_10.2.9-1_amd64.deb
+ceph_10.2.9-1_amd64.buildinfo		 rbd-fuse-dbg_10.2.9-1_amd64.deb
+ceph_10.2.9-1_amd64.changes		 rbd-fuse_10.2.9-1_amd64.deb
+ceph_10.2.9-1_amd64.deb			 rbd-mirror-dbg_10.2.9-1_amd64.deb
+libcephfs-dev_10.2.9-1_amd64.deb	 rbd-mirror_10.2.9-1_amd64.deb
+libcephfs-java_10.2.9-1_all.deb		 rbd-nbd-dbg_10.2.9-1_amd64.deb
+libcephfs-jni_10.2.9-1_amd64.deb	 rbd-nbd_10.2.9-1_amd64.deb
+libcephfs1-dbg_10.2.9-1_amd64.deb
+```
+and install the package you need.
 
 ##### Or you can use ceph with tcmalloc(default)
 
