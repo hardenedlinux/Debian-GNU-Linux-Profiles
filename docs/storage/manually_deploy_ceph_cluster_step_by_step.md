@@ -1,5 +1,7 @@
 ### Manually Deploy Ceph Cluster Step-by-Step
 
+Note: Our installation is base on Ceph(10.2.9 LTS). The document url of this
+version is http://docs.ceph.com/docs/jewel/
 
 ### Basic Setup
 
@@ -9,10 +11,26 @@ For Security build-in policy we should install PaX/Grsecurity kernel right
 after we finish the system installation
 
 ```
+root@cephmon0# ls
+linux-firmware-image-4.9.38-unofficial+grsec+_4.9.38-unofficial+grsec+-7_amd64.deb
+linux-headers-4.9.38-unofficial+grsec+_4.9.38-unofficial+grsec+-7_amd64.deb
+linux-image-4.9.38-unofficial+grsec+-dbg_4.9.38-unofficial+grsec+-7_amd64.deb
+linux-image-4.9.38-unofficial+grsec+_4.9.38-unofficial+grsec+-7_amd64.deb
+linux-libc-dev_4.9.38-unofficial+grsec+-7_amd64.deb
 root@cephmon0# dpkg -i *.deb
 ```
 
 #### Install Ceph
+
+##### Build Ceph from github (build with jemalloc)
+
+```
+git 
+```
+
+
+
+##### Or you can use ceph with tcmalloc(default)
 
 ```
 root@cephmon0# apt install software-properties-common -y
@@ -32,8 +50,11 @@ Install UUID tool
 
 ```
 root@cephmon0# apt install uuid-runtime -y
+root@cephmon0# uuidgen
+a7f64266-0894-4f1e-a635-d0aeaca0e993
 ```
-Create /etc/ceph/ceph.conf
+
+Create /etc/ceph/ceph.conf, using the UUID for fsid(cluster uuid)
 
 ```
 [global]
@@ -51,8 +72,6 @@ osd pool default pg num = 333
 osd pool default pgp num = 333
 osd crush chooseleaf type = 1
 ```
-Note: We using `uuidgen` to generate uuid
-
 
 Create client admin keyring
 
@@ -96,6 +115,7 @@ Create done file
 root@cephmon0# touch /var/lib/ceph/mon/ceph-cephmon0/done
 root@cephmon0# chown ceph:ceph /var/lib/ceph/mon/ceph-cephmon0/done
 ```
+
 Autostart
 
 ```
@@ -107,19 +127,9 @@ root@cephmon0# systemctl start ceph-mon@cephmon0
 
 On Ceph Monitor Node
 
-#### Create new OSD
-
-Generate UUID
-
+#### Create new OSD and Add new OSD entry to Cluster and get the OSD ID
 ```
-root@cephmon0# uuidgen 
-
-c24ca5dd-0325-438c-b6bc-1de05688a1e1
-```
-
-#### Add new OSD entry to Cluster and get the OSD ID
-```
-root@cephmon0# ceph osd create adfa4a36-e12e-4e11-875b-ceda0ec9a228
+root@cephmon0# ceph osd create 
 0
 ```
 Note: In this example osd id is 0
@@ -127,13 +137,11 @@ Note: In this example osd id is 0
 #### Partition (On Ceph OSD Node)
 
 ```
-root@cephnode0# apt install parted -y
-root@cephnode0# parted /dev/sdc mklabel gpt
-root@cephnode0# #make new partition /dev/sdc1
-root@cephnode0# mkfs.xfs /dev/sdc1
+root@cephnode0# sgdisk --mbrtogpt -- /dev/sdc
+root@cephnode0# mkfs.xfs /dev/sdc -f
 ```
 
-Making the osd node directory
+#### Making the osd node directory
 
 ```
 root@cephnode0# mkdir /var/lib/ceph/osd/ceph-0
@@ -141,17 +149,90 @@ root@cephnode0# mkdir /var/lib/ceph/osd/ceph-0
 Note: The ceph "ceph-0" is represent a cluster call "ceph", and the "0" in
 "ceph-0" represent the osd id
 
-Mount the disk to osd directory
+#### Mount the disk to osd directory
 
 ```
 root@cephnode0#mount /dev/sdc1 /var/lib/ceph/osd/ceph-0
+chown ceph:ceph /var/lib/ceph/osd/ceph-0
 ```
+
+#### Initial OSD
+
+```
+ceph-osd -i 0 --mkfs --mkkey --setuser ceph --setgroup ceph
+```
+Note: The `-i 0` means using osid = 0, and `--setuser ceph --setgroup ceph` means generate the initial file with owner by ceph:ceph, so the `ceph-osd` can use user `ceph` to run a ceph-osd service
+
+#### Register the OSD authentication key
+
+copy ceph monitor's /etc/ceph/ceph.client.admin.keyring to ceph OSD node /etc/ceph/ceph.client.admin.keyring
+
+```
+ceph auth add osd.0 osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-0/keyring
+```
+
+#### Add host bucket and move it under "default"
+
+```
+ceph osd crush add-bucket cephnode0 host
+ceph osd crush move cephnode0 root=default
+```
+
+#### Add OSD to CRUSH map
+
+```
+ceph osd crush add osd.0 1 root=default host=cephnode0
+```
+
+#### Add fstab entry for automount
+
+```
+DISK_UUID=$(ls /dev/disk/by-uuid/ -alh | grep sdc | awk '{print $9}')
+echo "UUID=$DISK_UUID /var/lib/ceph/osd/ceph-0 xfs defaults 0 0" >> /etc/fstab
+```
+
+#### Systemd service
+
+```
+systemctl start ceph-osd@0
+systemctl enable ceph-osd@0
+```
+
+#### simple script for automatic add new drive into ceph storage pool
+
+```
+#For hdd osd
+#!/bin/bash
+
+OSD_ID=$(ceph osd create)
+sgdisk --mbrtogpt -- /dev/"$1"
+mkfs.xfs /dev/"$1" -f
+mkdir /var/lib/ceph/osd/ceph-$OSD_ID
+mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
+chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
+ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
+ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring
+ceph osd crush add-bucket $HOSTNAME host
+ceph osd crush move $HOSTNAME root=default
+ceph osd crush add osd.$OSD_ID 1 root=default host=$HOSTNAME
+systemctl start ceph-osd@$OSD_ID
+systemctl enable ceph-osd@$OSD_ID
+
+DISK_UUID=$(ls /dev/disk/by-uuid/ -alh | grep $1 | awk '{print $9}')
+echo "UUID=$DISK_UUID /var/lib/ceph/osd/ceph-$OSD_ID xfs defaults 0 0" >> /etc/fstab
+```
+save it into `auto_add_osd_hdd.sh` file and use it `bash auto_add_osd_hdd.sh sdc`
+Be careful, this script will format your harddrive, cause you lost all you data in the device you put it.
+So really careful.
+
+
+
 
 ### To be continued
 
 
 #### Reference:
-http://docs.ceph.com/docs/master/architecture/   
-http://docs.ceph.com/docs/master/install/manual-deployment/   
-http://docs.ceph.com/docs/master/rados/configuration/auth-config-ref/   
+http://docs.ceph.com/docs/jewel/architecture/   
+http://docs.ceph.com/docs/jewel/install/manual-deployment/   
+http://docs.ceph.com/docs/jewel/rados/configuration/auth-config-ref/   
 
