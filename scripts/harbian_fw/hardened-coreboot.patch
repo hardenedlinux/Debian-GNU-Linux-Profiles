@@ -1,0 +1,67 @@
+diff -urN coreboot-orig/src/northbridge/intel/sandybridge/raminit_common.c coreboot-build/src/northbridge/intel/sandybridge/raminit_common.c
+--- coreboot-orig/src/northbridge/intel/sandybridge/raminit_common.c	2017-08-15 14:23:55.085813838 +0800
++++ coreboot-build/src/northbridge/intel/sandybridge/raminit_common.c	2017-08-15 14:15:00.189801873 +0800
+@@ -548,6 +548,7 @@
+ 	reg = pci_read_config32(PCI_DEV(0, 0, 0), 0xa0);
+ 	val = tom & 0xfff;
+ 	reg = (reg & ~0xfff00000) | (val << 20);
++	reg |= 1; // LOCK
+ 	printk(BIOS_DEBUG, "PCI(0, 0, 0)[%x] = %x\n", 0xa0, reg);
+ 	pci_write_config32(PCI_DEV(0, 0, 0), 0xa0, reg);
+ 
+@@ -561,9 +562,11 @@
+ 	reg = pci_read_config32(PCI_DEV(0, 0, 0), 0xbc);
+ 	val = toludbase & 0xfff;
+ 	reg = (reg & ~0xfff00000) | (val << 20);
++	reg |= 1; // LOCK
+ 	printk(BIOS_DEBUG, "PCI(0, 0, 0)[%x] = %x\n", 0xbc, reg);
+ 	pci_write_config32(PCI_DEV(0, 0, 0), 0xbc, reg);
+ 
++	// can't LOCK
+ 	// TOUUD LSB (top of upper usable dram)
+ 	reg = pci_read_config32(PCI_DEV(0, 0, 0), 0xa8);
+ 	val = touudbase & 0xfff;
+@@ -578,13 +581,25 @@
+ 	printk(BIOS_DEBUG, "PCI(0, 0, 0)[%x] = %x\n", 0xac, reg);
+ 	pci_write_config32(PCI_DEV(0, 0, 0), 0xac, reg);
+ 
++	// LOCK GGC
++	reg = pci_read_config16(PCI_DEV(0, 0, 0), GGC);
++	reg |= 1; // LOCK
++	printk(BIOS_DEBUG, "PCI(0, 0, 0)[%x] = %x\n", GGC, reg);
++	pci_write_config16(PCI_DEV(0, 0, 0), GGC, reg);
++
++	// LOCK DPR
++	pci_or_config32(PCI_DEV(0, 0, 0), 0x5c, 1 << 2);     /* DPR */
++
++	// LOCK PAVP
++	pci_or_config16(PCI_DEV(0, 0, 0), 0x58, 1 << 2);     /* PAVP Lock */
++
+ 	if (reclaim) {
+ 		// REMAP BASE
+-		pci_write_config32(PCI_DEV(0, 0, 0), 0x90, remapbase << 20);
++		pci_write_config32(PCI_DEV(0, 0, 0), 0x90, (remapbase << 20) | 1);
+ 		pci_write_config32(PCI_DEV(0, 0, 0), 0x94, remapbase >> 12);
+ 
+ 		// REMAP LIMIT
+-		pci_write_config32(PCI_DEV(0, 0, 0), 0x98, remaplimit << 20);
++		pci_write_config32(PCI_DEV(0, 0, 0), 0x98, (remaplimit << 20) | 1);
+ 		pci_write_config32(PCI_DEV(0, 0, 0), 0x9c, remaplimit >> 12);
+ 	}
+ 	// TSEG
+@@ -598,6 +613,7 @@
+ 	reg = pci_read_config32(PCI_DEV(0, 0, 0), 0xb0);
+ 	val = gfxstolenbase & 0xfff;
+ 	reg = (reg & ~0xfff00000) | (val << 20);
++	reg |= 1; // LOCK
+ 	printk(BIOS_DEBUG, "PCI(0, 0, 0)[%x] = %x\n", 0xb0, reg);
+ 	pci_write_config32(PCI_DEV(0, 0, 0), 0xb0, reg);
+ 
+@@ -605,6 +621,7 @@
+ 	reg = pci_read_config32(PCI_DEV(0, 0, 0), 0xb4);
+ 	val = gttbase & 0xfff;
+ 	reg = (reg & ~0xfff00000) | (val << 20);
++	reg |= 1; // LOCK
+ 	printk(BIOS_DEBUG, "PCI(0, 0, 0)[%x] = %x\n", 0xb4, reg);
+ 	pci_write_config32(PCI_DEV(0, 0, 0), 0xb4, reg);
+ 
