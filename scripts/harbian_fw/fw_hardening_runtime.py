@@ -79,11 +79,26 @@ def BIOS_SMI_set():
         else:
                 print "TCO/SMI are set already!"
 
+def memconfig_LOCK_set():
+        interrupts = Interrupts( cs)
+        interrupts.send_SMI_APMC( 0xcb, 0xb2)
+
+def rtclock_set():
+        rc_reg = cs.read_register( 'RC')
+        ll = cs.get_register_field( 'RC', rc_reg, 'LL')
+        ul = cs.get_register_field( 'RC', rc_reg, 'UL')
+        print rc_reg
+
+        if ll != 1 or ul != 1:
+                cs.write_register_field( 'RC', 'LL', 1)
+                cs.write_register_field( 'RC', 'UL', 1)
+        else:
+                print "rtclock is set already!"
+
 if __name__ == '__main__':
     	# hardening init...
     	cs = chipsec.chipset.cs()
     	cs.init(None, True)
-        interrupts = Interrupts( cs)
 
     	# common.smm
     	D_LCK_set()
@@ -103,5 +118,8 @@ if __name__ == '__main__':
         # common.bios_smi
         BIOS_SMI_set()
 
-        # LOCK set
-        interrupts.send_SMI_APMC( 0xcb, 0xb2)
+        # common.memconfig
+        memconfig_LOCK_set()
+
+        # common.rtclock
+        rtclock_set()
