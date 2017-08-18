@@ -3,7 +3,7 @@
 # WARNING: Please note that this script might put your prodcution at risk
 
 from chipsec.chipset import *
-
+from chipsec.hal.interrupts import *
 
 def D_LCK_set():
 	# check if BIOS_CNTL register is available
@@ -83,6 +83,7 @@ if __name__ == '__main__':
     	# hardening init...
     	cs = chipsec.chipset.cs()
     	cs.init(None, True)
+        interrupts = Interrupts( cs)
 
     	# common.smm
     	D_LCK_set()
@@ -101,3 +102,6 @@ if __name__ == '__main__':
 
         # common.bios_smi
         BIOS_SMI_set()
+
+        # LOCK set
+        interrupts.send_SMI_APMC( 0xcb, 0xb2)
