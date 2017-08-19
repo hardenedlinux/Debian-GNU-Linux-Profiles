@@ -389,6 +389,19 @@ ID WEIGHT   TYPE NAME              UP/DOWN REWEIGHT PRIMARY-AFFINITY
 
 after we put all the SSD based OSD into one root bucket, we can set some rules to let pool only use this bucket.
 
+
+Get the CRUSH map
+```
+ceph osd getcrushmap -o crushmap
+```
+Decompile the CRUSH map
+```
+crushtool -d crushmap -o decompiled-crushmap
+```
+
+Now we can edit the CRUSH map and add one rule for ssd bucket
+
+
 ### To be continued
 
 
