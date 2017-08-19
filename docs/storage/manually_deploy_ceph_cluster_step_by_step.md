@@ -611,7 +611,7 @@ first we should create an hdd pool for daily use.
 ```
 ceph osd pool create libvirt 1024
 ```
-setting the cache tier
+setting the cache tier####
 ```
 ceph osd tier add {storagepool} {cachepool}
 ```
@@ -647,10 +647,160 @@ for example
 ceph osd pool set ssd-cache hit_set_type bloom
 ```
 
-#### To be continued
+### Ceph with libvirt
+
+Install the libvirt and librbd and other package.
+
+
+```
+apt install qemu-kvm libvirt-clients libvirt-daemon-system qemu-block-extra 
+```
+for qemu-system-x86_64 and libvirtd with PaX/Grsecurity
+```
+paxctl-ng -perms /usr/bin/qemu-system-x86_64
+paxctl-ng -perms /usr/sbin/libvirtd
+```
+
+Create the libvirt pool (already create it before)
+
+```
+ceph osd pool create libvirt 1024 1024
+```
+
+Create the Ceph user.
+
+```
+ceph auth get-or-create client.libvirt mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=libvirt'
+```
+the `client.libvirt` means a user name `libvirt`, and `mon 'allow r'` means allow read permission for monitor, `osd 'allow class-read object_prefix rbd_children'` means allow user to call `class-read` method to `rbd_children` which record the snapshot `parent` and `childern` relationship. And allow read, write, and call both read, wirte class method to pool `libvirt`
+
+the you will get and keyring.
+
+you can verify it by this command.
+
+```
+ceph auth list
+```
+
+#### Test with qemu-img
+
+Copy the /etc/ceph/ceph.conf to libvirt host
+
+and create /etc/ceph/ceph.client.libvirt.keyring, such as
+
+```
+[client.libvirt]
+	key = AQCPPo9Z4yukHRAXdnjDfxbn0GfHr0JJI9mg==
+```
+
+
+```
+qemu-img create -f raw rbd:<pool name>/<new-image-new>:id=<user>:conf=/etc/ceph/ceph.conf 20G
+```
+for example
+```
+qemu-img create -f raw rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf 40G
+Formatting 'rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf', fmt=raw size=42949672960
+```
+check the image by using
+
+```
+qemu-img info  rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf
+image: rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf
+file format: raw
+virtual size: 40G (42949672960 bytes)
+disk size: unavailable
+cluster_size: 4194304
+```
+
+Using Virt-manager to create a Virtual Machine (without enable the storage for this virtual machine)
+And we manually add the ceph block device to this virtual machine.
+
+```
+virsh list --all
+ Id    Name                           State
+----------------------------------------------------
+ -     debian9                        shut off
+```
+before we add the rbd, we should create a libvirt secret first
+
+```
+cat > libvirt-secret.xml <<EOF
+<secret ephemeral='no' private='no'>
+        <usage type='ceph'>
+                <name>client.libvirt secret</name>
+        </usage>
+</secret>
+EOF
+```
+Define the secret
+```
+virsh secret-define --file libvirt-secret.xml
+Secret d550132c-ed06-4ece-bf45-570693cb0b8b created
+```
+Get the client.libvirt key and save the key string to a file
+
+You can get the key from your monitor host by execute this command.
+```
+auth get-key client.libvirt |  tee client.libvirt.key
+cat client.libvirt.key
+AQCPPo9Z4yukHRAXdnjDfxbn0GfHr0JJI9mg==
+```
+
+```
+virsh secret-set-value --secret {uuid of secret} --base64 $(cat client.libvirt.key) && rm client.libvirt.key libvirt-secret.xml
+```
+for example
+```
+virsh secret-set-value --secret d550132c-ed06-4ece-bf45-570693cb0b8b --base64 $(cat client.libvirt.key)
+Secret value set
+```
+and add the 
+
+```
+<disk type='network' device='disk'>
+  <source protocol='rbd' name='libvirt/debian9-netinstall'>
+    <host name='176.16.0.10' port='6789'/>
+    <host name='176.16.0.11' port='6789'/>
+    <host name='176.16.0.12' port='6789'/>
+  </source>
+  <auth username='libvirt'>
+  <secret type='ceph' uuid='d550132c-ed06-4ece-bf45-570693cb0b8b'/>
+  </auth>
+  <target dev='vda' bus='virtio'/>
+</disk>
+```
+to the virsh xml
+
+due to some xml problem
+```
+Failed. Try again? [y,n,i,f,?]: 
+error: XML document failed to validate against schema: Unable to validate doc against /usr/share/libvirt/schemas/domain.rng
+Extra element devices in interleave
+Element domain failed to validate content
+```
+We can't use virsh edit just now. So we can dump the xml and undefine the domain and redefine it.
+
+```
+virsh dumpxml debian9 >debian9.xml
+```
+edit the debian9.xml
+
+undefine the domain
+```
+virsh undefine debian9
+```
+redefine the domain
+```
+virsh define debian9.xml
+```
+
+Enjoy the ceph block device with libvirt
 
 #### Reference:
 http://docs.ceph.com/docs/jewel/architecture/   
 http://docs.ceph.com/docs/jewel/install/manual-deployment/   
 http://docs.ceph.com/docs/jewel/rados/configuration/auth-config-ref/   
 http://docs.ceph.com/docs/jewel/rados/operations/cache-tiering/
+http://docs.ceph.com/docs/jewel/rados/operations/user-management/
+http://docs.ceph.com/docs/master/rbd/rbd-snapshot/
