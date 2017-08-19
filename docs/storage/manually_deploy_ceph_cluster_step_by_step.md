@@ -594,11 +594,15 @@ for an example
 ceph osd pool create ssd-cache 1024 ssd-primary
 ```
 
-the why of pg number is 1024 because there is a formula
+the why of pg number is 1024 because there is a formula   
+
 for more detail: http://docs.ceph.com/docs/jewel/rados/operations/placement-groups/#choosing-the-number-of-placement-groups
-Total PGs = （OSDs * 100）/ replicas
-(21 OSD * 100) / 3 = 700
-Nearest power of 2: 1024
+
+Total PGs = （OSDs * 100）/ replicas   
+
+(21 OSD * 100) / 3 = 700   
+
+Nearest power of 2: 1024   
 
 ##### Setting up the cache pool
 
