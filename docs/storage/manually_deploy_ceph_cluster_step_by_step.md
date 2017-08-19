@@ -307,7 +307,87 @@ But there is not enough, because at this time. The cluster got shitty performanc
 
 #### SSD Cache Tiering
 
+To add a SSD Cache Tiering, we should add new `root` bucket other then `default` root bucket, such as root bucket call ssd
 
+```
+ceph osd crush add-bucket ssd root
+```
+and add new hostname to split hdd and sdd, such as `cephnode0-ssd` and `cephnode1-ssd`
+```
+ceph osd crush add-bucket cephnode0-ssd host
+```
+and add the SSD drive into cluster just like before, you can just read the script show as below
+
+```
+#!/bin/bash
+
+#ceph osd crush add-bucket ssd root
+#for ssd pool
+
+OSD_ID=$(ceph osd create)
+sgdisk --mbrtogpt -- /dev/"$1"
+mkfs.xfs /dev/"$1" -f
+mkdir /var/lib/ceph/osd/ceph-$OSD_ID
+mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
+chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
+ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
+ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring
+ceph osd crush add-bucket "$HOSTNAME"-ssd host
+ceph osd crush move "$HOSTNAME"-ssd root=ssd
+ceph osd crush add osd.$OSD_ID 1 root=ssd host="$HOSTNAME"-ssd
+systemctl start ceph-osd@$OSD_ID
+systemctl enable ceph-osd@$OSD_ID
+
+DISK_UUID=$(ls /dev/disk/by-uuid/ -alh | grep $1 | awk '{print $9}')
+echo "UUID=$DISK_UUID /var/lib/ceph/osd/ceph-$OSD_ID xfs defaults 0 0" >> /etc/fstab
+```
+save in as `auto_add_ssd_osd.sh` and use it like this `bash auto_add_ssd_osd.sh nvme0n1`
+(because the intel 750 pcie ssd localtion is /dev/nvme0n1)
+
+Note we add a host bucket call "cephnode0-ssd" and move it into `ssd` root bucket. But every time we restart the osd service
+in this OSD, it will run the `/usr/lib/ceph/ceph-osd-prestart.sh` and this script will run the `/usr/bin/ceph-crush-location ` and this tool will pass the `$HOSTNAME` to the CRUSH map, so if the `osd.18` is the SSD based OSD, under the `cephnode0-ssd` ("$HOSTNAME"-ssd) under the root bucket call `ssd`. after we restart the service the `host` of `osd.18` will change from `"$HOSTNAME"-ssd` into `"$HOSTNAME"`. So we should manually assign the host of this kind of osd. In the `/etc/ceph/ceph.conf`
+
+```
+[[osd.18]
+    osd crush location = "root=ssd host=cephnode0-ssd"
+```
+so the osd tree show as below
+```
+ceph osd tree
+
+ID WEIGHT   TYPE NAME              UP/DOWN REWEIGHT PRIMARY-AFFINITY 
+-5  3.00000 root ssd                                                 
+-7  1.00000     host cephnode1-ssd                                   
+19  1.00000         osd.19              up  1.00000          1.00000 
+-8  1.00000     host cephnode2-ssd                                   
+20  1.00000         osd.20              up  1.00000          1.00000 
+-6  1.00000     host cephnode0-ssd                                   
+18  1.00000         osd.18              up  1.00000          1.00000 
+-1 18.00000 root default                                             
+-2  6.00000     host cephnode0                                       
+ 0  1.00000         osd.0               up  1.00000          1.00000 
+ 1  1.00000         osd.1               up  1.00000          1.00000 
+ 2  1.00000         osd.2               up  1.00000          1.00000 
+ 3  1.00000         osd.3               up  1.00000          1.00000 
+ 4  1.00000         osd.4               up  1.00000          1.00000 
+ 5  1.00000         osd.5               up  1.00000          1.00000 
+-3  6.00000     host cephnode1                                       
+ 6  1.00000         osd.6               up  1.00000          1.00000 
+ 7  1.00000         osd.7               up  1.00000          1.00000 
+ 8  1.00000         osd.8               up  1.00000          1.00000 
+10  1.00000         osd.10              up  1.00000          1.00000 
+11  1.00000         osd.11              up  1.00000          1.00000 
+ 9  1.00000         osd.9               up  1.00000          1.00000 
+-4  6.00000     host cephnode2                                       
+12  1.00000         osd.12              up  1.00000          1.00000 
+13  1.00000         osd.13              up  1.00000          1.00000 
+14  1.00000         osd.14              up  1.00000          1.00000 
+15  1.00000         osd.15              up  1.00000          1.00000 
+16  1.00000         osd.16              up  1.00000          1.00000 
+17  1.00000         osd.17              up  1.00000          1.00000 
+```
+
+after we put all the SSD based OSD into one root bucket, we can set some rules to let pool only use this bucket.
 
 ### To be continued
 
