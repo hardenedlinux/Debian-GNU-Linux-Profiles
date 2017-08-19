@@ -797,6 +797,35 @@ virsh define debian9.xml
 
 Enjoy the ceph block device with libvirt
 
+or
+
+You can simply add the ceph pool into your libvirt pool
+
+```
+<pool type='rbd'>
+  <name>ceph-libvirt-pool</name>
+  <source>
+    <host name='176.16.0.10' port='6789'/>
+    <host name='176.16.0.11' port='6789'/>
+    <host name='176.16.0.12' port='6789'/>
+    <name>libvirt</name>
+    <auth type='ceph' username='libvirt'>
+      <secret uuid='d550132c-ed06-4ece-bf45-570693cb0b8b'/>
+    </auth>
+  </source>
+</pool>
+```
+the `<name>libvirt</name>` it the ceph pool's name.
+save this file in libvirt-pool.xml
+
+```
+virsh pool-define libvirt-pool.xml
+virsh pool-start ceph-libvirt-pool
+virsh pool-autostart ceph-libvirt-pool
+Pool ceph-libvirt-pool marked as autostarted
+```
+So you can see the libvirt got a new storage call `ceph-libvirt-pool`. And you can use it to create new image and easily mount to virtual machine.
+
 #### Reference:
 http://docs.ceph.com/docs/jewel/architecture/   
 http://docs.ceph.com/docs/jewel/install/manual-deployment/   
