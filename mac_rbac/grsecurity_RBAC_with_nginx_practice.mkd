@@ -1,0 +1,424 @@
+# Grsecurity RBAC with nginx practice  
+
+## Environmental description  
+* This practice is based on Grsecurity's official last test patch 4.9.24
+* Original operating system release version: debian 9.1
+* Original operating system kernel version: 4.9.30-2+deb9u3 (2017-08-06) x86_64 GNU/Linux
+* sudo has been installed and the normal user's permissions are properly configured in the /etc/sudoers file
+
+## How to build kernel with Grsecurity 
+
+### Preparatory work  
+
+#### Install the necessary packages 
+
+```
+$ sudo apt-get install -y patch make build-essential libncurses5-dev bc dirmngr
+```
+
+### Download the kernel code and verify the integrity 
+
+* Note: kernel code and grsecurity patch files stored in the same directory;
+
+#### Download the kernel code and signature file 
+
+```
+$ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.9.24.tar.xz
+$ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.9.24.tar.sign
+```
+
+#### Decompress and Verify integrity 
+
+```
+$ unxz linux-4.9.24.tar.xz
+$ gpg --verify linux-4.9.24.tar.sign
+gpg: assuming signed data in 'linux-4.9.24.tar'
+gpg: Signature made Fri 21 Apr 2017 03:31:59 AM EDT
+gpg:                using RSA key 647F28654894E3BD457199BE38DBBDC86092693E
+gpg: Can't check signature: No public key
+```
+
+In the verification of the time there is more than the error, then the public key that is not verified, you need to obtain the public key.
+
+#### Get public key 
+
+```
+$ gpg --recv-keys 647F28654894E3BD457199BE38DBBDC86092693E
+```
+
+#### Re-verify   
+
+```
+$ gpg --verify linux-4.9.24.tar.sign 
+gpg: assuming signed data in 'linux-4.9.24.tar'
+gpg: Signature made Fri 21 Apr 2017 03:31:59 AM EDT
+gpg:                using RSA key 647F28654894E3BD457199BE38DBBDC86092693E
+gpg: Good signature from "Greg Kroah-Hartman (Linux kernel stable release signing key) <greg@kroah.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 647F 2865 4894 E3BD 4571  99BE 38DB BDC8 6092 693E
+```
+
+Look at the fourth line, you can see this package passed the verification;
+
+### Download grsecurity patch and verify the integrity  
+
+#### Download grsecurity patch and check the file 
+
+```
+$ wget http://mirrors.muarf.org/grsecurity/test/grsecurity-3.1-4.9.24-201704252333.patch.gz
+$ wget http://mirrors.muarf.org/grsecurity/test/grsecurity-3.1-4.9.24-201704252333.patch.sig
+```
+
+#### Unzip the patch package 
+
+```
+$ gzip -d grsecurity-3.1-4.9.24-201704252333.patch.gz
+```
+
+#### Verify the integrity
+
+```
+$ gpg --verify grsecurity-3.1-4.9.24-201704252333.patch.sig 
+gpg: assuming signed data in 'grsecurity-3.1-4.9.24-201704252333.patch'
+gpg: Signature made Tue 25 Apr 2017 11:36:10 PM EDT
+gpg:                using RSA key 44D1C0F82525FE49
+gpg: Can't check signature: No public key
+``` 
+
+#### Get public key 
+
+```
+$ gpg --keyserver hkp://keys.gnupg.net --recv-keys  44D1C0F82525FE49
+gpg: key 44D1C0F82525FE49: public key "Bradley Spengler (spender) <spender@grsecurity.net>" imported
+gpg: no ultimately trusted keys found
+gpg: Total number processed: 1
+gpg:               imported: 1
+``` 
+
+#### Re-verify  
+
+```
+$ gpg --verify grsecurity-3.1-4.9.24-201704252333.patch.sig 
+gpg: assuming signed data in 'grsecurity-3.1-4.9.24-201704252333.patch'
+gpg: Signature made Tue 25 Apr 2017 11:36:10 PM EDT
+gpg:                using RSA key 44D1C0F82525FE49
+gpg: Good signature from "Bradley Spengler (spender) <spender@grsecurity.net>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: DE94 52CE 46F4 2094 907F  108B 44D1 C0F8 2525 FE49
+```
+
+Look at the fourth line, you can see this package passed the verification;
+
+### Configure and compile the kernel 
+
+#### Merge the grsecurity patch into the kernel code 
+
+```
+$ tar xvf linux-4.9.24.tar
+$ cd linux-4.9.24
+$ patch -p1 -l < ../grsecurity-3.1-4.9.24-201704252333.patch
+``` 
+
+### Kernel configuration 
+
+```
+$ make menuconfig
+```
+
+In the configuration interface that appears, select the Security options/Grsecurity/Configuration Method item to set to Automatic;
+Usage Type is set to Server;
+The Required priorities setting is set to Security;
+
+Other keep the default;
+
+And then save it as a .config file;
+
+#### Compile the kernel 
+
+```
+$ make deb-pkg -j5
+```  
+
+* Description: -j5 that the current processor for the cpu 4, according to their own cpu processor to adjust; 
+
+### Install the compiled kernel package 
+
+```
+linux-4.9.24 $ cd ..
+$ sudo dpkg -i *.deb
+``` 
+
+### Reboot 
+
+```
+$ sudo reboot
+```
+
+### Check if the installation is successful  
+
+```
+$ uname -r
+4.9.24-grsec
+``` 
+
+### Repair dependency 
+
+As the kernel version has changed (reduced version number), in the subsequent use of apt related command, the installation package may appear to check the situation does not pass the case, in order to prevent this situation in the future use of the problem, so in After the kernel changes, use the following command to repair:
+
+```
+# apt --fix-broken install
+```
+
+## How to config RBAC for nginx 
+
+### The addition of the PaX exception program  
+
+```
+$ wget https://raw.githubusercontent.com/hardenedlinux/hardenedlinux_profiles/master/debian/debian_auto_deploy.sh
+$ bash ./debian_auto_deploy.sh 
+``` 
+
+After the completion of the above script, if the success will appear the following information：
+
+```
+*- elfix package: OK
+Adding PaX flags m onto binary /usr/bin/java
+Adding PaX flags m onto binary /usr/lib/jvm/java-9-openjdk-amd64/bin/*
+Adding PaX flags m onto binary /usr/lib/jvm/java-8-openjdk-amd64/bin/*
+Adding PaX flags m onto binary /usr/bin/qemu-system-*
+Adding PaX flags m onto binary /usr/bin/stress-ng
+Adding PaX flags mr onto binary /usr/bin/python2.7
+Adding PaX flags m onto binary /usr/bin/gnome-shell
+Adding PaX flags m onto binary /usr/lib/gnome-session/gnome-session-binary
+Adding PaX flags m onto binary /usr/bin/pulseaudio
+Adding PaX flags m onto binary /usr/lib/gnome-terminal/gnome-terminal-server
+Adding PaX flags me onto binary /opt/google/chrome/chrome
+Adding PaX flags pme onto binary /opt/google/chrome/nacl_helper
+Adding PaX flags me onto binary /opt/google/chrome/chrome-sandbox
+Adding PaX flags mr onto binary /usr/bin/hashcat
+```
+ 
+### Install gradm 
+
+#### Download source 
+
+```
+$ wget https://grsecurity.net/stable/gradm-3.1-201709030627.tar.gz
+``` 
+
+#### Preparatory work 
+
+```
+$ sudo apt-get install -y bison flex libpam0g-dev 
+```
+
+#### Decompress and compile 
+
+```
+$ tar zxvf gradm-3.1-201709030627.tar.gz 
+$ cd gradm; make 
+$ sudo make install 
+```
+
+In the installation of the time, will prompt "Setting up grsecurity RBAC password" to set the password, set a robust password, and not the same as the root user's password.
+
+#### Get version for check install 
+
+```
+$ sudo gradm -v
+gradm v3.1 - grsecurity RBAC administration and policy analysis utility
+Copyright 2002-2015 - Brad Spengler, Open Source Security, Inc.
+Email: spender@grsecurity.net
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2 as published
+by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+``` 
+
+### Install nginx 
+
+```
+$ sudo apt-get install -y nginx
+```
+
+### Enable full system learning
+
+grsecr's RBAC environment and nginx applications are all ready, then now do is to grsec RBAC learning mode is open;
+
+First, let's look at the current state of grsec RBAC:
+
+```
+$ sudo gradm -S
+[sudo] password for grsec: 
+The RBAC system is currently disabled.
+``` 
+
+#### Make sure nginx is already running 
+
+```
+$ sudo netstat  -ntpl | grep nginx
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      6676/nginx: master  
+tcp6       0      0 :::80                   :::*                    LISTEN      6676/nginx: master
+``` 
+
+#### Enable full system learning 
+
+##### Possible problems:
+
+```
+# gradm -F -L /etc/grsec/learning.logs
+No password exists for special role admin.
+Run gradm -P admin to set up a password for the role.
+``` 
+
+When the above problems arise, because grsec RBAC is the need for each role to protect the password settings, as long as the implementation of the following command to set password:
+
+```
+$ sudo gradm -P admin
+Password: 
+Re-enter Password: 
+Password written to /etc/grsec/pw.
+```
+
+#### Re-Enable full system learning 
+
+```
+# gradm -F -L /etc/grsec/learning.logs
+# gradm -u admin
+# gradm -S
+The RBAC system is currently enabled.
+```
+
+#### Start nginx grsecurity rbac learn 
+
+In another machine, enter the address of the server nginx, if you can see the Welcome to nginx! Page, said to be able to access;
+
+```
+wget http://10.0.100.224/
+```
+
+After repeating the above operation twice or more, stop the self-learning mode and use the following command:
+
+```
+# gradm -D
+# gradm -S
+The RBAC system is currently disabled.
+```
+
+The rules that convert the learned log to RBAC are as follows：
+
+```
+# gradm -F -L /etc/grsec/learning.logs -O /etc/grsec/policy
+```
+
+Open /etc/grsec/policy file，You can see the configuration about nginx：
+
+```
+role www-data u
+role_allow_ip   0.0.0.0/32
+# Role: www-data
+subject /  {
+        /                               h
+        -CAP_ALL
+        bind    disabled
+        connect disabled
+}
+
+# Role: www-data
+subject /usr/sbin/nginx o {
+        /                               h
+        /var/www/html
+        /var/www/html/index.nginx-debian.html   r
+        -CAP_ALL
+        bind 0.0.0.0/32:80 stream tcp
+        connect disabled
+}
+```
+
+Enable the grsecurity RBAC system: 
+
+```
+# gradm -E
+# gradm -S
+The RBAC system is currently enabled.
+```
+
+If there is an error message, the need to deal with the error before the normal start grsecurity RBAC system.
+
+##### Verify grsecurity RBAC system for nginx restrictions 
+
+Through the above rules you can see, only /var/www/html/index.nginx-debian.html able to access, we /var/www/html/ directory and then create a file named index.html, In the case of grsec rbac rule open:
+
+```
+# gradm -D
+# cp /var/www/html/index.nginx-debian.html /var/www/html/index.html
+# gradm -E
+```
+
+Get the web page (the nginx web server address in this example is 10.0.100.224)：
+
+```
+$ wget http://10.0.100.224/index.nginx-debian.html 
+--2017-09-11 15:35:56--  http://10.0.100.224/index.nginx-debian.html
+Connecting to 10.0.100.224:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length： 612 [text/html]
+Saving to: “index.nginx-debian.html”
+
+index.nginx-debian.html                            100%[===============================================================================================================>]     612  --.-KB/s    in 0s      
+
+2017-09-11 15:35:56 (49.6 MB/s) - 'index.nginx-debian.html' saved [612/612])
+
+$ wget http://10.0.100.224/index.html
+--2017-09-11 15:36:03--  http://10.0.100.224/index.html
+Connecting to 10.0.100.224:80... connected.
+HTTP request sent, awaiting response... 403 Forbidden
+2017-09-11 15:36:03 ERROR 403：Forbidden。
+```
+
+You can see that you can return an error code that is disabled when you get index.html.
+
+To use access to index.html Just add the following line to the grsec RBAC rule:
+
+```
+# gradm -D
+```
+
+Add the following line under the /var/www/html/index.nginx-debian.html r line of the /etc/grsec/ policy file:
+
+```
+/var/www/html/index.html        r
+```
+
+Modify save and open grsec RBAC system:
+
+```
+# gradm -E
+```
+
+In another machine, enter the address of the server nginx:
+;
+```
+$ wget http://10.0.100.224/index.html
+--2017-09-11 15:52:11--  http://10.0.100.224/index.html
+Connecting to 10.0.100.224:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length： 617 [text/html]
+Saving to:: “index.html.5”
+
+index.html.5                                       100%[===============================================================================================================>]     617  --.-KB/s    in 0s      
+
+2017-09-11 15:52:11 (59.7 MB/s) - 'index.html.5' saved [617/617])
+```
+
+
