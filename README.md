@@ -30,7 +30,13 @@
 [Building IPSEC VPN via strongswan](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ipsec/strongswan-ipsec-in-debian.md)  
 
 #### Security Operation Center
-[Using Logstash/Elasticsearch/Grafana to build a small SOC(Security Operation Center) from scratch](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/build-small-soc-from-scratch.md)
+[Using Logstash/Elasticsearch/Grafana to build a small SOC(Security Operation Center) from scratch](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/build-small-soc-from-scratch.md)  
+
+[SOC Overview](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/soc_overview.md)  
+
+
+#### Storage
+[Manually deploy ceph cluster step by step](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/storage/manually_deploy_ceph_cluster_step_by_step.md)
 
 #### SSH and Cluster
 [Powerful ssh(1) options you don't know](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ssh_and_cluster/powerful-ssh-options-you-dont-know.md)  
