@@ -66,8 +66,8 @@ Look at the fourth line, you can see this package passed the verification;
 #### Download grsecurity patch and check the file 
 
 ```
-$ wget http://mirrors.muarf.org/grsecurity/test/grsecurity-3.1-4.9.24-201704252333.patch.gz
-$ wget http://mirrors.muarf.org/grsecurity/test/grsecurity-3.1-4.9.24-201704252333.patch.sig
+$ wget https://github.com/hardenedlinux/grsecurity-reproducible-build/blob/master/grsecurity-3.1-4.9.24-201704252333.patch.gz
+$ wget https://github.com/hardenedlinux/grsecurity-reproducible-build/blob/master/grsecurity-3.1-4.9.24-201704252333.patch.sig
 ```
 
 #### Unzip the patch package 
@@ -203,6 +203,11 @@ Adding PaX flags mr onto binary /usr/bin/hashcat
 ### Install gradm 
 
 #### Download source 
+
+For the latest version of the address, please refer to the specific address on this page:  
+https://grsecurity.net/download.php   
+
+The current version of the access address and download: 
 
 ```
 $ wget https://grsecurity.net/stable/gradm-3.1-201709030627.tar.gz
@@ -421,4 +426,11 @@ index.html.5                                       100%[========================
 2017-09-11 15:52:11 (59.7 MB/s) - 'index.html.5' saved [617/617])
 ```
 
+## Reference
 
+https://grsecurity.net/   
+https://en.wikibooks.org/wiki/Grsecurity  
+https://en.wikibooks.org/wiki/Grsecurity/The_RBAC_System  
+
+
+ 
