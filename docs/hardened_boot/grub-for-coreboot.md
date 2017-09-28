@@ -40,7 +40,25 @@ Make sure all dependencies are ready, the makefile could be invoked:
 $ make -f grub.mk
 ```
 
-A standalone grub ELF executable named `grub.elf` will be generated, with `grub.cfg.embedded` integrated as the first stage config script.
+A standalone grub ELF executable named `grub.elf` will be generated, with [grub.cfg.embedded](/scripts/coreboot/grub.cfg.embedded) integrated as the first stage config script.
+
+###### Update for coreboot (after commit 2ac149d294af795710eb4bb20f093e9920604abd)
+
+On some newer platforms of intel (confirmed on nehalem, sandy/ivy bridge), coreboot registers an SMI to lockdown some registers on the chipset,
+as well as access to the SPI flash, optionally. The SMI will always be triggered by coreboot during S3 resume, but can be triggered by either
+coreboot or the payload during normal boot path.
+
+Enabling lockdown access to SPI flash will effectly write-protect it, but there is no runtime option for coreboot to control it, so letting
+coreboot to trigger such SMI will leave the owner of the machine lost any possibility to program the SPI flash with its own OS, and becomes a
+nightmare if the machine is uneasy to disassemble.
+
+Fortunately, grub has the compatibility to use outb, outl, and outw, which means it has the ability to trigger SMI as well. We can then write
+a [special config script](/scripts/coreboot/grub.sec.cfg.embedded), in which an auto-executed `menuitem` is designed to trigger the SMI, and whose
+context is protected with password. Only designated superuser could edit the code within this `menuitem` at runtime, thus disable the write-
+protection temporarily, in order to reprogram the SPI flash.
+
+Such config script is designed to embedded into the executable. To enforce the protection mechanism, SeaBIOS should not be used any more. Please
+use this grub executable as the first payload instead.
 
 ##### Integrate the executable into the coreboot image
 
