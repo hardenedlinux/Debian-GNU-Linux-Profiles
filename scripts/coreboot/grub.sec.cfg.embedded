@@ -2,7 +2,11 @@ set prefix=(memdisk)/boot/grub
 
 set superusers="superowner"
 export superusers
+
 # password superowner antievilmaid
+# The pbkdf2 password below is just the hashed version of the commented plain one above, as an example.
+# You should ALWAYS replace the exemplar pbkdf2 password with your OWN.
+
 password_pbkdf2 superowner grub.pbkdf2.sha512.10000.138F7ACBFA718AF945D480ED5913BC7FE708AC5AEFCC7F6A53437A7284A4F9D69326172F91EAC379B5D09BEAFB60E2DACF46CBCA57DF54FBA3AFA4EA0F4D973B.67AA006747F6D1F3A9DCDCC9B9E037C9FF6C01B77FEEAD9E3FAA0077AE4BD55AB250B2BFC75681C0958F542BB395ED893F239A0FB715C5C769EED4860C838461
 
 function linuxpgp {
