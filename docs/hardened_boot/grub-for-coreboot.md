@@ -54,11 +54,11 @@ nightmare if the machine is uneasy to disassemble.
 
 Fortunately, grub has the compatibility to use outb, outl, and outw, which means it has the ability to trigger SMI as well. We can then write
 a [special config script](/scripts/coreboot/grub.sec.cfg.embedded), in which an auto-executed `menuitem` is designed to trigger the SMI, and whose
-context is protected with password. Only designated superuser could edit the code within this `menuitem` at runtime, thus disable the write-
+context is protected with a password. Only designated superuser could edit the code within this `menuitem` at runtime, thus disable the write-
 protection temporarily, in order to reprogram the SPI flash.
 
-Such config script is designed to embedded into the executable. To enforce the protection mechanism, SeaBIOS should not be used any more. Please
-use this grub executable as the first payload instead.
+Such config script is designed to embedded into the grub payload executable. In order to make such protection unable to bypass during boot,
+the payload had better be executed by coreboot directly, rather than to be chainloaded from other runtime-operable payloads, such as SeaBIOS.
 
 ##### Integrate the executable into the coreboot image
 
@@ -71,7 +71,18 @@ $ cd ${CBSRC}
 $ make menuconfig
 ```
 
-Make sure to use seabios as the default payload. After saving the config result, invoke `make(1)` to build the coreboot image.
+###### Use the grub payload directly
+
+coreboot allows to use existing elf executable as payload, which will be executed by coreboot directly.
+
+###### SeaGrub scheme
+
+Use seabios as the default payload, which will be built and integrated into the image automatically during coreboot's building process,
+then use the script below to insert the grub payload into the image, and configure SeaBIOS to chainload it automatically.
+
+##### Build coreboot's image
+
+After saving the config result, invoke `make(1)` to build the coreboot image.
 
 ```
 $ make
@@ -81,7 +92,7 @@ The coreboot image will be generated at `${CBSRC}/build/coreboot.rom`.
 
 You need `cbfstool` to manipulate CBFS with the image. An usable executable should be built at `${CBSRC}/build/cbfstool` during coreboot's build process.
 
-Copy the grub executable to `${CBSRC}/grub2.elf` and run the following script under `${CBSRC}`:
+Copy the grub executable to `${CBSRC}/grub2.elf` and run the following script under `${CBSRC}`, if SeaGrub scheme will be used:
 
 ```
 #!/bin/sh
