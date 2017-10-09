@@ -42,7 +42,7 @@ $ make -f grub.mk
 
 A standalone grub ELF executable named `grub.elf` will be generated, with [grub.cfg.embedded](/scripts/coreboot/grub.cfg.embedded) integrated as the first stage config script.
 
-###### Update for coreboot (after commit 2ac149d294af795710eb4bb20f093e9920604abd)
+###### Update for coreboot (after commit [2ac149d294af795710eb4bb20f093e9920604abd](https://review.coreboot.org/cgit/coreboot.git/commit/?id=2ac149d294af795710eb4bb20f093e9920604abd))
 
 On some newer platforms of intel (confirmed on nehalem, sandy/ivy bridge), coreboot registers an SMI to lockdown some registers on the chipset,
 as well as access to the SPI flash, optionally. The SMI will always be triggered by coreboot during S3 resume, but can be triggered by either
