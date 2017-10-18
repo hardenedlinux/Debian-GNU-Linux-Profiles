@@ -251,14 +251,14 @@ systemctl enable ceph-osd@0
 #For hdd osd
 #!/bin/bash
 
-OSD_ID=$(ceph osd create)
+OSD_ID=$(ceph osd create) #On ceph monitor node
 sgdisk --mbrtogpt -- /dev/"$1"
 mkfs.xfs /dev/"$1" -f
 mkdir /var/lib/ceph/osd/ceph-$OSD_ID
 mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
 chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
 ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
-ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring
+ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring #On ceph monitor node
 ceph osd crush add-bucket $HOSTNAME host
 ceph osd crush move $HOSTNAME root=default
 ceph osd crush add osd.$OSD_ID 1 root=default host=$HOSTNAME
@@ -328,14 +328,14 @@ and add the SSD drive into cluster just like before, you can just read the scrip
 #ceph osd crush add-bucket ssd root
 #for ssd pool
 
-OSD_ID=$(ceph osd create)
+OSD_ID=$(ceph osd create) #On ceph monitor node
 sgdisk --mbrtogpt -- /dev/"$1"
 mkfs.xfs /dev/"$1" -f
 mkdir /var/lib/ceph/osd/ceph-$OSD_ID
 mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
 chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
 ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
-ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring
+ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring #On ceph monitor node
 ceph osd crush add-bucket "$HOSTNAME"-ssd host
 ceph osd crush move "$HOSTNAME"-ssd root=ssd
 ceph osd crush add osd.$OSD_ID 1 root=ssd host="$HOSTNAME"-ssd
