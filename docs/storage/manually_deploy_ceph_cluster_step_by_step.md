@@ -352,7 +352,7 @@ Note we add a host bucket call "cephnode0-ssd" and move it into `ssd` root bucke
 in this OSD, it will run the `/usr/lib/ceph/ceph-osd-prestart.sh` and this script will run the `/usr/bin/ceph-crush-location ` and this tool will pass the `$HOSTNAME` to the CRUSH map, so if the `osd.18` is the SSD based OSD, under the `cephnode0-ssd` ("$HOSTNAME"-ssd) under the root bucket call `ssd`. after we restart the service the `host` of `osd.18` will change from `"$HOSTNAME"-ssd` into `"$HOSTNAME"`. So we should manually assign the host of this kind of osd. In the `/etc/ceph/ceph.conf`
 
 ```
-[[osd.18]
+[osd.18]
     osd crush location = "root=ssd host=cephnode0-ssd"
 ```
 so the osd tree show as below
