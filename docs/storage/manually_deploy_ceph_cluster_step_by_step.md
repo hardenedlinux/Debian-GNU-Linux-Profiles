@@ -258,7 +258,7 @@ mkdir /var/lib/ceph/osd/ceph-$OSD_ID
 mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
 chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
 ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
-ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring #On ceph monitor node
+ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring 
 ceph osd crush add-bucket $HOSTNAME host
 ceph osd crush move $HOSTNAME root=default
 ceph osd crush add osd.$OSD_ID 1 root=default host=$HOSTNAME
@@ -335,7 +335,7 @@ mkdir /var/lib/ceph/osd/ceph-$OSD_ID
 mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
 chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
 ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
-ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring #On ceph monitor node
+ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring 
 ceph osd crush add-bucket "$HOSTNAME"-ssd host
 ceph osd crush move "$HOSTNAME"-ssd root=ssd
 ceph osd crush add osd.$OSD_ID 1 root=ssd host="$HOSTNAME"-ssd
