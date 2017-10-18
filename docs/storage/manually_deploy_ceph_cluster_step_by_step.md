@@ -698,18 +698,18 @@ and create /etc/ceph/ceph.client.libvirt.keyring, such as
 
 
 ```
-qemu-img create -f raw rbd:<pool name>/<new-image-new>:id=<user>:conf=/etc/ceph/ceph.conf 20G
+qemu-img create -f raw rbd:<pool name>/<new-image-new>:conf=/etc/ceph/ceph.conf 20G
 ```
 for example
 ```
-qemu-img create -f raw rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf 40G
-Formatting 'rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf', fmt=raw size=42949672960
+qemu-img create -f raw rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf 40G
+Formatting 'rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf', fmt=raw size=42949672960
 ```
 check the image by using
 
 ```
-qemu-img info  rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf
-image: rbd:libvirt/debian9-netinstall:id=libvirt:conf=/etc/ceph/ceph.conf
+qemu-img info  rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf
+image: rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf
 file format: raw
 virtual size: 40G (42949672960 bytes)
 disk size: unavailable
