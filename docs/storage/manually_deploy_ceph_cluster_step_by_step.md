@@ -662,7 +662,7 @@ for qemu-system-x86_64 and libvirtd with PaX/Grsecurity
 paxctl-ng -perms /usr/bin/qemu-system-x86_64
 paxctl-ng -perms /usr/sbin/libvirtd
 ```
-### Creat libvirt pool and create ceph user on Ceph monitor
+#### Creat libvirt pool and create ceph user on Ceph monitor
 
 Create the libvirt pool (already create it before)
 
