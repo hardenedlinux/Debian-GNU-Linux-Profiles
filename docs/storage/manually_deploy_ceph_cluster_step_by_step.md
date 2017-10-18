@@ -150,6 +150,7 @@ monmaptool: writing epoch 0 to /tmp/monmap (1 monitors)
 Populate the monitor daemon(s) with the monitor map and keyring.
 
 ```
+root@cephmon0# chown ceph:ceph /tmp/ceph.mon.keyring
 root@cephmon0# ceph-mon --mkfs -i cephmon0 --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring --setuser ceph --setgroup ceph
 
 ceph-mon: set fsid to a7f64266-0894-4f1e-a635-d0aeaca0e993
