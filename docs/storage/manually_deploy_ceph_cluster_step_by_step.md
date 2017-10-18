@@ -105,7 +105,7 @@ Create /etc/ceph/ceph.conf, using the UUID for fsid(cluster uuid)
 ```
 [global]
 fsid = a7f64266-0894-4f1e-a635-d0aeaca0e993
-mon initial members = mon0
+mon initial members = cephmon0
 mon host = 192.168.200.157
 public network = 192.168.200.0/24
 auth cluster required = cephx
