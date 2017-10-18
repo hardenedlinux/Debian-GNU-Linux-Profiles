@@ -213,6 +213,7 @@ Note: The `-i 0` means using osid = 0, and `--setuser ceph --setgroup ceph` mean
 #### Register the OSD authentication key
 
 copy ceph monitor's /etc/ceph/ceph.client.admin.keyring to ceph OSD node /etc/ceph/ceph.client.admin.keyring
+and copy ceph monitor's /etc/ceph/ceph.conf to ceph OSD node /etc/ceph/ceph.conf
 
 ```
 ceph auth add osd.0 osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-0/keyring
