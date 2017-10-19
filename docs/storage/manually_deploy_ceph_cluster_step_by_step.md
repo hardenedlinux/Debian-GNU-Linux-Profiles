@@ -745,7 +745,7 @@ Get the client.libvirt key and save the key string to a file
 
 You can get the key from your monitor host by execute this command.
 ```
-auth get-key client.libvirt |  tee client.libvirt.key
+ceph auth get-key client.libvirt |  tee client.libvirt.key
 cat client.libvirt.key
 AQCPPo9Z4yukHRAXdnjDfxbn0GfHr0JJI9mg==
 ```
