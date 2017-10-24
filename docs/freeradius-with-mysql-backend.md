@@ -27,7 +27,7 @@ bob     Cleartext-Password := "hello"
 
 #### Change default eap method
 
-modify `/etc/freeradius/mods-enabled/eap`
+modify `/etc/freeradius/3.0/mods-enabled/eap`
 
 ```
 eap {
