@@ -39,7 +39,7 @@ eap {
 
 #### Add NAS(Network Access Server)
 
-modify `/etc/freeradius/clients.conf`
+modify `/etc/freeradius/3.0/clients.conf`
 add following content
 
 ```
