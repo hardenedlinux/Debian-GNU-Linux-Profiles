@@ -1,0 +1,33 @@
+commit 54fd92bc343da755b53bc290573ca59e63890d07
+Author: Arthur Heymans <arthur@aheymans.xyz>
+Date:   Mon Jun 5 15:23:00 2017 +0200
+
+    util/cbfstool/lz4frame.c: Add comment to fall through
+    
+    GCC7 has a new feature called -Wimplicit-fallthrough enabled by
+    default which checks for fallthrough in switch statements which is a
+    common error. When a fallthrough is actually intended a comment saying
+    so will satisfy GCC.
+    
+    Fixes cbfstool not building with GCC7.
+    
+    Change-Id: I83252fc96be7ce0971d4251b0fc88fbbd7440e71
+    Signed-off-by: Arthur Heymans <arthur@aheymans.xyz>
+    Reviewed-on: https://review.coreboot.org/20036
+    Tested-by: build bot (Jenkins) <no-reply@coreboot.org>
+    Reviewed-by: Nico Huber <nico.h@gmx.de>
+    Reviewed-by: Paul Menzel <paulepanter@users.sourceforge.net>
+
+diff --git a/util/cbfstool/lz4/lib/lz4frame.c b/util/cbfstool/lz4/lib/lz4frame.c
+index e5458bb9e4..f984b2734a 100644
+--- a/util/cbfstool/lz4/lib/lz4frame.c
++++ b/util/cbfstool/lz4/lib/lz4frame.c
+@@ -1091,7 +1091,7 @@ size_t LZ4F_decompress(LZ4F_decompressionContext_t decompressionContext,
+                 dctxPtr->tmpInTarget = minFHSize;   /* minimum to attempt decode */
+                 dctxPtr->dStage = dstage_storeHeader;
+             }
+-
++	    /* Falls through. */
+         case dstage_storeHeader:
+             {
+                 size_t sizeToCopy = dctxPtr->tmpInTarget - dctxPtr->tmpInSize;

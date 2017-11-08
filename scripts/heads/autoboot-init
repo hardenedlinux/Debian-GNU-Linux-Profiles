@@ -1,0 +1,108 @@
+#!/bin/sh
+# Boot from a local disk installation
+
+. /etc/functions
+. /etc/config
+
+mount_boot()
+{
+	# Mount local disk if it is not already mounted
+	if ! grep -q /boot /proc/mounts ; then
+		mount -o ro /boot \
+			|| recovery "Unable to mount /boot"
+	fi
+}
+
+auto_confirm_totp()
+{
+        prompt="$1"
+	default_option="$2"
+	last_half=X
+	unset totp_confirm
+	tmp_cnt="$3"
+
+	while [ $tmp_cnt -ge 1 ]; do
+
+		# update the TOTP code every thirty seconds
+		date=`date "+%Y-%m-%d %H:%M:%S"`
+		seconds=`date "+%s"`
+		half=`expr \( $seconds % 60 \) / 30`
+		if [ "$CONFIG_TPM" = n ]; then
+			TOTP="NO TPM"
+		elif [ "$half" != "$last_half" ]; then
+			last_half=$half;
+			TOTP=`unseal-totp` \
+			|| recovery "TOTP code generation failed"
+		fi
+
+		echo -n "$date $TOTP: "
+
+		# read the first character, non-blocking
+		read \
+			-t 1 \
+			-n 1 \
+			-s \
+			-p "$prompt $(printf '%02u seconds later to boot "%s"' $tmp_cnt $default_option)" \
+			totp_confirm \
+		&& break
+
+		# nothing typed, redraw the line
+		echo -ne '\r'
+		tmp_cnt=$(($tmp_cnt-1))
+	done
+
+	if [ ! $totp_confirm ]; then
+	        totp_confirm=$default_option
+	fi
+	
+	# clean up with a newline
+	echo
+}
+
+# Confirm we have a good TOTP unseal and ask the user for next choice
+while true; do
+	echo "y) Default boot"
+	echo "n) TOTP does not match"
+	echo "r) Recovery boot"
+	echo "u) USB boot"
+	echo "m) Boot menu"
+
+	if ! auto_confirm_totp "Boot mode" y 30; then
+		recovery 'Failed to unseal TOTP'
+	fi
+
+	if [ "$totp_confirm" = "r" ]; then
+		recovery "User requested recovery shell"
+	fi
+
+	if [ "$totp_confirm" = "n" ]; then
+		echo ""
+		echo "To correct clock drift: 'date -s HH:MM:SS'"
+		echo "and save it to the RTC: 'hwclock -w'"
+		echo "then reboot and try again"
+		echo ""
+		recovery "TOTP mismatch"
+	fi
+
+	if [ "$totp_confirm" = "u" ]; then
+		exec /bin/usb-init
+		continue
+	fi
+
+	if [ "$totp_confirm" = "m" ]; then
+		# Try to select a kernel from the menu
+		mount_boot
+		kexec-select-boot -m -b /boot -c "grub.cfg"
+		continue
+	fi
+
+	if [ "$totp_confirm" = "y" -o -n "$totp_confirm" ]; then
+		# Try to boot the default
+		mount_boot
+		kexec-select-boot -b /boot -c "grub.cfg" \
+		|| recovery "Failed default boot"
+	fi
+
+done
+
+recovery "Something failed during boot"
