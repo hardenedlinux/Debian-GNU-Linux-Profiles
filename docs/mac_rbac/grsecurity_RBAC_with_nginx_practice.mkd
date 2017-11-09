@@ -315,7 +315,6 @@ wget http://10.0.100.224/
 After repeating the above operation twice or more, stop the self-learning mode and use the following command:
 
 ```
-# gradm -u
 # gradm -D
 # gradm -S
 The RBAC system is currently disabled.
@@ -325,6 +324,7 @@ The rules that convert the learned log to RBAC are as follows：
 
 ```
 # gradm -F -L /etc/grsec/learning.logs -O /etc/grsec/policy
+# gradm -u
 ```
 
 Open /etc/grsec/policy file，You can see the configuration about nginx：
