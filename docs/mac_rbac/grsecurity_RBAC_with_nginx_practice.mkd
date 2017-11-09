@@ -299,7 +299,7 @@ Password written to /etc/grsec/pw.
 
 ```
 # gradm -F -L /etc/grsec/learning.logs
-# gradm -u admin
+# gradm -a admin
 # gradm -S
 The RBAC system is currently enabled.
 ```
@@ -315,6 +315,7 @@ wget http://10.0.100.224/
 After repeating the above operation twice or more, stop the self-learning mode and use the following command:
 
 ```
+# gradm -u
 # gradm -D
 # gradm -S
 The RBAC system is currently disabled.
