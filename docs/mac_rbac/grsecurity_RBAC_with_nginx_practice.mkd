@@ -351,6 +351,14 @@ subject /usr/sbin/nginx o {
 }
 ```
 
+Check grsecurity RBAC policy 
+
+```
+# gradm -C
+```
+
+Check the grsecurity RBAC policy, and if there are errors message, these must be fixed before the RBAC system is allowed to be enabled.  
+
 Enable the grsecurity RBAC system: 
 
 ```
