@@ -98,6 +98,10 @@ sql {
         driver = "rlm_sql_mysql"
 
 ...
+        dialect = "mysql"
+        
+        
+...
 }
 ```
 modify connection info `/etc/freeradius/3.0/mods-enabled/sql` 
