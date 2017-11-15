@@ -82,7 +82,7 @@ cd /etc/freeradius/3.0/mods-enabled
 ln -s  ../mods-available/sql sql
 ```
 
-modify mysql driver `/etc/freeradius/mods-enabled/sql`
+modify mysql driver `/etc/freeradius/3.0/mods-enabled/sql`
 ```
 sql {
         # The sub-module to use to execute queries. This should match
@@ -100,7 +100,7 @@ sql {
 ...
 }
 ```
-modify connection info `/etc/freeradius/mods-enabled/sql` 
+modify connection info `/etc/freeradius/3.0/mods-enabled/sql` 
 ```
 sql {
 ...
@@ -113,7 +113,7 @@ sql {
 ```
 
 
-setting the backend in /etc/freeradius/site-enabled/default
+setting the backend in /etc/freeradius/3.0/site-enabled/default
 
 ```
 authorize {
@@ -124,7 +124,7 @@ authorize {
 }
 ```
 
-setting the backend in /etc/freeradius/site-enabled/inner-tunnel
+setting the backend in /etc/freeradius/3.0/site-enabled/inner-tunnel
 
 ```
 authorize {
