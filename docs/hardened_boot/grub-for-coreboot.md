@@ -53,12 +53,22 @@ coreboot to trigger such SMI will leave the owner of the machine lost any possib
 nightmare if the machine is uneasy to disassemble.
 
 Fortunately, grub has the compatibility to use outb, outl, and outw, which means it has the ability to trigger SMI as well. We can then write
-a [special config script](/scripts/coreboot/grub.sec.cfg.embedded), in which an auto-executed `menuitem` is designed to trigger the SMI, and whose
+an [extension config script](/scripts/coreboot/99-lockchip.cfg), in which an auto-executed `menuitem` is designed to trigger the SMI, and whose
 context is protected with a password. Only designated superuser could edit the code within this `menuitem` at runtime, thus disable the write-
 protection temporarily, in order to reprogram the SPI flash.
 
-Such config script is designed to embedded into the grub payload executable. In order to make such protection unable to bypass during boot,
-the payload had better be executed by coreboot directly, rather than to be chainloaded from other runtime-operable payloads, such as SeaBIOS.
+Such config script is designed as an extension of the embedded script within the grub payload executable. In order to make such protection unable
+to bypass during boot, the payload had better be executed by coreboot directly, rather than to be chainloaded from other runtime-operable payloads,
+such as SeaBIOS.
+
+Use the script below to insert the extension script into the coreboot image:
+
+```
+#!/bin/sh
+CBROM=$1
+build/cbfstool ${CBROM} add -t raw -n extensions/$(basename $2) -f $2
+build/cbfstool ${CBROM} print
+```
 
 ##### Integrate the executable into the coreboot image
 

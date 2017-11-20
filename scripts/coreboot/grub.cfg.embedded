@@ -20,4 +20,12 @@ if [ -d (cbfsdisk)/keys ] ; then
     trustkeys (cbfsdisk)/keys
 fi
 
+# execute each scripts under (cbfsdisk)/extensions
+if [ -d (cbfsdisk)/extensions ]; then
+    for ext in (cbfsdisk)/extensions/*; do
+        configfile ${ext}
+    done
+fi
+
+# load second-stage config file from default path.
 source (cbfsdisk)/grub.cfg
