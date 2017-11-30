@@ -105,6 +105,9 @@ Connect your OpenPGP card or token to one of the usb ports, then choose 'y' for 
 
 With the signature, the boot part becomes automatic, and you will have a measured (PCR 4 is used in the firmware stages.), signed, and automated boot scheme if you have chosen `autoboot-init`.
 
+#### Update 1
+[A new patch](https://github.com/persmule/heads/commit/afd3a005e078420bbbcfb8194fc90e02dcc25666) has been filed as PR with a feature not to generate hashes for initrd or modules if module.sig_enforce=1 is present, which may ease the updating of initrd from GNU/Linux OSes. The corresponding config flag has been inserted into the heads' config provided by us.
+
 
 ### Reference:
 [1] [Heads-wiki](https://github.com/osresearch/heads-wiki)
