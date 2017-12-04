@@ -13,13 +13,13 @@ a) 由专门设置的系统安全员统一管理操作系统中与强制访问�
 
 这句话本身并没有讲解的非常具体化，以下为个人对三权分离涉及到的三个用户的权力划分范围的一个理解（有一些具体哪些权限或能力是划分到哪种管理员来进行管理，会因为根据实际场景需求或理解的不同而不同）： 
 
-系统管理员：仅能够进行服务的启动/查询/关闭(例如：nginx的服务的启动/关闭)，仅能够进行系统维护的日常工作(如进行ping,netstat,ifconfig)；
-系统安全员：仅能够进行与安全功能的开启/关闭，仅能够进行用户/组的创建、删除，关闭系统；
-系统审计员：仅能够进行审计日志的查看、审计系统的规则的修改及显示，仅能够对系统日志目录的查看；
+系统管理员：仅能够进行服务的启动/查询/关闭(例如：nginx的服务的启动/关闭)，仅能够进行系统维护的日常工作(如进行ping,netstat,ifconfig)；   
+系统安全员：仅能够进行与安全功能的开启/关闭，仅能够进行用户/组的创建、删除，关闭系统；  
+系统审计员：仅能够进行审计日志的查看、审计系统的规则的修改及显示，仅能够对系统日志目录的查看；  
 
 ## Grsecurity RBAC系统简介  
-基于角色的访问控制（RBAC）系统是Grsecurity的除了PaX部分的另一个值得注意的部分。基于角色的访问控制（RBAC）系统是限制访问系统的授权用户的一种方法。如果要限制对所有用户（包括root）的文件，功能，资源或套接字的访问，则需要RBAC系统。这与强制访问控制（MAC）模型类似。RBAC旨在对基于自主访问控制(discretionary access control, DAC)的类*nix系统提供更多的权限管理，目的是创建一个完全最小权限的系统，其中用户和进程拥有绝对最低限度的特权才能正常工作。这样，如果系统受到攻击，攻击者破坏或获取系统敏感信息的能力可以大大降低。RBAC通过收集“角色”来工作。 每个角色可以单独限制他们可以或不可以做的事情，这些角色和限制形成一个“政策”，可以根据需要进行修改。
-在Grsecurity中，RBAC系统是通过policy文件来进行管理的，当使用gradm命令进行RBAC系统的激活时，polocy文件将被解析并检查是否在policy的配置上存在不安全的配置，例如生成了能够访问类似policy文件本身的敏感设置或文件时。当不安全的配置被发现时，gradm将拒绝激活RBAC系统，将会给出对应的提示以使管理员能够对其进行修复。当RBAC系统被激活时，只有admin角色能够对policy进行访问。
+基于角色的访问控制（RBAC）系统是Grsecurity的除了PaX部分的另一个值得注意的部分。基于角色的访问控制（RBAC）系统是限制访问系统的授权用户的一种方法。如果要限制对所有用户（包括root）的文件，功能，资源或套接字的访问，则需要RBAC系统。这与强制访问控制（MAC）模型类似。RBAC旨在对基于自主访问控制(discretionary access control, DAC)的类*nix系统提供更多的权限管理，目的是创建一个完全最小权限的系统，其中用户和进程拥有绝对最低限度的特权才能正常工作。这样，如果系统受到攻击，攻击者破坏或获取系统敏感信息的能力可以大大降低。RBAC通过基于“角色”的规则来工作。 每个角色可以单独限制他们可以或不可以做的事情，这些角色和限制形成一个“政策”，可以根据需要进行修改。 
+在Grsecurity中，RBAC系统是通过policy文件来进行管理的，当使用gradm命令进行RBAC系统的激活时，polocy文件将被解析并检查是否在policy的配置上存在不安全的配置，例如生成了能够访问类似policy文件本身的敏感设置或文件时。当不安全的配置被发现时，gradm将拒绝激活RBAC系统，将会给出对应的提示以使管理员能够对其进行修复。当RBAC系统被激活时，只有admin角色能够对policy进行访问。  
 
 ## 基于Grsecurity RBAC系统的三权分离的实现 
 
@@ -42,7 +42,7 @@ https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_
 
 ## 引用 
 
-https://grsecurity.net/
-https://en.wikibooks.org/wiki/Grsecurity
-https://en.wikibooks.org/wiki/Grsecurity/The_RBAC_System
+https://grsecurity.net/  
+https://en.wikibooks.org/wiki/Grsecurity  
+https://en.wikibooks.org/wiki/Grsecurity/The_RBAC_System  
 
