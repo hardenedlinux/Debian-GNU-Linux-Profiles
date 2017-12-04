@@ -49,8 +49,9 @@
 [OpenConnect Server For Anyconnect Compatible Service](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/tls/openconnect-server-ocserv-on-debian.md)  
 
 #### MAC/RBAC  
-[Grsecurity RBAC system with nginx practice](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/grsecurity_RBAC_with_nginx_practice.mkd)
-
+[Grsecurity RBAC system with nginx practice](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/grsecurity_RBAC_with_nginx_practice.mkd)  
+[Grsecurity RBAC system with ceph](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/ceph-with-grsecurity-RBAC-system.mkd)  
+[Separating the three powers with grsecurity RBAC system](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/separating_the_three_powers-with-grsec-rbac.mkd)    
 #### 
 
 #### Unclassified
