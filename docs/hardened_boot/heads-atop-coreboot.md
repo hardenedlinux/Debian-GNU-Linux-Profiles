@@ -66,6 +66,8 @@ $ make menuconfig
 ```
 Make sure `CONFIG_MEASURED_BOOT`(`Enable TPM measured boot`) is selected, and `CONFIG_USE_OPTION_TABLE`(`Use CMOS for configuration values`, both are located within menu `General setup`) is not selected (conflict with the current version of the patch above, [a PR to fix it](https://github.com/flammit/heads/pull/3) has been filed).
 
+Currently, the Linux kernel built from Heads only has legacy VGA text mode support, so `VGA_TEXT_FRAMEBUFFER`(located inside `Display` submenu within `Devices`) should be used.
+
 In menu `Payload`, select `A Linux payload` for `Add a payload`, then `bzImage` for `Linux path and filename`, and `initrd.cpio.xz` for `Linux initrd`. Save your config file to `.config` and exit `manuconfig`, then `make(1)` it.
 ```
 $ make
@@ -108,6 +110,8 @@ With the signature, the boot part becomes automatic, and you will have a measure
 #### Update 1
 [A new patch](https://github.com/persmule/heads/commit/afd3a005e078420bbbcfb8194fc90e02dcc25666) has been filed as PR with a feature not to generate hashes for initrd or modules if module.sig_enforce=1 is present, which may ease the updating of initrd from GNU/Linux OSes. The corresponding config flag has been inserted into the heads' config provided by us.
 
+#### Update 2
+With [this patch](https://github.com/persmule/heads/commit/39153d619d039665dbe4f5cad7c82ba1f72abd34), Heads could be used on platforms with no TPM available (e.g. Thinkpad x200), retaining signed boot functionality. Older platform may need [this fix](https://github.com/persmule/heads/commit/e08b7106c612696baa8f4f7e15f1e0fafd5aa678) to make use of OHCI and/or UHCI host interface to communicate with USB smart card reader.
 
 ### Reference:
 [1] [Heads-wiki](https://github.com/osresearch/heads-wiki)
