@@ -64,6 +64,9 @@ $ cd ${CBSRC}
 $ patch -p1 < ${HEADS_ROOT}/patches/coreboot-4.6.patch
 $ make menuconfig
 ```
+
+**Note**: If your (customized) coreboot tree is based atop a revision newer than release 4.6, please make sure that [commit 35418f9814a64073550eb63a3bcb2e79021347cb](https://review.coreboot.org/19535) is reverted or never applied, otherwise PCRs (especially the PCR0~3) will be reset before Heads being executed, thus losing the measurement results of coreboot's components.
+
 Make sure `CONFIG_MEASURED_BOOT`(`Enable TPM measured boot`) is selected, and `CONFIG_USE_OPTION_TABLE`(`Use CMOS for configuration values`, both are located within menu `General setup`) is not selected (conflict with the current version of the patch above, [a PR to fix it](https://github.com/flammit/heads/pull/3) has been filed).
 
 Currently, the Linux kernel built from Heads only has legacy VGA text mode support, so `VGA_TEXT_FRAMEBUFFER`(located inside `Display` submenu within `Devices`) should be used.
