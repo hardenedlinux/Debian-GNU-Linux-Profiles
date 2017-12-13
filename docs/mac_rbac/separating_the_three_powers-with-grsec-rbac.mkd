@@ -34,10 +34,38 @@ a) 由专门设置的系统安全员统一管理操作系统中与强制访问�
 以上的这些步骤请参考文档grsecurity_RBAC_with_nginx_practice中的安装部分，这里不再重复阐述，地址为：
 https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/grsecurity_RBAC_with_nginx_practice.mkd
 
-假设系统中的系统管理员、系统安全员、系统审计员名称分别为：root，secadmin，auditadmin；
+假设系统中的系统管理员、系统安全员、系统审计员名称分别为：root，secadmin，auditadmin；在此文档中后续将使用这三个用户进行示例的说明；
 
 ### 规则 
 
+#### 准备工作 
+1、创建用户 
+``` 
+# adduser secadmin -gid 0
+# adduser auditadmin -gid 0
+``` 
+
+2、配置  
+```  
+# apt-get update; apt-get install -y libcap2-bin
+``` 
+
+1）对auditadmin用户所使用的命令进行capability的配置：  
+```  
+# echo > /etc/security/capability.conf 
+# cat > /etc/security/capability.conf << EOF
+cap_dac_override,cap_audit_control auditadmin
+none *
+> EOF
+# setcap cap_audit_control+ei /sbin/auditctl  
+# setcap cap_dac_override+ei /sbin/aureport  
+# setcap cap_dac_override+ei /sbin/ausearch  
+```  
+
+
+
+#### 用户之间不能够进行切换的规则 
+要做到真正地权力的分离，就要防止各个用户之间通过su、sudo这样的命令直接进行切换，规则如下：
 
 
 ## 引用 
@@ -45,4 +73,5 @@ https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_
 https://grsecurity.net/  
 https://en.wikibooks.org/wiki/Grsecurity  
 https://en.wikibooks.org/wiki/Grsecurity/The_RBAC_System  
+http://www.djbh.net/webdev/file/webFiles/File/jsbz/2012323103356.pdf  
 
