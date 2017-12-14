@@ -1,0 +1,1572 @@
+# policy generated from full system learning
+
+define grsec_denied {
+	/boot	h
+	/dev/grsec	h
+	/dev/kmem	h
+	/dev/mem	h
+	/dev/port	h
+	/etc/grsec	h
+	/proc/kcore	h
+	/proc/slabinfo	h
+	/proc/modules	h
+	/proc/kallsyms	h
+	/lib/modules	hs
+	/lib64/modules	hs
+	/etc/ssh	h
+}
+
+role admin sA
+subject / rvka
+	/ rwcdmlxi
+
+role shutdown sARG
+subject / rvka
+	/
+	/dev
+	/dev/urandom r
+	/dev/random r
+	/etc r
+	/bin rx
+	/sbin rx
+	/lib rx
+	/lib64 rx
+	/usr rx
+	/proc r
+	$grsec_denied
+	-CAP_ALL
+	connect disabled
+	bind disabled
+
+role default
+subject /
+	/			h
+	-CAP_ALL
+	connect	disabled
+	bind	disabled
+
+role root uG
+role_transitions admin shutdown
+role_allow_ip	10.0.100.247/32
+role_allow_ip	0.0.0.0/32
+# Role: root
+subject /  {
+	/				
+	/bin				rx
+	/boot				h
+	/dev				h
+	/dev/null			rw
+	/etc				rx
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/nginx.pid			r
+	/run/systemd/system		
+	/sbin				h
+	/sbin/start-stop-daemon		x
+	/sys				h
+	/tmp				rwcd
+	/usr				
+	/usr/bin			rx
+	/usr/lib			rx
+	/usr/local			h
+	/usr/local/lib/python3.5/dist-packages	
+	/usr/local/sbin/paxctl-ng	
+	/usr/sbin			h
+	/usr/sbin/service		r
+	/usr/share			r
+	/usr/src			h
+	/var				
+	/var/backups			h
+	/var/cache/apt			
+	/var/cache/apt/archives/sl_3.03-17+b2_amd64.deb	r
+	/var/cache/apt/pkgcache.bin	r
+	/var/lib			r
+	/var/log			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/bash o {
+	/				h
+	/bin				x
+	/dev				h
+	/dev/null			w
+	/dev/tty			rw
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/home				h
+	/home/auditadmin/gradm		
+	/lib				rx
+	/lib/modules			h
+	/root				
+	/root/.bash_history		rwcd
+	/root/.bash_history-00807.tmp	rwcd
+	/root/.bashrc			r
+	/root/.profile			r
+	/sbin				
+	/sbin/gradm			x
+	/sbin/ifconfig			x
+	/tmp				rwcd
+	/usr				
+	/usr/bin			x
+	/usr/lib			r
+	/usr/local			
+	/usr/local/sbin			
+	/usr/local/sbin/paxctl-ng	x
+	/usr/sbin			rx
+	/usr/share			h
+	/usr/share/bash-completion/bash_completion	r
+	/usr/share/terminfo		
+	/usr/src			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/dash o {
+	/				h
+	/bin				h
+	/bin/bash			x
+	/bin/dash			x
+	/bin/stty			x
+	/dev				h
+	/dev/null			w
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				h
+	/lib/x86_64-linux-gnu/ld-2.24.so	x
+	/lib/x86_64-linux-gnu/libc-2.24.so	rx
+	/root				
+	/run				h
+	/run/motd.dynamic.new		wc
+	/tmp				
+	/usr				h
+	/usr/bin/apt-listchanges	x
+	/usr/bin/env			x
+	/usr/sbin/dpkg-preconfigure	x
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/kill o {
+	/				h
+	/bin				h
+	/bin/kill			x
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/lib				rx
+	/lib/modules			h
+	/proc				h
+	/proc/filesystems		r
+	/proc/sys/kernel/osrelease	r
+	/sys				h
+	/sys/devices/system/cpu/online	r
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/liblz4.so.1.7.1	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/login o {
+user_transition_allow root
+group_transition_allow root
+
+	/				h
+	/bin				h
+	/bin/bash			x
+	/bin/dash			x
+	/bin/login			x
+	/dev				h
+	/dev/tty1			w
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				rw
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/root				
+	/run				rwcd
+	/run/dbus			h
+	/run/dbus/system_bus_socket	rw
+	/run/systemd			h
+	/run/systemd/journal/dev-log	rw
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/log/lastlog		rw
+	/var/log/wtmp			w
+	-CAP_ALL
+	+CAP_FSETID
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_NET_ADMIN
+	+CAP_SYS_RESOURCE
+	+CAP_AUDIT_WRITE
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /bin/netstat o {
+	/				h
+	/bin				h
+	/bin/netstat			x
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/lib				h
+	/lib/x86_64-linux-gnu		rx
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	-CAP_ALL
+	+CAP_DAC_READ_SEARCH
+	+CAP_SYS_PTRACE
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/ping o {
+	/				h
+	/bin				h
+	/bin/ping			x
+	/etc				h
+	/etc/host.conf			r
+	/etc/hosts			r
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/resolv.conf		r
+	/lib				h
+	/lib/x86_64-linux-gnu		rx
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/libnettle.so.6.3	rx
+	-CAP_ALL
+	+CAP_NET_RAW
+	bind 0.0.0.0/32:0 dgram ip
+	connect 123.125.114.144/32:1025 dgram udp
+	connect 114.114.114.114/32:53 dgram udp
+	connect 0.0.0.0/32:0 raw_sock icmp
+	sock_allow_family ipv6
+}
+
+# Role: root
+subject /bin/rm o {
+	/				
+	/bin				h
+	/bin/rm				x
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				h
+	/lib/x86_64-linux-gnu/ld-2.24.so	x
+	/lib/x86_64-linux-gnu/libc-2.24.so	rx
+	/lib64/modules			h
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/sys				h
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/var				h
+	/var/lib/dpkg/tmp.ci		wd
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/systemctl o {
+	/				
+	/bin				h
+	/bin/systemctl			x
+	/bin/systemd-tty-ask-password-agent	x
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/private		rw
+	/run/systemd/system		
+	/sys				h
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/liblz4.so.1.7.1	rx
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	+CAP_NET_ADMIN
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/systemd-tmpfiles o {
+	/				h
+	/bin				h
+	/bin/systemd-tmpfiles		x
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/run				
+	/run/systemd/journal/socket	rw
+	/run/tmpfiles.d			
+	/run/tmpfiles.d/kmod.conf	r
+	/tmp				
+	/usr				
+	/usr/lib			rx
+	/usr/local			
+	/usr/src			h
+	/var				h
+	/var/cache			wd
+	/var/lib/systemd		
+	/var/tmp			
+	-CAP_ALL
+	+CAP_DAC_OVERRIDE
+	+CAP_FOWNER
+	+CAP_NET_ADMIN
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/systemd-tty-ask-password-agent o {
+	/				h
+	/bin				h
+	/bin/systemd-tty-ask-password-agent	x
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				rx
+	/lib/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				
+	/run/systemd			
+	/run/systemd/ask-password-block	rwc
+	/usr				h
+	/usr/lib/x86_64-linux-gnu/liblz4.so.1.7.1	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /bin/tar o {
+	/				h
+	/bin				h
+	/bin/tar			x
+	/etc				h
+	/etc/group			r
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/lib				rx
+	/lib/modules			h
+	/proc				h
+	/proc/filesystems		r
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/var				h
+	/var/lib/dpkg/tmp.ci		w
+	/var/lib/dpkg/tmp.ci/control	wc
+	/var/lib/dpkg/tmp.ci/md5sums	wc
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /lib/systemd/systemd o {
+user_transition_allow nobody secadmin root
+group_transition_allow nogroup secadmin root
+
+	/				
+	/bin				h
+	/bin/kill			x
+	/bin/systemd-tmpfiles		x
+	/boot				h
+	/dev				h
+	/dev/autofs			
+	/dev/null			r
+	/dev/sda			
+	/dev/sda1			
+	/dev/sda2			
+	/dev/sda5			
+	/dev/sr0			
+	/dev/tty0			rw
+	/dev/tty1			rw
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				rw
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/run				rw
+	/run/mount			
+	/run/systemd			rw
+	/run/systemd/generator		
+	/run/systemd/generator/-.mount	r
+	/run/systemd/generator/dev-disk-by\x2duuid-5e82b281\x2d72ed\x2d46a5\x2d9c2f\x2d35ff95424943.swap	r
+	/run/systemd/generator/media-cdrom0.mount	r
+	/run/systemd/journal		h
+	/run/systemd/journal/dev-log	rw
+	/run/systemd/journal/socket	rw
+	/run/systemd/journal/stdout	rw
+	/run/systemd/transient		rwcd
+	/run/udev			
+	/run/udev/data			r
+	/run/udev/tags			h
+	/run/udev/tags/systemd		
+	/run/user			
+	/run/user/0			wcd
+	/sbin				h
+	/sbin/agetty			x
+	/sbin/start-stop-daemon		x
+	/sys				rwcd
+	/usr				
+	/usr/lib			rx
+	/usr/local			
+	/usr/sbin/nginx			x
+	/usr/src			h
+	/var				h
+	/var/log/wtmp			w
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_OVERRIDE
+	+CAP_DAC_READ_SEARCH
+	+CAP_KILL
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_NET_ADMIN
+	+CAP_SYS_ADMIN
+	+CAP_SYS_TTY_CONFIG
+	+CAP_AUDIT_WRITE
+	+CAP_WAKE_ALARM
+	bind 0.0.0.0/32:0 dgram ip
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /lib/systemd/systemd-journald o {
+	/				h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				rwcd
+	/sys				
+	/usr				h
+	/usr/share/zoneinfo		
+	-CAP_ALL
+	+CAP_DAC_READ_SEARCH
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SYS_PTRACE
+	+CAP_SYS_ADMIN
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /lib/systemd/systemd-logind o {
+	/				h
+	/dev				h
+	/dev/dmmidi			
+	/dev/dri			h
+	/dev/dri/card0			
+	/dev/dri/renderD128		
+	/dev/midi			
+	/dev/mqueue			
+	/dev/sg1			
+	/dev/shm			
+	/dev/snd			
+	/dev/sr0			
+	/dev/tty1			rw
+	/etc				h
+	/etc/passwd			r
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				rwcd
+	/sys				r
+	-CAP_ALL
+	+CAP_DAC_OVERRIDE
+	+CAP_DAC_READ_SEARCH
+	+CAP_FOWNER
+	+CAP_SYS_ADMIN
+	+CAP_SYS_TTY_CONFIG
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /lib/systemd/systemd-udevd o {
+	/				h
+	/run/systemd/notify		rw
+	-CAP_ALL
+	+CAP_NET_ADMIN
+	+CAP_WAKE_ALARM
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /sbin/agetty o {
+	/				h
+	/bin				h
+	/bin/login			x
+	/dev				h
+	/dev/tty1			rw
+	/etc				h
+	/etc/group			r
+	/etc/issue			r
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/etc/nsswitch.conf		r
+	/lib				h
+	/lib/x86_64-linux-gnu		rx
+	/run				h
+	/run/agetty.reload		r
+	/run/utmp			rw
+	/sbin				h
+	/sbin/agetty			x
+	/usr				h
+	/usr/lib/locale/C.UTF-8/LC_CTYPE	r
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache	r
+	/var				h
+	/var/log/wtmp			w
+	-CAP_ALL
+	+CAP_FSETID
+	+CAP_SYS_ADMIN
+	+CAP_SYS_TTY_CONFIG
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /sbin/dhclient o {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect 10.0.100.1/32:67 dgram udp
+}
+
+# Role: root
+subject /sbin/ifconfig o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/lib				h
+	/lib/x86_64-linux-gnu/ld-2.24.so	x
+	/lib/x86_64-linux-gnu/libc-2.24.so	rx
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/sbin				h
+	/sbin/ifconfig			x
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	-CAP_ALL
+	bind 0.0.0.0/32:0 dgram ip
+	connect	disabled
+	sock_allow_family ipv6
+}
+
+# Role: root
+subject /usr/bin/apt-get o {
+user_transition_allow nobody _apt root
+group_transition_allow nogroup root
+
+	/				
+	/bin				h
+	/bin/bzip2			
+	/bin/dash			x
+	/bin/gzip			
+	/boot				h
+	/dev				h
+	/dev/null			rw
+	/dev/ptmx			rw
+	/dev/pts			rw
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/sys				h
+	/tmp				rwcd
+	/usr				h
+	/usr/bin			h
+	/usr/bin/apt-get		x
+	/usr/bin/dpkg			x
+	/usr/bin/xz			
+	/usr/lib			rx
+	/usr/share			h
+	/usr/share/dpkg/cputable	r
+	/usr/share/dpkg/tupletable	r
+	/usr/share/zoneinfo		r
+	/var				
+	/var/backups			h
+	/var/cache/apt			w
+	/var/cache/apt/archives		
+	/var/cache/apt/archives/lock	rw
+	/var/cache/apt/archives/partial	w
+	/var/cache/apt/pkgcache.bin	rwcd
+	/var/cache/apt/pkgcache.bin.7gZQgU	rwcd
+	/var/cache/apt/pkgcache.bin.K1Jj1m	rwcd
+	/var/cache/apt/srcpkgcache.bin	r
+	/var/lib			rwcd
+	/var/log/apt			
+	/var/log/apt/eipp.log.xz	wcd
+	/var/log/apt/history.log	w
+	/var/log/apt/term.log		w
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_READ_SEARCH
+	+CAP_FOWNER
+	+CAP_FSETID
+	+CAP_SETGID
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/dpkg o {
+group_transition_allow root
+
+	/				
+	/bin				h
+	/bin/dash			
+	/bin/rm				x
+	/bin/tar			
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				r
+	/etc/dpkg			h
+	/etc/dpkg/dpkg.cfg		r
+	/etc/dpkg/dpkg.cfg.d		
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				h
+	/proc/filesystems		r
+	/sbin				h
+	/sbin/ldconfig			
+	/sbin/start-stop-daemon		
+	/sys				h
+	/usr				
+	/usr/bin			x
+	/usr/games			rwcd
+	/usr/lib			h
+	/usr/lib/locale/locale-archive	r
+	/usr/share			rwcd
+	/usr/src			h
+	/var				h
+	/var/cache/apt/archives/sl_3.03-17+b2_amd64.deb	
+	/var/lib/dpkg			rxwcdl
+	/var/log/dpkg.log		a
+	-CAP_ALL
+	+CAP_SETGID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/dpkg-deb o {
+	/				h
+	/bin				h
+	/bin/tar			x
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/lib				
+	/lib/modules			h
+	/lib/x86_64-linux-gnu		rx
+	/usr				h
+	/usr/bin/dpkg-deb		x
+	/usr/lib			
+	/usr/lib/locale/locale-archive	r
+	/var				h
+	/var/cache/apt/archives/sl_3.03-17+b2_amd64.deb	r
+	/var/lib/dpkg/tmp.ci		wc
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/mesg o {
+	/				h
+	/dev				h
+	/dev/tty1			rw
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				h
+	/lib/x86_64-linux-gnu/ld-2.24.so	x
+	/lib/x86_64-linux-gnu/libc-2.24.so	rx
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				h
+	/usr/bin/mesg			x
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache	r
+	-CAP_ALL
+	+CAP_FSETID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/perl o {
+user_transition_allow man root nobody
+group_transition_allow man root nogroup
+
+	/				h
+	/dev				h
+	/dev/null			r
+	/dev/urandom			r
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/perl			h
+	/etc/perl/sitecustomize.pl	r
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/usr				h
+	/usr/bin/perl			x
+	/usr/lib/locale/locale-archive	r
+	-CAP_ALL
+	+CAP_SETGID
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/local/sbin/paxctl-ng o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				rx
+	/lib/modules			h
+	/usr				h
+	/usr/bin/python2.7		rw
+	/usr/lib/x86_64-linux-gnu/libelf-0.168.so	rx
+	/usr/lib/x86_64-linux-gnu/libelf.so.1	
+	/usr/local/sbin/paxctl-ng	x
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/dpkg-preconfigure o {
+	/				h
+	/bin				h
+	/bin/dash			x
+	/bin/pwd			
+	/dev				h
+	/dev/tty			r
+	/dev/urandom			r
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/perl			h
+	/etc/perl/sitecustomize.pl	r
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				h
+	/usr/bin			x
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/dpkg-preconfigure	r
+	/usr/share			r
+	/var				
+	/var/backups			h
+	/var/cache			
+	/var/cache/debconf		
+	/var/cache/debconf/config.dat	rw
+	/var/cache/debconf/passwords.dat	rw
+	/var/cache/debconf/templates.dat	rw
+	/var/log			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/nginx o {
+user_transition_allow www-data
+group_transition_allow www-data
+
+	/				h
+	/dev				h
+	/dev/null			rw
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				h
+	/proc/sys/kernel/ngroups_max	r
+	/run				h
+	/run/nginx.pid			rwcd
+	/sys				h
+	/sys/devices/system/cpu/online	r
+	/usr				h
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/nginx			x
+	/usr/share			r
+	/var				h
+	/var/lib			h
+	/var/lib/nginx			
+	/var/log			h
+	/var/log/nginx/access.log	a
+	/var/log/nginx/error.log	a
+	-CAP_ALL
+	+CAP_DAC_OVERRIDE
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_NET_BIND_SERVICE
+	bind 0.0.0.0/32:80 stream tcp
+	connect	disabled
+	sock_allow_family ipv6
+}
+
+# Role: root
+subject /usr/sbin/sshd o {
+group_transition_allow nogroup root secadmin
+
+	/				
+	/bin				h
+	/bin/bash			
+	/bin/dash			x
+	/boot				h
+	/dev				h
+	/dev/null			rw
+	/dev/ptmx			rw
+	/dev/pts			rw
+	/dev/tty			r
+	/dev/urandom			r
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				rw
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/run				rwcd
+	/run/dbus			h
+	/run/dbus/system_bus_socket	rw
+	/run/systemd			h
+	/run/systemd/journal/dev-log	rw
+	/sys				h
+	/usr				h
+	/usr/lib			h
+	/usr/lib/x86_64-linux-gnu	rx
+	/usr/sbin			h
+	/usr/sbin/sshd			x
+	/usr/share			h
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/log/btmp			a
+	/var/log/lastlog		rw
+	/var/log/wtmp			w
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_READ_SEARCH
+	+CAP_KILL
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_NET_ADMIN
+	+CAP_SYS_CHROOT
+	+CAP_SYS_RESOURCE
+	+CAP_AUDIT_WRITE
+	bind 0.0.0.0/32:22 stream tcp
+	connect	disabled
+	sock_allow_family ipv6 netlink
+}
+
+role man u
+role_allow_ip	0.0.0.0/32
+# Role: man
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: man
+subject /usr/bin/mandb o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/etc/manpath.config		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/lib				h
+	/lib/x86_64-linux-gnu		rx
+	/usr				
+	/usr/bin			h
+	/usr/bin/mandb			x
+	/usr/lib			rx
+	/usr/local			
+	/usr/local/share		
+	/usr/local/share/man		
+	/usr/share			r
+	/usr/src			h
+	/var				h
+	/var/cache/man			rwcd
+	/var/cache/man/de.UTF-8		rwcd
+	/var/cache/man/ja.UTF-8		rwcd
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: man
+subject /usr/bin/perl o {
+user_transition_allow nobody man
+
+	/				h
+	/usr/bin/mandb			x
+	-CAP_ALL
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+role secadmin u
+role_allow_ip	0.0.0.0/32
+role_allow_ip	10.0.100.247/32
+# Role: secadmin
+subject /  {
+	/				h
+	/bin				x
+	/dev				h
+	/dev/console			
+	/dev/null			w
+	/dev/tty			rw
+	/dev/tty0			
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/home				h
+	/home/secadmin			
+	/home/secadmin/.bash_history	rw
+	/home/secadmin/.bash_logout	r
+	/home/secadmin/.bashrc		r
+	/home/secadmin/.profile		r
+	/lib				rx
+	/lib/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				
+	/usr/bin			x
+	/usr/lib			r
+	/usr/local			
+	/usr/share			h
+	/usr/share/bash-completion/bash_completion	r
+	/usr/share/bash-completion/completions/ping	r
+	/usr/share/terminfo		
+	/usr/src			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: secadmin
+subject /bin/kill o {
+	/				h
+	/bin				h
+	/bin/kill			x
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/lib				rx
+	/lib/modules			h
+	/proc				h
+	/proc/filesystems		r
+	/proc/sys/kernel/osrelease	r
+	/sys				h
+	/sys/devices/system/cpu/online	r
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/liblz4.so.1.7.1	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: secadmin
+subject /bin/ping o {
+	/				h
+	/bin				h
+	/bin/ping			x
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				h
+	/lib/x86_64-linux-gnu		rx
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/libnettle.so.6	
+	/usr/lib/x86_64-linux-gnu/libnettle.so.6.3	rx
+	-CAP_ALL
+	+CAP_NET_RAW
+	bind 0.0.0.0/32:0 dgram ip
+	connect 163.177.151.109/32:0 dgram udp
+	connect 163.177.151.110/32:0 dgram udp
+	connect 163.177.151.110/32:1025 dgram udp
+	connect 114.114.114.114/32:53 dgram udp
+	connect 0.0.0.0/32:0 raw_sock icmp
+	sock_allow_family ipv6 netlink
+}
+
+# Role: secadmin
+subject /lib/systemd/systemd o {
+	/				
+	/bin				h
+	/bin/kill			x
+	/boot				h
+	/dev				h
+	/dev/autofs			
+	/dev/null			r
+	/dev/sda1			
+	/dev/sda5			
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/etc/systemd			
+	/etc/systemd/user.conf		r
+	/etc/udev			h
+	/etc/udev/udev.conf		r
+	/home				h
+	/home/secadmin			
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/run				rwcd
+	/sys				rwcd
+	/usr				
+	/usr/lib			rx
+	/usr/local			
+	/usr/src			h
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	bind 0.0.0.0/32:0 dgram ip
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: secadmin
+subject /usr/bin/mawk o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/ssh/ssh_config		r
+	/lib				h
+	/lib/x86_64-linux-gnu/ld-2.24.so	x
+	/lib/x86_64-linux-gnu/libc-2.24.so	rx
+	/lib/x86_64-linux-gnu/libm-2.24.so	rx
+	/usr				h
+	/usr/bin/mawk			x
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: secadmin
+subject /usr/sbin/sshd o {
+user_transition_allow root nobody
+
+	/				h
+	/bin				h
+	/bin/bash			x
+	/dev				h
+	/dev/pts			rw
+	/dev/tty			rw
+	/home				h
+	/home/secadmin			
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/journal/dev-log	rw
+	-CAP_ALL
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+role systemd-timesync u
+role_allow_ip	0.0.0.0/32
+# Role: systemd-timesync
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: systemd-timesync
+subject /lib/systemd/systemd-timesyncd o {
+	/				h
+	/run/systemd/notify		rw
+	/var/lib/systemd/clock		w
+	-CAP_ALL
+	+CAP_SYS_TIME
+	bind 0.0.0.0/32:0 dgram ip udp
+	connect 173.255.215.209/32:123 dgram udp
+}
+
+role messagebus u
+role_allow_ip	0.0.0.0/32
+# Role: messagebus
+subject /  {
+	/				h
+	/run/systemd/seats		
+	/run/systemd/users/0		r
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+role sshd u
+# Role: sshd
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+role avahi u
+role_allow_ip	0.0.0.0/32
+# Role: avahi
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: avahi
+subject /usr/sbin/avahi-daemon o {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect 10.0.0.0/8:5353 dgram udp
+}
+
+role auditadmin u
+role_allow_ip	0.0.0.0/32
+role_allow_ip	10.0.100.247/32
+# Role: auditadmin
+subject /  {
+	/				
+	/bin				h
+	/bin/bash			x
+	/bin/ls				x
+	/bin/su				x
+	/boot				h
+	/dev				h
+	/dev/console			
+	/dev/null			w
+	/dev/sda1			
+	/dev/tty			rw
+	/dev/tty0			
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/home				h
+	/home/auditadmin		
+	/home/auditadmin/.bash_history	rw
+	/home/auditadmin/.bash_logout	r
+	/home/auditadmin/.bashrc	r
+	/home/auditadmin/.profile	r
+	/lib				rx
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/self			
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				
+	/run/user			
+	/run/user/1000			
+	/run/user/1000/systemd		
+	/sbin				
+	/sbin/auditctl			x
+	/sbin/aureport			x
+	/sys				h
+	/usr				
+	/usr/bin			x
+	/usr/lib			r
+	/usr/share			h
+	/usr/share/bash-completion/bash_completion	r
+	/usr/share/terminfo		
+	/usr/src			h
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: auditadmin
+subject /bin/su o {
+	/				h
+	/bin				h
+	/bin/su				x
+	/dev				h
+	/dev/pts			
+	/etc				r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: auditadmin
+subject /sbin/auditctl o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib				h
+	/lib/x86_64-linux-gnu		h
+	/lib/x86_64-linux-gnu/ld-2.24.so	x
+	/lib/x86_64-linux-gnu/libaudit.so.1.0.0	rx
+	/lib/x86_64-linux-gnu/libauparse.so.0.0.0	rx
+	/lib/x86_64-linux-gnu/libc-2.24.so	rx
+	/lib/x86_64-linux-gnu/libcap-ng.so.0.0.0	rx
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/sbin				h
+	/sbin/auditctl			x
+	-CAP_ALL
+	+CAP_AUDIT_CONTROL
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: auditadmin
+subject /sbin/aureport o {
+	/				h
+	/etc				r
+	/etc/audit			h
+	/etc/audit/auditd.conf		r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				h
+	/lib/x86_64-linux-gnu		rx
+	/sbin				h
+	/sbin/aureport			x
+	/usr				h
+	/usr/lib/locale/locale-archive	r
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/log/audit			
+	/var/log/audit/audit.log	r
+	-CAP_ALL
+	+CAP_DAC_OVERRIDE
+	bind	disabled
+	connect	disabled
+}
+
+# Role: auditadmin
+subject /usr/sbin/sshd o {
+user_transition_allow root nobody
+
+	/				h
+	/bin				h
+	/bin/bash			x
+	/dev				h
+	/dev/pts			rw
+	/dev/tty			rw
+	/home				h
+	/home/auditadmin		
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/journal/dev-log	rw
+	-CAP_ALL
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
