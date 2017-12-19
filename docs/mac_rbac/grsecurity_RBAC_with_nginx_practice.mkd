@@ -66,8 +66,8 @@ Look at the fourth line, you can see this package passed the verification;
 #### Download grsecurity patch and check the file 
 
 ```
-$ wget https://github.com/hardenedlinux/grsecurity-reproducible-build/blob/master/grsecurity-3.1-4.9.24-201704252333.patch.gz
-$ wget https://github.com/hardenedlinux/grsecurity-reproducible-build/blob/master/grsecurity-3.1-4.9.24-201704252333.patch.sig
+$ wget https://github.com/hardenedlinux/grsecurity-reproducible-build/raw/master/grsecurity-3.1-4.9.24-201704252333.patch.gz
+$ wget https://github.com/hardenedlinux/grsecurity-reproducible-build/raw/master/grsecurity-3.1-4.9.24-201704252333.patch.sig
 ```
 
 #### Unzip the patch package 
