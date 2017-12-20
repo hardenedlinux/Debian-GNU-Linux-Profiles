@@ -1,6 +1,6 @@
-# Grsecurity RBAC system with ceph 
+# Grsecurity RBAC system with Ceph 
 
-## How to install ceph 
+## How to install Ceph 
 
 Please refer to the following document:  
 
