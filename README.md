@@ -1,6 +1,6 @@
 # Debian-GNU-Linux-Profiles
 
-### Done  
+### Done  
 
 #### DNS
 [Basic bind9 configuration for lan](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/dns/basic-bind9-cfg-for-lan.md)  
@@ -30,9 +30,9 @@
 [Building IPSEC VPN via strongswan](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/ipsec/strongswan-ipsec-in-debian.md)  
 
 #### Security Operation Center
-[Using Logstash/Elasticsearch/Grafana to build a small SOC(Security Operation Center) from scratch](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/build-small-soc-from-scratch.md)  
+[Using Logstash/Elasticsearch/Grafana to build a small SOC(Security Operation Center) from scratch](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/build-small-soc-from-scratch.md)  
 
-[SOC Overview](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/soc_overview.md)  
+[SOC Overview](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/soc_overview.md)  
 
 
 #### Storage
@@ -51,7 +51,7 @@
 #### MAC/RBAC  
 [Grsecurity RBAC system with nginx practice](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/grsecurity_RBAC_with_nginx_practice.mkd)  
 [Grsecurity RBAC system with ceph](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/ceph-with-grsecurity-RBAC-system.mkd)  
-[Separating the three powers with grsecurity RBAC system](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/separating_the_three_powers-with-grsec-rbac.mkd)    
+[Separating the three powers with grsecurity RBAC system](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/security_standard_and_compliance/separating_the_three_powers-with-grsec-rbac.mkd)    
 #### 
 
 #### Unclassified
