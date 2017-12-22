@@ -88,9 +88,11 @@ It will ask you to type the future TPM owner password (Do not forget to back it 
 
 Now seal the TPM-based totp:
 ```
-# seal-totp
+# seal-totp ${HOST_IDENTIFIER}
 ```
 It will print a huge QR code on the screen. You can scan it with [FreeOTP](https://f-droid.org/en/packages/org.fedorahosted.freeotp/) to attest it later. (reboot or run ```unseal-totp```)
+
+Note: Assigning each host a unique HOST_IDENTIFIER is mandatory if you are going to use one instance of `FreeOTP` to store more than one TOTPs, otherwise they may conflict each other when scanned.
 
 You need to reboot the machine to proceed.
 ```
