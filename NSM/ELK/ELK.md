@@ -1,5 +1,5 @@
 
-# Table of Contents
+# Deployment of Bro/Suricata/Snort/ELK on Debian 9 GNU/Linux
 
 1.  [Overview](#orgf9305ea)
     1.  [Configuration](#orgb10d4c1)
@@ -162,7 +162,7 @@ First, review the [installing bro on Debian](https://github.com/hardenedlinux/De
             log { destination(d_bro); };
         };
 
-3.  logstrash
+3.  logstash
 
      They are consumed by syslog-ng and stored in ELK.
     the configuring file in `/etc/logstash/conf.d/`, create `bro.conf` at here and add following command to this conf file.
