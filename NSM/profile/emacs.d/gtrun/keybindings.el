@@ -1,0 +1,26 @@
+(define-key 'help-command "A" 'apropos)
+(define-key 'help-command (kbd "C-f") 'find-function)
+(define-key 'help-command (kbd "C-k") 'find-function-on-key)
+(define-key 'help-command (kbd "C-v") 'find-variable)
+(define-key 'help-command (kbd "C-l") 'find-library)
+(define-key 'help-command (kbd "C-i") 'info-display-manual)
+(global-set-key (kbd "C-c a") 'org-agenda)
+;;(define-key global-map (kbd "<f9>") 'org-capture)
+(define-key global-map (kbd "C-c t") 'org-capture)
+
+;;(define-key global-map (kbd "<f8>") 'gtrun/show-current-buffer-major-mode)
+(spacemacs/set-leader-keys "bm" nil)
+(spacemacs/set-leader-keys "bD" 'spacemacs/kill-other-buffers)
+(spacemacs/declare-prefix "bm" "Bookmark")
+(spacemacs/set-leader-keys "bms" 'bookmark-set)
+(spacemacs/set-leader-keys "bmr" 'bookmark-rename)
+(spacemacs/set-leader-keys "bmd" 'bookmark-delete)
+(spacemacs/set-leader-keys "bmj" 'counsel-bookmark)
+
+(define-key dired-mode-map (kbd "O") 'open-current-directory-with-external-program)
+(define-key dired-mode-map "f" 'dired-find-name-in-current-directory)
+(define-key yas-minor-mode-map (kbd "C-c y") #'yas-expand)
+(define-key dired-mode-map "Y" 'ora-dired-rsync)
+(global-set-key (kbd "C-c b")   'helm-backup)
+
+
