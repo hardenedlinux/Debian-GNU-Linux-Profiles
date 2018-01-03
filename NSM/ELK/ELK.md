@@ -1,39 +1,36 @@
 
-# Deployment of Bro/Suricata/Snort/ELK on Debian 9 GNU/Linux
+# Table of Contents
 
-1.  [Overview](#orgf9305ea)
-    1.  [Configuration](#orgb10d4c1)
-        1.  [Topology](#org57ebed0)
-        2.  [Bro](#org89b9ed5)
-        3.  [ELK](#orge537665)
-        4.  [Suricata](#orgf84019e)
-        5.  [Snort](#org8d82660)
-2.  [Adding Patterns for ELk](#org78252ac)
-    1.  [Bro](#orgd1934be)
-        1.  [More information](#orgd0a0b8a)
-    2.  [Suricata & Snort](#org8478304)
-        1.  [More Information](#org7639e46)
-3.  [Adding a dashboard of data type](#orgfb191dd)
-    1.  [Bro](#orge192b44)
-        1.  [More Information](#org8d02932)
-    2.  [Snort & Suricata](#orgf9b0c8b)
-4.  [Reference](#org7b09838)
+1.  [Overview](#orgf8750f5)
+    1.  [Configuration](#orgedcabb8)
+        1.  [Topology](#org89c16b3)
+        2.  [Bro](#org314a36d)
+        3.  [ELK](#org1fb3593)
+        4.  [Suricata](#org41a11e3)
+        5.  [Snort](#orgb352335)
+2.  [Adding Patterns for ELk](#org085730d)
+    1.  [Bro](#org3f78268)
+        1.  [More information](#orgcd09d14)
+    2.  [Suricata & Snort](#org4322c5e)
+        1.  [More Information](#org653ee21)
+3.  [Adding a dashboard of data type](#orgddc8f71)
+    1.  [Bro](#org9e3bb50)
 
 
 
-<a id="orgf9305ea"></a>
+<a id="orgf8750f5"></a>
 
 # Overview
 
 Nowadays, security analyst who are too busy to collect data through reading long tutorials and tedious processes. In this document that you don't need to learn each open source platform, just enough knowledge to be self-sufficient.If you’re a security analyst responsible for investigating alerts,  researching data, or responding to incidents then this document will be very useful and easy to help you building your own investigation platform.
 
 
-<a id="orgb10d4c1"></a>
+<a id="orgedcabb8"></a>
 
 ## Configuration
 
 
-<a id="org57ebed0"></a>
+<a id="org89c16b3"></a>
 
 ### Topology
 
@@ -42,7 +39,7 @@ Demo test:
 ![img](img/DemoTest-topology.png)
 
 
-<a id="org89b9ed5"></a>
+<a id="org314a36d"></a>
 
 ### Bro
 
@@ -162,7 +159,7 @@ First, review the [installing bro on Debian](https://github.com/hardenedlinux/De
             log { destination(d_bro); };
         };
 
-3.  logstash
+3.  logstrash
 
      They are consumed by syslog-ng and stored in ELK.
     the configuring file in `/etc/logstash/conf.d/`, create `bro.conf` at here and add following command to this conf file.
@@ -212,7 +209,7 @@ First, review the [installing bro on Debian](https://github.com/hardenedlinux/De
         }
 
 
-<a id="orge537665"></a>
+<a id="org1fb3593"></a>
 
 ### ELK
 
@@ -278,7 +275,7 @@ First, review the [installing bro on Debian](https://github.com/hardenedlinux/De
     </table>
 
 
-<a id="orgf84019e"></a>
+<a id="org41a11e3"></a>
 
 ### Suricata
 
@@ -298,7 +295,7 @@ now, enter this command test that suricata is working correctly:
 `ps aux| grep suricata`
 
 
-<a id="org8d82660"></a>
+<a id="orgb352335"></a>
 
 ### Snort
 
@@ -382,164 +379,179 @@ now, enter this command test that suricata is working correctly:
     -   1. Installing the Data Acquisition Library (DAQ)
         First we need to install all the Snort pre-requisites from the Debian repositories:
     
-          sudo apt-get install -y build-essential autotools-dev libdumbnet-dev libluajit-5.1-dev libpcap-dev libpcre3-dev zlib1g-dev pkg-config libhwloc-dev cmake
-          sudo apt-get install -y liblzma-dev openssl libssl-dev cpputest libsqlite3-dev
-          sudo apt-get install -y bison flex
-          sudo apt-get install -y libtool git autoconf
-          sudo apt-get install -y asciidoc dblatex source-highlight
-        
-          #############################
-          ##create a directory to save the downloaded tarball files:
-        
-          ###DAQ
-          mkdir ~/snort_src
-          cd ~/snort_src
-          wget https://www.snort.org/downloads/snortplus/daq-2.2.2.tar.gz
-          tar -xvzf daq-2.2.2.tar.gz
-          cd daq-2.2.2/
-          ./configure
-          make
-          sudo make install
-          #############
-          cd ~/snort_src
-          wget http://downloads.sourceforge.net/project/safeclib/libsafec-10052013.tar.gz
-          tar -xzvf libsafec-10052013.tar.gz
-          cd libsafec-10052013
-          ./configure
-          make
-          sudo make install
-        
-          cd ~/snort_src
-          wget http://www.colm.net/files/ragel/ragel-6.10.tar.gz
-          tar -xzvf ragel-6.10.tar.gz
-          cd ragel-6.10
-          ./configure
-          make
-          sudo make install
-        
-        
-          ###Download the Boost 1.64 libraries, but do not install:
-        
-          cd ~/snort_src
-          wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
-          tar -xvzf boost_1_64_0.tar.gz
-        
-        
-          cd ~/snort_src
-          wget https://github.com/01org/hyperscan/archive/v4.5.2.tar.gz
-          tar -xvzf v4.5.2.tar.gz
-        
-          cd hyperscan-4.5.2
-          cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DBOOST_ROOT=~/snort_src/boost_1_64_0/ ../hyperscan-4.5.2
-        
-          make
-          sudo make install
-        
-          ###Run the following command to update shared libraries:
-        
-          sudo ldconfig
-        
-        
-          ###
-          git clone  https://github.com/snortadmin/snort3.git
-          cd snort3/
-          autoreconf -isvf 
-          ./configure --prefix=/opt/snort
-          make
-          sudo make install
-          ###create a symlink to /usr/sbin/snort
-          sudo ln -s /opt/snort/bin/snort /usr/sbin/snort
-        
-        
-        ## Set up the environment
-          sh -c "echo 'export LUA_PATH=/opt/snort/include/snort/lua/\?.lua\;\;' >> ~/.bashrc"
-          sh -c "echo 'export SNORT_LUA_PATH=/opt/snort/etc/snort' >> ~/.bashrc"
-        
-        ## To run Snort on Debian as root access
-        
-        sudo visudo
-        Defaults env_keep += "LUA_PATH SNORT_LUA_PATH"
+        sudo apt-get install -y build-essential autotools-dev libdumbnet-dev libluajit-5.1-dev libpcap-dev libpcre3-dev zlib1g-dev pkg-config libhwloc-dev cmake
+        sudo apt-get install -y liblzma-dev openssl libssl-dev cpputest libsqlite3-dev
+        sudo apt-get install -y bison flex
+        sudo apt-get install -y libtool git autoconf
+        sudo apt-get install -y asciidoc dblatex source-highlight
     
-    The resulting output will resemble the following:
+    create a directory to save the downloaded tarball 
     
-    `sudo snort -V`:
+    1.  DAQ
     
-     ,,\_     -**> Snort++ <**-
-    o"  )~   Version 3.0.0 (Build 241) from 2.9.11
-     ''''    By Martin Roesch & The Snort Team
-             <http://snort.org/contact#team>
-             Copyright (C) 2014-2017 Cisco and/or its affiliates. All rights reserved.
-             Copyright (C) 1998-2013 Sourcefire, Inc., et al.
-             Using DAQ version 2.2.2
-             Using LuaJIT version 2.0.4
-             Using OpenSSL 1.1.0f  25 May 2017
-             Using libpcap version 1.8.1
-             Using PCRE version 8.39 2016-06-14
-             Using ZLIB version 1.2.8
-             Using Hyperscan version 4.5.2 2017-12-30
-             Using LZMA version 5.2.2
+             mkdir ~/snort_src
+             cd ~/snort_src
+             wget https://www.snort.org/downloads/snortplus/daq-2.2.2.tar.gz
+             tar -xvzf daq-2.2.2.tar.gz
+             cd daq-2.2.2/
+             ./configure
+             make
+             sudo make install
+            
+             cd ~/snort_src
+             wget http://downloads.sourceforge.net/project/safeclib/libsafec-10052013.tar.gz
+             tar -xzvf libsafec-10052013.tar.gz
+             cd libsafec-10052013
+             ./configure
+             make
+             sudo make install
+            
+             cd ~/snort_src
+             wget http://www.colm.net/files/ragel/ragel-6.10.tar.gz
+             tar -xzvf ragel-6.10.tar.gz
+             cd ragel-6.10
+             ./configure
+             make
+             sudo make install
+            
+             ;;;Download the Boost 1.64 libraries, but do not install:
+            
+             cd ~/snort_src
+             wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+             tar -xvzf boost_1_64_0.tar.gz
+            
+            
+             cd ~/snort_src
+             wget https://github.com/01org/hyperscan/archive/v4.5.2.tar.gz
+             tar -xvzf v4.5.2.tar.gz
+            
+             cd hyperscan-4.5.2
+             cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DBOOST_ROOT=~/snort_src/boost_1_64_0/ ../hyperscan-4.5.2
+            
+             make
+             sudo make install
+            
+            Run the following command to update shared libraries:
+             sudo ldconfig
+            
+             git clone  https://github.com/snortadmin/snort3.git
+             cd snort3/
+             autoreconf -isvf 
+             ./configure --prefix=/opt/snort
+             make
+             sudo make install
+        
+        create a symlink to /usr/sbin/snort:
+        
+        `sudo ln -s /opt/snort/bin/snort /usr/sbin/snort`
+        
+        ;; Set up the environment
+        
+            sh -c "echo 'export LUA_PATH=/opt/snort/include/snort/lua/\?.lua\;\;' >> ~/.bashrc"
+            sh -c "echo 'export SNORT_LUA_PATH=/opt/snort/etc/snort' >> ~/.bashrc"
+        
+        To run Snort on Debian as root access
+        
+            sudo visudo
+            Defaults env_keep += "LUA_PATH SNORT_LUA_PATH"
+        
+        The resulting output will resemble the following:
+        
+        `sudo snort -V`:
+        
+            
+             ,,_     -*> Snort++ <*-
+            o"  )~   Version 3.0.0 (Build 241) from 2.9.11
+             ''''    By Martin Roesch & The Snort Team
+                     http://snort.org/contact#team
+                     Copyright (C) 2014-2017 Cisco and/or its affiliates. All rights reserved.
+                     Copyright (C) 1998-2013 Sourcefire, Inc., et al.
+                     Using DAQ version 2.2.2
+                     Using LuaJIT version 2.0.4
+                     Using OpenSSL 1.1.0f  25 May 2017
+                     Using libpcap version 1.8.1
+                     Using PCRE version 8.39 2016-06-14
+                     Using ZLIB version 1.2.8
+                     Using Hyperscan version 4.5.2 2017-12-30
+                     Using LZMA version 5.2.2
     
-    -   Using snort3-community rules
+    2.  Using snort3-community rules
     
-        wget https://www.snort.org/downloads/community/snort3-community-rules.tar.gz
-        sudo tar -xvf ~/snort3-community-rules.tar.gz -C ~/
-        sudo cp ~/snort3-community-rules/* /etc/snort/rules
-        sudo mkdir /opt/snort/etc/snort/rules                   
-        sudo cp snort3-community.rules /opt/snort/etc/snort/rules/
-        sudo cp sid-msg.map /opt/snort/etc/snort/rules/          
+            wget https://www.snort.org/downloads/community/snort3-community-rules.tar.gz
+            sudo tar -xvf ~/snort3-community-rules.tar.gz -C ~/
+            sudo cp ~/snort3-community-rules/* /etc/snort/rules
+            sudo mkdir /opt/snort/etc/snort/rules                   
+            sudo cp snort3-community.rules /opt/snort/etc/snort/rules/
+            sudo cp sid-msg.map /opt/snort/etc/snort/rules/          
         
-        ###Snort 2.9X we were stored the rule in ~/etc/snort/~ That's different/opt/snort/etc/snort/rules/
+        -   Snort 2.9X we were stored the rule in `/etc/snort/` That's different with `/opt/snort/etc/snort/rules/`
         
-        ## test that snort load these rules correctly
-        sudo snort -c snort.lua -R /opt/snort/etc/snort/rules/snort3-community.rules
-        ## if you got this issue like this:
+        -   test that snort load these rules correctly
         
-        ## FATAL: can't init snort.lua: cannot open /snort_defaults.lua: No such file or directory
-          Fatal Error, Quitting。
+        `sudo snort -c snort.lua -R /opt/snort/etc/snort/rules/snort3-community.rules`
         
-        ### Now, change you file name that snort can load rules.
+        -   if you got this issue like this:
+        
+        FATAL: can't init snort.lua: cannot open /snort<sub>defaults.lua</sub>: No such file or directory
+        Fatal Error, Quitting。
+        
+        -   Now, Change you file name that snort can load rules.
+        
         cd /opt/snort/etc/snort
-        sudo mv snort_defaults.lua ./snort_defaults.lua
-        sudo mv file_magic.lua ./file_magic.lua
+        sudo mv snort<sub>defaults.lua</sub> ./snort<sub>defaults.lua</sub>
+        sudo mv file<sub>magic.lua</sub> ./file<sub>magic.lua</sub>
         
-        ### if you still have had this problem, check snort of the file_magic config dir.
-        ### Then test again:
-        sudo snort -c snort.lua -R /opt/snort/etc/snort/rules/snort3-community.rules
+        -   if you still have had this problem, check snort of the `file_magic config dir`.
         
-        ## The output information:
+        Then test again:
+        `sudo snort -c snort.lua -R /opt/snort/etc/snort/rules/snort3-community.rules`
+        
+        -   The output information:
+        
         Snort successfully validated the configuration (with 0 warnings).
         o")~   Snort exiting
     
-    -   Installing OpenAppID
+    3.  Installing OpenAppID
     
-    first of all, download the OpenAppID detector package:
-    
-        cd ~/snort_src/
-        wget https://www.snort.org/downloads/openappid/6329
-        tar -xzvf 6329
-        sudo cp -R odp /opt/snort/lib/
-    
-        sudo nano /opt/snort/etc/snort/snort.lua
-        ## find appid this line and add appid dir to here:
+        first of all, download the OpenAppID detector package:
         
-        appid =
-        {
-            app_detector_dir = '/opt/snort/lib'
-        }
-    
-    Now, Test configuration:
-    `sudo snort -c /opt/snort/etc/snort/snort.lua --warn-all`
+            cd ~/snort_src/
+            wget https://www.snort.org/downloads/openappid/6329
+            tar -xzvf 6329
+            sudo cp -R odp /opt/snort/lib/
+        
+            sudo nano /opt/snort/etc/snort/snort.lua
+            ## find appid this line and add appid dir to here:
+            
+            appid =
+            {
+                app_detector_dir = '/opt/snort/lib'
+            }
+        
+        Now, Test configuration:
+        `sudo snort -c /opt/snort/etc/snort/snort.lua --warn-all`
 
 3.  CSV Output
 
     First of all, Setting up the format csv file for snort, lets just copy this command into the configuration file stored in `/etc/snort/snort.config`
     
-        output alert_csv: /var/log/snort/alert.csv timestamp,sig_id,sig_rev,msg,proto,src,srcport,dst,dstport,ethsrc,ethdst,ethlen,tcpflags,ttl,iplen
+    -   Snort 2.9X:
     
-    \##Snort3 +
-    sudo nano /opt/snort/etc/snort/snort.lua
+    ~output alert<sub>csv</sub>: /var/log/snort/alert.csv timestamp,sig<sub>id,sig</sub><sub>rev,msg,proto,src,srcport,dst,dstport,ethsrc,ethdst,ethlen,tcpflags,ttl,iplen</sub>~r
     
-        output alert_csv: /var/log/snort/alert.csv timestamp,sig_id,sig_rev,msg,proto,src,srcport,dst,dstport,ethsrc,ethdst,ethlen,tcpflags,ttl,iplen
+    -   Snort3:
+        see the available configuration like this:
+        `$ snort --help-config alert_csv`
+    
+    then:
+    `snort -c /etc/snort/config/snort.lua -i ens192 -l /var/log/snort -A --lua "alert_csv = { fields = ’pkt_num gid sid rev’, separator = ’\t’ }"`
+    
+        • bool alert_csv.file = false: output to alert_csv.txt instead of stdout
+        • multi alert_csv.fields = timestamp pkt_num proto pkt_gen dgm_len dir src_ap dst_ap rule action: selected fields will be output
+        in given order left to right { action | dir | dgm_len | dst_addr | dst_ap | dst_port | eth_dst | eth_len | eth_src | eth_type | gid |
+        icmp_code | icmp_id | icmp_seq | icmp_type | iface | ip_id | ip_len | msg | pkt_gen | pkt_num | proto | rev | rule | sid | src_addr |
+        src_ap | src_port | tcp_ack | tcp_flags | tcp_len | tcp_seq | tcp_win | timestamp | tos | ttl | udp_len }
+        • int alert_csv.limit = 0: set maximum size in MB before rollover (0 is unlimited) { 0: }
     
     For more information about： 
     [Snort output format](http://manual-snort-org.s3-website-us-east-1.amazonaws.com/node21.html#SECTION00366100000000000000) **Click this url**
@@ -548,8 +560,6 @@ now, enter this command test that suricata is working correctly:
     `sudo systemctl restart snort.service`
     `sudo snort -i ens192 -c /etc/snort/snort.conf`
     
-    \##Snort3 ++
-    `sudo nohup snort -i ens192 -c /opt/snort/etc/snort/snort.lua &`
     The **-i** option you can enter the interface card whatever you like to use to sniff packets form. and the **-c** point which configure file used.
     
     \###Snort 2.9x
@@ -559,16 +569,16 @@ now, enter this command test that suricata is working correctly:
     `ps aux | grep snort`
 
 
-<a id="org78252ac"></a>
+<a id="org085730d"></a>
 
 # Adding Patterns for ELk
 
 
-<a id="orgd1934be"></a>
+<a id="org3f78268"></a>
 
 ## Bro
 
-1.  [Logstrash Bro config file](#org69c3330)
+1.  [Logstrash Bro config file](#org1087f18)
 2.  ensure that you are finishing the bro config for logstrash (1.)
 3.  Index Patterns
 
@@ -581,12 +591,12 @@ finally,
 ![img](img/index%20bro.png)
 
 
-<a id="orgd0a0b8a"></a>
+<a id="orgcd09d14"></a>
 
 ### More information
 
 
-<a id="org8478304"></a>
+<a id="org4322c5e"></a>
 
 ## Suricata & Snort
 
@@ -625,19 +635,19 @@ and Adding partner same like this way to check:
 ![img](img/index%20bro.png)
 
 
-<a id="org7639e46"></a>
+<a id="org653ee21"></a>
 
 ### More Information
 
 For more information about Suricata, please see:
 
 
-<a id="orgfb191dd"></a>
+<a id="orgddc8f71"></a>
 
 # Adding a dashboard of data type
 
 
-<a id="orge192b44"></a>
+<a id="org9e3bb50"></a>
 
 ## Bro
 
@@ -666,36 +676,5 @@ For more information about Suricata, please see:
 
 ![img](img/src%20bar.png)
 
-1.  finally, organizing your dashboard of Bro
-
-![img](img/Bro%20Overviwe%20-%20Kibana%202017-12-25%2002-14-44.png)
-
--   Top Conn log of Bro protocol
-
-![img](img/Top%20conn%20log.png)
-
-
-<a id="org8d02932"></a>
-
-### More Information
-
-For more information about Suricata, please see:
-
-
-<a id="orgf9b0c8b"></a>
-
-## Snort & Suricata
-
-Metric of  Count Events 
-
-![img](img/IDS%20Alert%20Count.png)
-
-
-<a id="org7b09838"></a>
-
-# Reference
-
-[Snort3 User Manual](https://s3.amazonaws.com/snort-org-site/production/release_files/files/000/005/901/original/snort_manual.pdf?AWSAccessKeyId=AKIAIXACIED2SPMSC7GA&Expires=1514621909&Signature=sD%252BAzw59lYfgVBfpcKa302sTppM%253D)
-
-[Installing Snort++ Example Plugins](http://sublimerobots.com/2017/08/installing-snort-3-b239-in-ubuntu/)
+1.  finally, organizing you
 
