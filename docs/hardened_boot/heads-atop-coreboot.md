@@ -36,7 +36,7 @@ $ make bootstrap
 The path to boot partition and usb drive for Heads to handle are hard-written into its config file (e.g. `${HEADS_ROOT}/config/x230-generic.config`, which could be used as a template), and embedded into the initramfs, you should modify the value of `CONFIG_BOOT_DEV` and `CONFIG_USB_BOOT_DEV` to fit your own need. If it is to install a fresh-new GNU/Linux system which you want, you must determine them before you perform installation via usb boot from Heads.
 
 #### Boot script
-The default boot script `${HEADS_ROOT}/initrd/bin/generic-init` mandates interaction during boot process, which may be inconvenient for workstations and servers. If so, you could copy your own boot script into `${HEADS_ROOT}/initrd/bin/`, and modify the value of `CONFIG_BOOTSCRIPT` within the config file accordingly. [Exemplar automatic boot script](/scripts/heads/autoboot-init) and [config file](/scripts/heads/autoboot-init/x230-autoboot.config) are provided.
+The default boot script `${HEADS_ROOT}/initrd/bin/generic-init` mandates interaction during boot process, which may be inconvenient for workstations and servers. If so, you could copy your own boot script into `${HEADS_ROOT}/initrd/bin/`, and modify the value of `CONFIG_BOOTSCRIPT` within the config file accordingly. [Exemplar automatic boot script](/scripts/heads/autoboot-init) and [config file](/scripts/heads/x230-autoboot.config) are provided.
 
 #### Integrated OpenPGP keyring
 Heads has provided [a guide to generate key pair on OpenPGP card on the fly](https://github.com/osresearch/heads-wiki/blob/master/GPG.md), but I assume that you have already prepared an OpenPGP card with key.
