@@ -10,11 +10,9 @@ This is because Heads consists of mainly to parts: a patched coreboot to do meas
 
 
 ### Building Environment preparation for Heads
-I use [this branch](https://github.com/flammit/heads/tree/coreboot-4.6) for my own deployment, since the compiler source used by master branch is too old to build easily on current Debian GNU/Linux.
-
 Heads' build-dependency is quite similar to [those of coreboot](https://www.coreboot.org/Build_HOWTO#Requirements).
 
-Clone it to your local machine, and then run the following command to bootstrap its environment:
+Clone Heads' repo to your local machine, and then run the following command to bootstrap its environment:
 ```
 $ make bootstrap
 ```
@@ -67,7 +65,7 @@ $ make menuconfig
 
 **Note**: If your (customized) coreboot tree is based atop a revision newer than release 4.6, please make sure that [commit 35418f9814a64073550eb63a3bcb2e79021347cb](https://review.coreboot.org/19535) is reverted or never applied, otherwise PCRs (especially the PCR0~3) will be reset before Heads being executed, thus losing the measurement results of coreboot's components.
 
-Make sure `CONFIG_MEASURED_BOOT`(`Enable TPM measured boot`) is selected, and `CONFIG_USE_OPTION_TABLE`(`Use CMOS for configuration values`, both are located within menu `General setup`) is not selected (conflict with the current version of the patch above, [a PR to fix it](https://github.com/flammit/heads/pull/3) has been filed).
+Make sure `CONFIG_MEASURED_BOOT`(`Enable TPM measured boot`) is selected, and `CONFIG_USE_OPTION_TABLE`(`Use CMOS for configuration values`, both are located within menu `General setup`) is not selected (conflict with the current version of the patch above, [a PR to fix it](https://github.com/osresearch/heads/pull/300) has been filed).
 
 Currently, the Linux kernel built from Heads only has legacy VGA text mode support, so `VGA_TEXT_FRAMEBUFFER`(located inside `Display` submenu within `Devices`) should be used.
 
@@ -113,10 +111,13 @@ Connect your OpenPGP card or token to one of the usb ports, then choose 'y' for 
 With the signature, the boot part becomes automatic, and you will have a measured (PCR 4 is used in the firmware stages.), signed, and automated boot scheme if you have chosen `autoboot-init`.
 
 #### Update 1
-[A new patch](https://github.com/persmule/heads/commit/afd3a005e078420bbbcfb8194fc90e02dcc25666) has been filed as PR with a feature not to generate hashes for initrd or modules if module.sig_enforce=1 is present, which may ease the updating of initrd from GNU/Linux OSes. The corresponding config flag has been inserted into the heads' config provided by us.
+[A new patch](https://github.com/persmule/heads/commit/fb4521865edad2da0371751f71da27904495f18d) has been filed as PR with a feature not to generate hashes for initrd or modules if module.sig_enforce=1 is present, which may ease the updating of initrd from GNU/Linux OSes. The corresponding config flag has been inserted into the heads' config provided by us.
 
 #### Update 2
-With [this patch](https://github.com/persmule/heads/commit/b027b583f92e00b33f2d10ebcbcac9970e545a61), Heads could be used on platforms with no TPM available (e.g. Thinkpad x200), retaining signed boot functionality. Older platform may need [this fix](https://github.com/persmule/heads/commit/e08b7106c612696baa8f4f7e15f1e0fafd5aa678) to make use of OHCI and/or UHCI host interface to communicate with USB smart card reader.
+With [this patch](https://github.com/persmule/heads/commit/8f481d09fbd0633c38d2d4340d0e0e1bcdb3293c), Heads could be used on platforms with no TPM available (e.g. Thinkpad x200), retaining signed boot functionality. Older platform may need [this fix](https://github.com/persmule/heads/commit/bd45a87a8f64e47e78f8d4d255b01d24dbe0e1ef) to make use of companion OHCI and/or UHCI host interfaces to communicate with USB smart card reader.
+
+#### Update 3
+With [this patch](https://github.com/persmule/heads/commit/1061fe40301bde413b3cdf6692cc674058fe8fc5), Heads could make use of [io386](https://github.com/hardenedlinux/io386) to perform lockdown similar to what has been described [here](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md#update-for-coreboot-after-commit-2ac149d294af795710eb4bb20f093e9920604abd). The difference is, in this scheme for Heads, instead of passcode, OpenPGP card is used for owner to authenticate themselves for a writable SPI flash left for programming, since Heads is an operating system used as a boot loader. The config file and init script provided by us have been updated to support this.
 
 ### Reference:
 [1] [Heads-wiki](https://github.com/osresearch/heads-wiki)
