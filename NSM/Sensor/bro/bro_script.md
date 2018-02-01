@@ -1,5 +1,5 @@
 
-# Traffic Analysis with bro by bro scirpt
+# Traffic Analysis with Bro by Bro script
 
 1.  [Intro](#org011c061)
     1.  [Part 1](#orgb48923c)
