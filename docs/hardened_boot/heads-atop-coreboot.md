@@ -55,7 +55,7 @@ $ patch -p1 < ${HEADS_ROOT}/patches/coreboot-4.7.patch
 $ make menuconfig
 ```
 
-**Note**: If your (customized) coreboot tree is based atop a revision newer than release 4.7, the above patch provided by heads cannot be applied directly, since coreboot has heavily refactored its TPM framework after release 4.7. [A patch refactored accordingly](https://github.com/persmule/heads/blob/coreboot-head-patch/patches/coreboot-4.7.patch) could be used instead.
+**Note**: If your (customized) coreboot tree is based atop a revision newer than release 4.7, the above patch provided by heads cannot be applied directly, since coreboot has heavily refactored its TPM framework after release 4.7. [A patch refactored accordingly](https://github.com/persmule/heads/blob/coreboot-head-patch/patches/coreboot-HEAD.patch) could be used instead.
 
 Make sure `CONFIG_MEASURED_BOOT`(`Enable TPM measured boot`, located within menu `General setup`) is selected, and `CONFIG_USE_OPTION_TABLE`(`Use CMOS for configuration values`) and `CONFIG_STATIC_OPTION_TABLE`(`Load default configuration values into CMOS on each boot`) had better be selected, too, since these "default configuration values" stored in the built coreboot image could be easily [altered](https://www.coreboot.org/Board:lenovo/x200#Increase_amount_of_preallocated_ram_for_integrated_graphics) before flashing according to your needs, via the `nvramtool` provided by coreboot. (while it is possible to integrate `nvramtool` into heads' initrd to change CMOS directly, thus implementing a user experience similar to traditional BIOSes, it could introduce new attacting vectors if options are made dynamic, so only static CMOS value scheme is recommended here)
 
