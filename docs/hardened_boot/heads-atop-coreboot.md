@@ -41,10 +41,10 @@ $ echo "default-key ${FINGERPRINT}" > ${HEADS_ROOT}/initrd/.gnupg/gpg.conf
 Copy your own config file into `${HEADS_ROOT}/board`, then execute:
 ```
 $ cd ${HEADS_ROOT}
-$ make CONFIG=config/${YOUR_CONFIG} coreboot.intermediate
+$ make CONFIG=config/${YOUR_CONFIG} linux cpio
 ```
 
-The [current](https://github.com/osresearch/heads/commit/7283a5397abf6c7f7f2760629b347eee936fd20f) build system is a bit broken (it ends with failure), but resulted `bzImage` and `initrd.cpio.xz` prove fine.
+In my scheme coreboot is built separately, so only the kernel image and initrd is needed.
 You will obtain `bzImage` and `initrd.cpio.xz` under `${HEADS_ROOT}/build/qemu-coreboot`.
 
 ### Build coreboot image
