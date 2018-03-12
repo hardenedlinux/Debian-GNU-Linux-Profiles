@@ -37,8 +37,8 @@ The systemtap depend on the right running of ssh( syzkaller also).
 ## Extern the syscall
 In my cause, I only use syzkaller on Linux/X86_64, so, I modified the Makefile( use [this patch]()) for it. After writing you syscall to $(SYZKALLER)/sys/linux/*.txt, you can run:
 ```  
-make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) generate
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) extract
+make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) generate
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) -jN
 ```  
 That will rebuild syzkaller with you own syscall. Then, scp to your VM.
@@ -47,9 +47,13 @@ That will rebuild syzkaller with you own syscall. Then, scp to your VM.
 I use systemtap to verify if the code is reachable after fuzzer execute. You can extend other features by writing your own stap script. [Here is a tutorial](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/systemtap.md) of systemtap the remote/virtual machine, [this is a example]() of show how much times the fuzzer triggered a kernel handle function.
 
 ## KGDB single step analysis
-To run KGDB with QEMU, the cmdline option of QEMU need some modify, add the following option to syzkaller/vm/qemu/qemu.go and rebuild syzkaller:
-```  
--gdb tcp::1234
+To run KGDB with QEMU, the cmdline option of QEMU need some modify, add the following option to `qemu_args` configuration parameter of manager config file:
+```
+  "vm": [
+    ...
+    "count": 1,
+    "qemu_args": "-gdb tcp::1234"
+  ]
 ```  
 then run it on your host:
 ```  
