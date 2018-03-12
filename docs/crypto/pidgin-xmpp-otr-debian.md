@@ -184,6 +184,8 @@ and send it to your trustful friends, in order for them to trust you.
 -----END PGP SIGNATURE-----
 ```
 
+A problem arises that some clients will compose messages (e.g. Pidgin composes messages with html), which often breaks the integrity of clear-sign. An effective way to resolve it is to encode the clear-signed text into radix-64 form to which composing is not harmful, via running `gpg --store -a`, and restoring via `gpg -d`. This command compresses its input transparently by default, thus easier than the "traditional" way to compress and then base64.
+
 ### About authencation via Q&A and/or shared secret
 The OTR plugin of Pidgin by default supports authencation via Q&A and/or shared secret (they are essentially the same). Its core thought is to get a secret only you two know between you and your opposite side, and then ask them a question about the shared secret via the Q&A and/or shared secret functionality of the OTR plugin. If the answer is identical to the preset one, the public key of your opposite side is marked as trustful automatically. Your opposite side cannot obtain your preset answer, and you cannot obtain the answer from your opposite side. [A specific algorithm](https://en.wikipedia.org/wiki/Socialist_millionaires) is used to judge whether two value is equal without leaking the value itself to any other entity including the opposite side.
 
