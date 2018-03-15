@@ -19,6 +19,8 @@ You may get some output like:
 ```  
 This cmdline can display the QEMU option specified by syz-manager, some inappropriate options may cause the fault of syz-manager. You can modify the options and run it individually to check it. Some options specified in you configure and the other default options are located in syzkaller/vm/qemu/qemu.go. Try to modify it and rebuild to fit you mechine environment.
 
+* I met a VM boot error because of no sound device, use [this patch as a example](delete_qemu_default_option.diff) of how to modify source.
+
 ## Check ssh to remote(VM)
 In many case, you may need to check the running of the VM. Run on the following cmdline on your host:
 ```  
@@ -35,13 +37,13 @@ ssh -p $(PORT) root@127.0.0.1
 The systemtap depend on the right running of ssh( syzkaller also).
 
 ## Extern the syscall
-In my cause, I only use syzkaller on Linux/X86_64, so, I modified the Makefile( use [this patch]()) for it. After writing you syscall to $(SYZKALLER)/sys/linux/*.txt, you can run:
+In my cause, I only use syzkaller on Linux/X86_64.After writing you syscall discription to $(SYZKALLER)/sys/linux/*.txt, you can run:
 ```  
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) extract
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) generate
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) -jN
 ```  
-That will rebuild syzkaller with you own syscall. Then, scp to your VM.
+That will rebuild syzkaller with you own syscall. Then, scp binary to your VM.
 
 ## Moniter remote(VM) with systemtap
 I use systemtap to verify if the code is reachable after fuzzer execute. You can extend other features by writing your own stap script. [Here is a tutorial](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/systemtap.md) of systemtap the remote/virtual machine, [this is a example]() of show how much times the fuzzer triggered a kernel handle function.
@@ -75,7 +77,11 @@ I use KGDB to analys the code path of kernel triggered by syzkaller. Note that `
 ## KCOV
 Syzkaller use the KCOV collect the information of coverage, every instance will initial KCOV interface, KCOV interface locate in /sys/kernel/debug/kcov, enable/disable it by using ioctl. Implement is in executor/executor_linux.cc
 xecutor/executor_linux.cc:a set of cover_* functions.
-Note that full debug information need the right vmlinux specified by syz-manager configure. You can get the coverage of the fuzzer by accessing the server of syzkaller.
+Note that full debug information need the right vmlinux specified by syz-manager configure. You can get the coverage of the fuzzer by accessing the server of syzkaller:
+```  
+http://127.0.0.1:$(PORT)/cover
+```  
+The KCOV will show the covered branch with different color. The coverage of kernel modules is not mentioned.
 
 ## Syzkaller and snadbox
 Syzkaller with sandbox enable may block syscalls which is not mentioned in configure file, but syzkaller's repro may depend on it.
