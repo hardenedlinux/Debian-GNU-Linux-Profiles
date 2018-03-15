@@ -1,0 +1,38 @@
+include <uapi/linux/fs.h>
+include <linux/mount.h>
+include <linux/fs.h>
+include <asm/ioctls.h>
+
+# mount ceph filesystem
+# Attach the info of mount cephfs by using strace
+# mount("192.168.122.136:6789:/", "/root/tmp", "ceph", MS_MGC_VAL, "name=admin,secret=************"...)
+# umount2("/root/tmp", 0)
+
+mount$cephfs(src ptr[inout, string[remote]], dst ptr[inout, string[dirname]], type ptr[inout, string[ceph_type]], flags flags[ceph_mount_flags], data ptr[inout, string[verf_str]])
+umount2$cephfs(path ptr[in, string[dirname]], flags flags[ceph_umount_flags])
+remote = "192.168.122.136:6789:/"
+dirname = "/root/tmp"
+ceph_type = "ceph"
+ceph_mount_flags = 0xc0ed0000
+verf_str = "name=admin,secret=************"
+ceph_umount_flags = 0
+
+# ceph file operations
+# Syscalls for ceph file operations handle function
+# ceph file operations is in /fs/ceph/file.c
+
+resource fd_ceph_fops[fd]
+open$ceph_fops(file ptr[in, string["/root/tmp/***"]], flags flags[open_flags], mode flags[open_mode]) fd_ceph_fops
+mmap$ceph_fops(addr vma, len len[addr], prot flags[mmap_prot], flags flags[mmap_flags], fd fd_ceph_fops, offset fileoff) vma
+pipe$ceph_fops(pipefd ptr[out, pipefd])
+splice$ceph_fops_out(fdin fd_ceph_fops, offin const[0], fdout fd_ceph_fops, offout ptr[in, fileoff[int64]], len intptr, f flags[splice_flags])
+splice$ceph_fops_in(fdin fd_ceph_fops, offin ptr[in, fileoff[int64]], fdout fd_ceph_fops, offout const[0], len intptr, f flags[splice_flags])
+fallocate$ceph_fops(fd fd_ceph_fops, mode flags[fallocate_mode], off intptr, len intptr)
+ioctl$ceph_fops(fd fd_ceph_fops, cmd intptr, arg buffer[in])
+flock$ceph_fops(fd fd_ceph_fops, op flags[flock_op])
+lseek$ceph_fops(fd fd_ceph_fops, offset fileoff, whence flags[seek_whence])
+read$ceph_fops(fd fd_ceph_fops, buf buffer[out], count len[buf])
+write$ceph_fops(fd fd_ceph_fops, buf buffer[in], count len[buf])
+close$ceph_fops(fd fd_ceph_fops)
+fsync$ceph_fops(fd fd_ceph_fops)
+
