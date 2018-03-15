@@ -1,0 +1,140 @@
+global ceph_open_c = 0
+global ceph_close_c = 0
+global ceph_llseek_c = 0
+global ceph_read_c = 0
+global ceph_write_c = 0
+global ceph_mmap_c = 0
+global ceph_fsync_c = 0
+global ceph_lock_c = 0
+global ceph_flock_c = 0
+global ceph_splice_read_c = 0
+global ceph_splice_write_c = 0
+global ceph_ioctl_c = 0
+global ceph_fallocate_c = 0
+
+probe begin
+{
+    printf("Stap start!\n");
+}
+probe module("ceph").function("ceph_open")
+{
+  if( ceph_open_c == 0 ){
+    printf("Open OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_open_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_release")
+{
+  if( ceph_close_c == 0 ){
+  printf("Close OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_close_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_llseek")
+{
+  if( ceph_llseek_c == 0 ){
+  printf("llseek OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_llseek_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_read_iter")
+{
+  if( ceph_read_c == 0 ){
+  printf("Read OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_read_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_write_iter")
+{
+  if( ceph_write_c == 0 ){
+  printf("Write OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_write_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_mmap")
+{
+  if( ceph_mmap_c == 0 ){
+  printf("Mmap OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_mmap_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_fsync")
+{
+  if( ceph_fsync_c == 0){
+  printf("Fsync OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_fsync_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_lock")
+{
+  if( ceph_lock_c == 0 ){
+  printf("Lock OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_lock_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_flock")
+{
+  if( ceph_flock_c == 0 ){
+  printf("Flock OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_flock_c = 1
+  }
+}
+
+probe kernel.function("generic_file_splice_read")
+{
+  if( ceph_splice_read_c == 0){
+  printf("Splice read OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_splice_read_c = 1
+  }
+}
+
+probe kernel.function("iter_file_splice_write")
+{
+  if( ceph_splice_write_c == 0 ){
+  printf("Splice_write OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_splice_write_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_ioctl")
+{
+  if( ceph_ioctl_c == 0 ){
+  printf("Ioctl OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_ioctl_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_fallocate")
+{
+  if( ceph_fallocate_c == 0 ){
+  printf("Fallocate OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_fallocate_c = 1
+  }
+}
+
+probe end
+{
+    printf("Stap end!\n")
+}
+
