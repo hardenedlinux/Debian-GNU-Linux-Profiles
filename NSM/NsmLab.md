@@ -7,7 +7,7 @@
     3.  [Map cyber activity to attacker infrastructure.](#org8417c27)
         1.  [GeoIP](#orgd8fa711)
     4.  [Malware analysis](#org7e62646)
-        1.  [Virtualotal](#org3712605)
+        1.  [Virustotal](#org3712605)
     5.  [ALternative Tecnology stacks](#orgb770cd1)
         1.  [Bro](#orga615193)
         2.  [Snort/Suricata](#org3abab69)
@@ -16,7 +16,7 @@
     7.  [Data analysis with python or Clojure](#org410946d)
         1.  [PySpark](#orge626ece)
         2.  [Using Clojure achived Spark steaming](#org50fcd19)
-        3.  [Virtualotal type of collected netflow.](#org8ea5ef6)
+        3.  [Virustotal type of collected netflow.](#org8ea5ef6)
 
 
 <a id="orgd951a7b"></a>
@@ -306,7 +306,7 @@ Malware analysis and simulations signature development that feed the detection m
 
 <a id="org3712605"></a>
 
-### Virtualotal
+### Virustotal
 
 virustotal-search.py is a Python program to search VirusTotal for hashes.
 
