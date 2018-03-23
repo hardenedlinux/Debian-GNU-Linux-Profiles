@@ -2,7 +2,7 @@
 
 ## Content  
 1. [cephfs.txt](cephfs.txt) syscall description of syzkaller
-2. [ceph_fops.stap](ceph_fops.stap) script of systemtap, verify the hit of kernel
+2. [ceph_fops.stap](ceph_fops.stap),[ceph_iops.stap](ceph_iops.stap) script of systemtap, verify the hit of the ceph_*
 
 ## Step  
 1. Add the extern syscalls description to syzkaller source code( sys/linux/cephfs.txt). In this example, we extern the syzkaller syscall to fuzz the file operations of ceph filesystem. Then, Rebuild it.

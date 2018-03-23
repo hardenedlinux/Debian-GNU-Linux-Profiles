@@ -1,0 +1,150 @@
+global ceph_setattr_c = 0
+global ceph_getattr_c = 0
+global ceph_permission_c = 0
+global ceph_listxattr_c = 0
+global ceph_get_acl_c = 0
+global ceph_set_acl_c = 0
+global ceph_mknod_c = 0
+global ceph_mkdir_c = 0
+global ceph_symlink_c = 0
+global ceph_link_c = 0
+global ceph_unlink_c = 0
+global ceph_rename_c = 0
+global ceph_create_c = 0
+
+probe begin
+{
+    printf("Stap start!\n");
+}
+
+probe module("ceph").function("ceph_setattr")
+{
+  if( ceph_setattr_c == 0 ){
+    printf("setattr OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_setattr_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_getattr")
+{
+  if( ceph_getattr_c == 0 ){
+  printf("getattr OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_getattr_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_permission")
+{
+  if( ceph_permission_c == 0 ){
+  printf("permission OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_permission_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_listxattr")
+{
+  if( ceph_listxattr_c == 0 ){
+  printf("listxattr OK!\n")
+  printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+  ceph_listxattr_c = 1
+  }
+}
+
+probe module("ceph").function("ceph_get_acl")
+{
+  if( ceph_get_acl_c == 0 ){
+    printf("get_acl OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_get_acl_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_set_acl")
+{
+  if( ceph_set_acl_c == 0 ){
+    printf("set_acl OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_set_acl_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_mknod")
+{
+  if( ceph_mknod_c == 0 ){
+    printf("mknod OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_mknod_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_symlink")
+{
+  if( ceph_symlink_c == 0 ){
+    printf("symlink OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_symlink_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_mkdir")
+{
+  if( ceph_mkdir_c == 0 ){
+    printf("mkdir OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_mkdir_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_link")
+{
+  if( ceph_link_c == 0 ){
+    printf("link OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_link_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_unlink")
+{
+  if( ceph_unlink_c == 0 ){
+    printf("unlink OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_unlink_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_rename")
+{
+  if( ceph_rename_c == 0 ){
+    printf("rename OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_rename_c = 1
+    }
+}
+
+probe module("ceph").function("ceph_create")
+{
+  if( ceph_create_c == 0 ){
+    printf("create OK!\n")
+    printf("%s(%d) -> %s\n", execname(), pid(), probefunc())
+    ceph_create_c = 1
+    }
+}
+
+probe process.syscall
+{
+  if( ceph_listxattr_c && ceph_getattr_c && ceph_permission_c && ceph_setattr_c&& ceph_get_acl_c && ceph_set_acl_c && ceph_mknod_c && ceph_symlink_c && ceph_mkdir_c && ceph_link_c && ceph_unlink_c && ceph_rename_c && ceph_create_c )
+  {
+  printf("All OK!\n")
+  exit()
+  }
+}
+
+probe end
+{
+    printf("Stap end!\n")
+}
+
