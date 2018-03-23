@@ -2,6 +2,7 @@ include <uapi/linux/fs.h>
 include <linux/mount.h>
 include <linux/fs.h>
 include <asm/ioctls.h>
+include <linux/xattr.h>
 
 # mount ceph filesystem
 # Attach the info of mount cephfs by using strace
@@ -17,22 +18,58 @@ ceph_mount_flags = 0xc0ed0000
 verf_str = "name=admin,secret=************"
 ceph_umount_flags = 0
 
+# common operation
+resource fd_ceph_file[fd]
+resource fd_ceph_dir[fd]
+
+open$ceph_file(file ptr[in, string["/root/tmp/***"]], flags flags[open_flags], mode flags[open_mode]) fd_ceph_file
+open$ceph_dir(file ptr[in, string["/root/tmp"]], flags flags[open_flags], mode flags[open_mode]) fd_ceph_dir
+chdir$ceph(dir ptr[in, string["/root/tmp/"]])
+
 # ceph file operations
 # Syscalls for ceph file operations handle function
 # ceph file operations is in /fs/ceph/file.c
 
-resource fd_ceph_fops[fd]
-open$ceph_fops(file ptr[in, string["/root/tmp/***"]], flags flags[open_flags], mode flags[open_mode]) fd_ceph_fops
-mmap$ceph_fops(addr vma, len len[addr], prot flags[mmap_prot], flags flags[mmap_flags], fd fd_ceph_fops, offset fileoff) vma
+mmap$ceph_fops(addr vma, len len[addr], prot flags[mmap_prot], flags flags[mmap_flags], fd fd_ceph_file, offset fileoff)
 pipe$ceph_fops(pipefd ptr[out, pipefd])
-splice$ceph_fops_out(fdin fd_ceph_fops, offin const[0], fdout fd_ceph_fops, offout ptr[in, fileoff[int64]], len intptr, f flags[splice_flags])
-splice$ceph_fops_in(fdin fd_ceph_fops, offin ptr[in, fileoff[int64]], fdout fd_ceph_fops, offout const[0], len intptr, f flags[splice_flags])
-fallocate$ceph_fops(fd fd_ceph_fops, mode flags[fallocate_mode], off intptr, len intptr)
-ioctl$ceph_fops(fd fd_ceph_fops, cmd intptr, arg buffer[in])
-flock$ceph_fops(fd fd_ceph_fops, op flags[flock_op])
-lseek$ceph_fops(fd fd_ceph_fops, offset fileoff, whence flags[seek_whence])
-read$ceph_fops(fd fd_ceph_fops, buf buffer[out], count len[buf])
-write$ceph_fops(fd fd_ceph_fops, buf buffer[in], count len[buf])
-close$ceph_fops(fd fd_ceph_fops)
-fsync$ceph_fops(fd fd_ceph_fops)
+splice$ceph_fops_out(fdin fd_ceph_file, offin const[0], fdout fd_ceph_file, offout ptr[in, fileoff[int64]], len intptr, f flags[splice_flags])
+splice$ceph_fops_in(fdin fd_ceph_file, offin ptr[in, fileoff[int64]], fdout fd_ceph_file, offout const[0], len intptr, f flags[splice_flags])
+fallocate$ceph_fops(fd fd_ceph_file, mode flags[fallocate_mode], off intptr, len intptr)
+ioctl$ceph_fops(fd fd_ceph_file, cmd intptr, arg buffer[in])
+flock$ceph_fops(fd fd_ceph_file, op flags[flock_op])
+lseek$ceph_fops(fd fd_ceph_file, offset fileoff, whence flags[seek_whence])
+read$ceph_fops(fd fd_ceph_file, buf buffer[out], count len[buf])
+write$ceph_fops(fd fd_ceph_file, buf buffer[in], count len[buf])
+close$ceph_fops(fd fd_ceph_file)
+fsync$ceph_fops(fd fd_ceph_file)
 
+# Ceph inode operation
+
+fstat$ceph_iops(fd fd_ceph_file, statbuf ptr[out, stat])
+fchmod$ceph_iops(fd fd_ceph_file, mode flags[open_mode])
+flistxattr$ceph_iops(fd fd_ceph_file, list buffer[out], size len[list])
+mknodat$ceph_iops(dirfd fd_ceph_dir, file ptr[in, filename], mode flags[mknod_mode], dev int32)
+symlinkat$ceph_iops(old ptr[in, filename], newfd fd_ceph_dir, new ptr[in, filename])
+linkat$ceph_iops(oldfd fd_ceph_dir, old ptr[in, filename], newfd fd_ceph_dir, new ptr[in, filename], flags flags[linkat_flags])
+unlinkat$ceph_iops(fd fd_ceph_dir, path ptr[in, filename], flags flags[unlinkat_flags])
+mkdir$ceph_iops(path ptr[in, string[ceph_dir]], mode flags[open_mode])
+rmdir$ceph_iops(path ptr[in, string[ceph_dir]])
+renameat$ceph_iops(oldfd fd_ceph_dir, old ptr[in, filename], newfd fd_ceph_dir, new ptr[in, filename])
+
+# run "strace setfacl/getfacl ... " to collect information of system call.
+fsetxattr$ceph_iops(fd fd_ceph_file, name ptr[in, string[acl_name]], val ptr[in, acl_type], size len[val], flags flags[acl_flags])
+fgetxattr$ceph_iops(fd fd_ceph_file, name ptr[in, string[acl_name]], val buffer[out], size len[val])
+
+# some macro can be found in linux/include/uapi/linux/posix_acl.h
+ceph_dir = "/root/tmp/test_dir"
+acl_name = "system.posix_acl_access"
+acl_flags = 0x0
+
+acl_type {
+	Version	int32
+	AclSID	int64[0x1:0x20]
+	Perm	int16
+}
+
+Perm = 0x0, 0x1, 0x2, 0x3, 0x4, 0x6, 0x7
+Version = 0x4000, 0x8000

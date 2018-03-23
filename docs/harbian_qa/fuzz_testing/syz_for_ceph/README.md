@@ -2,7 +2,7 @@
 
 ## Content  
 1. [cephfs.txt](cephfs.txt) syscall description of syzkaller
-2. [ceph_fops.stap](ceph_fops.stap) script of systemtap, verify the hit of kernel
+2. [ceph_fops.stap](ceph_fops.stap),[ceph_iops.stap](ceph_iops.stap) script of systemtap, verify the hit of the ceph_*
 
 ## Step  
 1. Add the extern syscalls description to syzkaller source code( sys/linux/cephfs.txt). In this example, we extern the syzkaller syscall to fuzz the file operations of ceph filesystem. Then, Rebuild it.
@@ -45,3 +45,4 @@ syz-executor0(2653) -> ceph_ioctl
 * TODO:systemtap may be broken because of the crash of VM, you may need a automated script to rerun the systemtap with different $(PORT).
 
 ## Found bug  
+[KASAN: use-after-free Read in set_page_dirty_lock](https://groups.google.com/forum/#!topic/syzkaller/w-u4MXthFoI): [fixed patch](https://www.google.com/url?q=https%3A%2F%2Fgithub.com%2Fceph%2Fceph-client%2Fcommit%2Fcfcd7a9e2d7faf5601b4731ea5a9eff7751981aa&sa=D&sntz=1&usg=AFQjCNHlwtgIgqDxoWkTpCrmDV1OfFlJ4Q)
