@@ -109,8 +109,15 @@ A new commit atop [this branch](https://github.com/persmule/heads/commits/sigenf
 #### Update 2
 With the commit atop [this branch](https://github.com/persmule/heads/commits/tpm-optional), Heads could be used on platforms with no TPM available (e.g. Thinkpad x200), retaining signed boot functionality. [Corresponding examplar config](/scripts/heads/boards/autoboot-notpm.config) is also provided.
 
+This update has already been merged into upstream.
+
 #### Update 3
-With the commit atop [this branch](https://github.com/persmule/heads/commits/io386), Heads could make use of [io386](https://github.com/hardenedlinux/io386) to perform lockdown similar to what has been described [here](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md#update-for-coreboot-after-commit-2ac149d294af795710eb4bb20f093e9920604abd). The difference is, in this scheme for Heads, instead of passcode, OpenPGP card is used for owner to authenticate themselves for a writable SPI flash left for programming, since Heads is an operating system used as a boot loader. The config file and init script provided by us have been updated to support this.
+With the commit atop [this branch](https://github.com/persmule/heads/commits/io386), Heads could make use of [io386](https://github.com/hardenedlinux/io386) to perform lockdown similar to what has been described [here](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/hardened_boot/grub-for-coreboot.md#update-for-coreboot-after-commit-2ac149d294af795710eb4bb20f093e9920604abd). The config file and init script provided by us have been updated to support this.
+
+#### Update 4
+The commit atop [this branch](https://github.com/persmule/heads/commits/rcv-auth) imposes optional access restriction to the Recovery Shell. OpenPGP card is used for owner/admin to authenticate themselves for the recovery shell to manage the machine. 
+
+The working branch used by the author containing every update above is [here](https://github.com/persmule/heads/commits/coreboot-4.7-build).
 
 ### Reference:
 [1] [Heads-wiki](https://github.com/osresearch/heads-wiki)
