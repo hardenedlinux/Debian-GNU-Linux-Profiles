@@ -492,8 +492,265 @@ outer:
 	......
 }
 ```  
+### Corpus  
+
+syz-db usage( from [here](https://groups.google.com/forum/#!topic/syzkaller/VClNsBqXQIg)):
+```  
+syz-db unpack $(YOUR_CORPUS.DB) $(YOUR_TMP_DIR)
+```  
+You can found a lot of files in $(YOUR_TMP_DIR). You may want to add to or modify it according to your need.
+Then repack your corpus run:
+```  
+syz-db pack  $(YOUR_TMP_DIR)  $(YOUR_TMP_DIR)
+```  
+In MakeEnv, setup the share memory to get the output from process:
+```  
+func MakeEnv(config *Config, pid int) (*Env, error) {
+	// CreateMemMappedFile creates a temp file with the requested size and maps it into memory.
+	inf, inmem, err = osutil.CreateMemMappedFile(prog.ExecBufferSize)
+        ......
+	outf, outmem, err = osutil.CreateMemMappedFile(outputSize)
+	......
+	/* set output */
+	env := &Env{
+		in:      inmem,
+		out:     outmem,
+		inFile:  inf,
+		outFile: outf,
+		......
+	}
+```  
+Pass args to makeCommand:
+```  
+func (env *Env) Exec(opts *ExecOpts, p *prog.Prog) (output []byte, info []CallInfo, failed, hanged bool, err0 error){
+		......
+		/* 'env.inFile, env.outFile' as extrafiles, except stdio */
+		env.cmd, err0 = makeCommand(env.pid, env.bin, env.config, env.inFile, env.outFile)
+		......
+}
+```  
+In executor main func, apply extrafiles for output. 
+```  
+/* After stdin, stdout, stderr */
+const int kInFd = 3;
+const int kOutFd = 4;
+int main(int argc, char** argv)
+{
+	if (mmap(&input_data[0], kMaxInput, PROT_READ, MAP_PRIVATE | MAP_FIXED, kInFd, 0) != &input_data[0])
+	.......
+	output_data = (uint32*)mmap(kOutputDataAddr, kMaxOutput,
+				    PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, kOutFd, 0);
+	......
+}
+```  
+In executor loop, handle_completion will be called indirectly. This function will write out the signal/coverage information to share memory. The data will be process by fuzzer.
+```  
+void handle_completion(thread_t* th)
+{
+	......
+	if (!collide && !th->colliding) {
+		/* Send relative information */
+		write_output(th->call_index);
+		write_output(th->call_num);
+		uint32 reserrno = th->res != -1 ? 0 : th->reserrno;
+		write_output(reserrno);
+		write_output(th->fault_injected);
+		/* Only get the pointer */
+		uint32* signal_count_pos = write_output(0); // filled in later
+		uint32* cover_count_pos = write_output(0); // filled in later
+		uint32* comps_count_pos = write_output(0); // filled in later
+		uint32 nsig = 0, cover_size = 0, comps_size = 0;
+		/* KCOV mode, in kernel configure */
+		if (flag_collect_comps) {
+			// Collect only the comparisons
+			uint32 ncomps = th->cover_size;
+			kcov_comparison_t* start = (kcov_comparison_t*)th->cover_data;
+			/* th->cover_data initiate in cover_open */
+			kcov_comparison_t* end = start + ncomps;
+			if ((uint64*)end >= th->cover_data + kCoverSize)
+				fail("too many comparisons %u", ncomps);
+			std::sort(start, end);
+			ncomps = std::unique(start, end) - start;
+			for (uint32 i = 0; i < ncomps; ++i) {
+				if (start[i].ignore())
+					continue;
+				comps_size++;
+				start[i].write();
+			}
+		} else {
+			// Write out feedback signals.
+			// Currently it is code edges computed as xor of
+			// two subsequent basic block PCs.
+			uint32 prev = 0;
+			/* Hase to signal base on the pc */
+			for (uint32 i = 0; i < th->cover_size; i++) {
+				uint32 pc = (uint32)th->cover_data[i];
+				uint32 sig = pc ^ prev;
+				prev = hash(pc);
+				if (dedup(sig))
+					continue;
+				write_output(sig);
+				nsig++;
+			}
+			if (flag_collect_cover) {
+				// Write out real coverage (basic block PCs).
+				cover_size = th->cover_size;
+				if (flag_dedup_cover) {
+					uint64* start = (uint64*)th->cover_data;
+					uint64* end = start + cover_size;
+					std::sort(start, end);
+					cover_size = std::unique(start, end) - start;
+				}
+				// Truncate PCs to uint32 assuming that they fit into 32-bits.
+				// True for x86_64 and arm64 without KASLR.
+				for (uint32 i = 0; i < cover_size; i++)
+					write_output((uint32)th->cover_data[i]);
+			}
+		}
+		/* Fill memory has been 'write_output(0)' */
+		// Write out real coverage (basic block PCs).
+		*cover_count_pos = cover_size;
+		// Write out number of comparisons
+		*comps_count_pos = comps_size;
+		// Write out number of signals
+		*signal_count_pos = nsig;
+		debug("out #%u: index=%u num=%u errno=%d sig=%u cover=%u comps=%u\n",
+		      completed, th->call_index, th->call_num, reserrno, nsig,
+		      cover_size, comps_size);
+		completed++;
+		write_completed(completed);
+	}
+	th->handled = true;
+	running--;
+}
+
+```  
+Env.readOutCoverage read the information written out by handle_completion.
+```  
+func (env *Env) readOutCoverage(p *prog.Prog) (info []CallInfo, err0 error) {
+	/* Slice env.out */
+	out := ((*[1 << 28]uint32)(unsafe.Pointer(&env.out[0])))[:len(env.out)/int(unsafe.Sizeof(uint32(0)))]
+	readOut := func(v *uint32) bool {
+		if len(out) == 0 {
+			return false
+		}
+		*v = out[0]
+		out = out[1:]
+		return true
+	}
+	/* read by using readOut and set Err to msg */
+	readOutAndSetErr := func(v *uint32, msg string, args ...interface{}) bool {
+		if !readOut(v)
+		......
+	}
+
+	// Reads out a 64 bits int in Little-endian as two blocks of 32 bits.
+	readOut64 := func(v *uint64, msg string, args ...interface{}) bool {
+		if !(readOutAndSetErr(&a, msg, args) && readOutAndSetErr(&b, msg, args))
+		......
+	}
+
+	var ncmd uint32
+	if !readOutAndSetErr(&ncmd,
+		"executor %v: failed to read output coverage", env.pid) {
+		return
+	}
+	/* read call info */
+	for i := uint32(0); i < ncmd; i++ {
+		/* readout sequentially, written by write_output, the sort is the same */
+		var callIndex, callNum, errno, faultInjected, signalSize, coverSize, compsSize uint32
+		if !readOut(&callIndex) || !readOut(&callNum) || !readOut(&errno) || !readOut(&faultInjected) || !readOut(&signalSize) || !readOut(&coverSize) || !readOut(&compsSize) {
+			......
+		}
+		......
+		// Read out signals.
+		info[callIndex].Signal = out[:signalSize:signalSize]
+		out = out[signalSize:]
+		// Read out coverage
+		......
+		info[callIndex].Cover = out[:coverSize:coverSize]
+		out = out[coverSize:]
+		......
+		for j := uint32(0); j < compsSize; j++ {
+			......
+		}
+		info[callIndex].Comps = compMap
+	}
+	return
+}
+```  
+
+Finally, 'triageInput' will process the data read. 'triageInput' convert signal from uint32 to 'Signal' map. Signal is base on pc. Then pick out new signal by comparing all the maps. The new signal may need verifity and minimizing. Then add to fuzzer corpus and manager corpus.
+```  
+func (proc *Proc) triageInput(item *WorkTriage) {
+	Logf(1, "#%v: triaging type=%x", proc.pid, item.flags)
+	if !proc.fuzzer.coverageEnabled {
+		panic("should not be called when coverage is disabled")
+	}
+
+	call := item.p.Calls[item.call]
+	/* From uint32 signal to Signal map */
+	inputSignal := signal.FromRaw(item.info.Signal, signalPrio(item.p.Target, call, &item.info))
+	/* Pick out new signal by prio */
+	newSignal := proc.fuzzer.corpusSignalDiff(inputSignal)
+	......
+	var inputCover cover.Cover
+	const (
+		signalRuns       = 3
+		minimizeAttempts = 3
+	)
+	// Compute input coverage and non-flaky signal for minimization.
+	notexecuted := 0
+	for i := 0; i < signalRuns; i++ {
+		info := proc.executeRaw(proc.execOptsCover, item.p, StatTriage)
+		if len(info) == 0 || len(info[item.call].Signal) == 0 ||
+			item.info.Errno == 0 && info[item.call].Errno != 0 {
+			// The call was not executed or failed.
+			notexecuted++
+			if notexecuted > signalRuns/2+1 {
+				return // if happens too often, give up
+			}
+			continue
+		}
+		inf := info[item.call]
+		/* Check the signal */
+		thisSignal := signal.FromRaw(inf.Signal, signalPrio(item.p.Target, call, &inf))
+		newSignal = newSignal.Intersection(thisSignal)
+		// Without !minimized check manager starts losing some considerable amount
+		// of coverage after each restart. Mechanics of this are not completely clear.
+		if newSignal.Empty() && item.flags&ProgMinimized == 0 {
+			return
+		}
+		inputCover.Merge(inf.Cover)
+	}
+	/* Minimize */
+	if item.flags&ProgMinimized == 0 {
+		item.p, item.call = prog.Minimize(item.p, item.call, false,
+			func(p1 *prog.Prog, call1 int) bool {...})
+	}
+
+	data := item.p.Serialize()
+	sig := hash.Hash(data)
+
+	Logf(2, "added new input for %v to corpus:\n%s", call.Meta.CallName, data)
+	proc.fuzzer.sendInputToManager(RPCInput{
+		Call:   call.Meta.CallName,
+		Prog:   data,
+		Signal: inputSignal.Serialize(),
+		Cover:  inputCover.Serialize(),
+	})
+
+	proc.fuzzer.addInputToCorpus(item.p, inputSignal, sig)
+
+	if item.flags&ProgSmashed == 0 {
+		proc.fuzzer.workQueue.enqueue(&WorkSmash{item.p, item.call})
+	}
+}
+
+```  
+
 ### KCOV  
 The syzkaller use the KCOV for collecting the kernel coverage triggered by fuzzer. Some information about KCOV：
 1. gcc insert the calls to get information of kernel. [This is some information about trace_pc/trace_cmp](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html). Note that KCOV doesn't show all the code triggered by userspace process. For example, a base-block may be recorded as a line coverage.
-2. Implement of handle function which is called to get information at runtime. Implement the proc interface, fops/mmap/ioctl... Kernel implement local in 'kernel/kcov.c'.
-4. Using of the proc/ interface in every userspace prog. Enable KCOV by ioctl and read information from mmap region. The syzkaller's implement is in 'executor/executor_linux.cc'.
+2. Implementing handle functions which are called to get information at runtime. Implementinf share memory of per process( in struct task_struc). Implementing proc interface, fops/mmap/ioctl... Kernel implement local in 'kernel/kcov.c'.
+4. Using the proc/ interface in every userspace prog. Enable KCOV by ioctl and read information from mmap region. The syzkaller's implement is in 'executor/executor_linux.cc'.
