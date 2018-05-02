@@ -42,7 +42,7 @@ Ioctl OK!
 syz-executor0(2653) -> ceph_ioctl
 ```  
 
-* TODO:systemtap may be broken because of the crash of VM, you may need a automated script to rerun the systemtap with different $(PORT).
+* Use [this script](auto_stap.py) to run systemtap.  
 
 ## Found bug  
 [KASAN: use-after-free Read in set_page_dirty_lock](https://groups.google.com/forum/#!topic/syzkaller/w-u4MXthFoI): [fixed patch](https://www.google.com/url?q=https%3A%2F%2Fgithub.com%2Fceph%2Fceph-client%2Fcommit%2Fcfcd7a9e2d7faf5601b4731ea5a9eff7751981aa&sa=D&sntz=1&usg=AFQjCNHlwtgIgqDxoWkTpCrmDV1OfFlJ4Q)
