@@ -1,37 +1,36 @@
 
 # Table of Contents
 
-1.  [About Open source NSM project](#org4b46535)
-2.  [Quicly Start](#org32ef400)
-    1.  [Installing workflow Structure<code>[50%]</code>](#org9b8d7b2)
-3.  [Log Analysis in NSM](#orge971306)
-    1.  [Kafka & Spark <code>[0/1]</code>](#orgf844c63)
-        1.  [Troubleshooting](#org3029317)
-        2.  [Bro Script for Kafka <code>[1/2]</code>](#orga28a54d)
-    2.  [Bat](#org26fa899)
-        1.  [Virtualtotal](#org918dc57)
-        2.  [DNS](#org3a66bf0)
-        3.  [](#orgd0a6f4c)
-    3.  [Silk](#org82fce8b)
-        1.  [Analysis logs with R languag](#orgc561ed2)
-    4.  [ELK](#org8f1c6a6)
-        1.  [Logstash<code>[1/2]</code>](#org76e6836)
-        2.  [Silk](#orgda00ea4)
-        3.  [IDS](#orga1feb50)
-        4.  [filter](#org90d7684)
-    5.  [Bro](#org0a37225)
-        1.  [Protocol](#org0fbf19c)
+1.  [About Open source NSM project](#org775cea0)
+2.  [Quicly Start](#org797416b)
+    1.  [Installing workflow Structure<code>[50%]</code>](#org225da86)
+3.  [Log Analysis in NSM](#org5ba6280)
+    1.  [Kafka & Spark <code>[0/1]</code>](#orgeac0e1a)
+        1.  [Troubleshooting](#orgb77e361)
+        2.  [Bro Script for Kafka <code>[1/2]</code>](#orgef442b8)
+    2.  [Bat](#org924be4f)
+        1.  [Virtualtotal](#orgcb5fa1c)
+        2.  [BRO&#x2013;>HTTP](#orge218576)
+    3.  [Silk](#orgbe4e7a5)
+        1.  [Analysis logs with R languag](#orge1ad245)
+    4.  [ELK](#org6ee46da)
+        1.  [Logstash<code>[1/2]</code>](#orgc863ad8)
+        2.  [Silk](#orga4a39c3)
+        3.  [IDS](#org4d35022)
+        4.  [filter](#org77a1b79)
+    5.  [Bro](#org38917e3)
+        1.  [Protocol](#org9e12dbb)
 
 
 
-<a id="org4b46535"></a>
+<a id="org775cea0"></a>
 
 # About Open source NSM project
 
-The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. Those  informations will effectively draw integral structure with other open source components and academic tools in wide use.
+The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. This information will effectively draw integral structure with other open source components and academic tools in wide use.
 
 
-<a id="org32ef400"></a>
+<a id="org797416b"></a>
 
 # Quicly Start
 
@@ -40,8 +39,10 @@ The open source NSM project is manuals of pratice which can able to help other m
     git clone https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles.git
     bash Debian-GNU-Linux-Profiles/NSM/ELK/ELK_INSTALL.sh
 
+Some configure files we were not coding shell in bash script such as logstash conf and ids conf etc.  So you should be know how to move conf files and control it.
 
-<a id="org9b8d7b2"></a>
+
+<a id="org225da86"></a>
 
 ## Installing workflow Structure<code>[50%]</code>
 
@@ -151,17 +152,17 @@ The open source NSM project is manuals of pratice which can able to help other m
     3.  Logstash API
 
 
-<a id="orge971306"></a>
+<a id="org5ba6280"></a>
 
 # Log Analysis in NSM
 
 
-<a id="orgf844c63"></a>
+<a id="orgeac0e1a"></a>
 
 ## Kafka & Spark <code>[0/1]</code>
 
 
-<a id="org3029317"></a>
+<a id="orgb77e361"></a>
 
 ### Troubleshooting
 
@@ -170,7 +171,7 @@ bash /opt/kafka/kafka\_2.12-1.0.0/bin/kafka-console-consumer.sh &#x2013;bootstra
 if you got some information looks like Bro log that will be good.
 
 
-<a id="orga28a54d"></a>
+<a id="orgef442b8"></a>
 
 ### TODO Bro Script for Kafka <code>[1/2]</code>
 
@@ -179,47 +180,52 @@ if you got some information looks like Bro log that will be good.
     -   State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2018-05-29 Tue 00:17]</span></span>
     
         Bro-kafka-log.bro: from <https://github.com/apache/metron-bro-plugin-kafk>
-    README we were knew Example 1. because of phase-1 is a  basic NSMsystem or that is frist push. So loaded Example 1 at local.bro
+    README we were knew Example 1. because of phase-1 is a  basic NSMsystem or that is first push. So loaded Example 1 at local.bro
 
 2.  TODO Example 2 or 3
 
 
-<a id="org26fa899"></a>
+<a id="org924be4f"></a>
 
 ## Bat
 
 
-<a id="org918dc57"></a>
+<a id="orgcb5fa1c"></a>
 
 ### Virtualtotal
 
 
-<a id="org3a66bf0"></a>
+<a id="orge218576"></a>
 
-### DNS
+### BRO&#x2013;>HTTP
+
+1.  DONE Agent & uri keyword to parse specialy info.
+
+    -   State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2018-05-29 Tue 14:23]</span></span>
+
+2.  TODO DNS <code>[0/1]</code>
+
+    1.  TODO pdns & bro scirpt<code>[100%]</code>
+    
+        -   [X] count DNS and record first time and last time
 
 
-<a id="orgd0a6f4c"></a>
-
-### 
-
-
-<a id="org82fce8b"></a>
+<a id="orgbe4e7a5"></a>
 
 ## Silk
 
 
-<a id="orgc561ed2"></a>
+<a id="orge1ad245"></a>
 
 ### TODO Analysis logs with R languag
 
 
-<a id="org8f1c6a6"></a>
+<a id="org6ee46da"></a>
 
 ## ELK
 
 
-<a id="org76e6836"></a>
+<a id="orgc863ad8"></a>
 
 ### Logstash<code>[1/2]</code>
 
@@ -228,12 +234,12 @@ if you got some information looks like Bro log that will be good.
 -   [ ] Example 2 & 3
 
 
-<a id="orgda00ea4"></a>
+<a id="orga4a39c3"></a>
 
 ### Silk
 
 
-<a id="orga1feb50"></a>
+<a id="org4d35022"></a>
 
 ### IDS
 
@@ -241,7 +247,7 @@ if you got some information looks like Bro log that will be good.
 -   [ ] [TODO] structured data apllicaitons.
 
 
-<a id="org90d7684"></a>
+<a id="org77a1b79"></a>
 
 ### filter
 
@@ -254,12 +260,12 @@ if you got some information looks like Bro log that will be good.
             -   State "DONE"       from              <span class="timestamp-wrapper"><span class="timestamp">[2018-05-29 Tue 00:45]</span></span>
 
 
-<a id="org0a37225"></a>
+<a id="org38917e3"></a>
 
 ## Bro
 
 
-<a id="org0fbf19c"></a>
+<a id="org9e12dbb"></a>
 
 ### Protocol
 
