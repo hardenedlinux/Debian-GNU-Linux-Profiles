@@ -2,8 +2,14 @@
 #+TITLE:NSM_Framework_Phase-1
 
 * About Open source NSM project
-The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. Those  informations will effectively draw integral structure with other open source components and academic tools in wide use.
+  The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. Those  informations will effectively draw integral structure with other open source components and academic tools in wide use.
 * Quicly Start
+#+begin_src sh :tangle yes
+mkdir ~/src
+cd src
+git clone https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles.git
+bash Debian-GNU-Linux-Profiles/NSM/ELK/ELK_INSTALL.sh
+#+end_src
 ** Installing workflow Structure[50%]
 **** DONE ELK_INSTALL.sh
      CLOSED: [2018-05-28 Mon 17:34]

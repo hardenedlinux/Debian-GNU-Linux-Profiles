@@ -28,7 +28,7 @@ make
 sudo make install
 sudo ln -s /usr/local/bro/bin/bro /usr/local/bin
 ..
-cp ~/project/Debian
+cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/librdkafka.tar.gz ~/src/.
 sudo tar -xvf librdkafka.tar.gz
 cd librdkafka
 ./configure
@@ -51,9 +51,9 @@ sudo systemctl enable zookeeper
 sudo systemctl start zookeeper
 
 ##
-sudo tar -xvf packages/kafka_2.12-1.0.0.tgz
+sudo tar -xvf ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.tgz
 sudo mkdir -p /opt/kafka
-sudo cp kafka_2.12-1.0.0 -r /opt/kafka
+sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0 -r /opt/kafka
 sudo apt-get install libgeoip-dev
 wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 gunzip GeoLiteCity.dat.gz

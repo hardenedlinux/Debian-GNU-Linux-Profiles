@@ -1,40 +1,47 @@
 
 # Table of Contents
 
-1.  [About Open source NSM project](#org8ca79cf)
-2.  [Quicly Start](#org383306d)
-    1.  [Installing workflow Structure<code>[50%]</code>](#orge0d0dee)
-3.  [Log Analysis in NSM](#org7f0ac26)
-    1.  [Kafka & Spark <code>[0/1]</code>](#orge033989)
-        1.  [Troubleshooting](#org09634db)
-        2.  [Bro Script for Kafka <code>[1/2]</code>](#org1be5635)
-    2.  [Bat](#orgf426175)
-        1.  [Virtualtotal](#org5207ad1)
-        2.  [DNS](#orgf91799b)
-        3.  [](#orgeb9b575)
-    3.  [Silk](#orgdca6abb)
-        1.  [Analysis logs with R languag](#orgaa0252e)
-    4.  [ELK](#orgeadadc3)
-        1.  [Logstash<code>[1/2]</code>](#orge239ca5)
-        2.  [Silk](#orga9509f1)
-        3.  [IDS](#orgf99bc47)
-        4.  [filter](#org77d215e)
+1.  [About Open source NSM project](#org4b46535)
+2.  [Quicly Start](#org32ef400)
+    1.  [Installing workflow Structure<code>[50%]</code>](#org9b8d7b2)
+3.  [Log Analysis in NSM](#orge971306)
+    1.  [Kafka & Spark <code>[0/1]</code>](#orgf844c63)
+        1.  [Troubleshooting](#org3029317)
+        2.  [Bro Script for Kafka <code>[1/2]</code>](#orga28a54d)
+    2.  [Bat](#org26fa899)
+        1.  [Virtualtotal](#org918dc57)
+        2.  [DNS](#org3a66bf0)
+        3.  [](#orgd0a6f4c)
+    3.  [Silk](#org82fce8b)
+        1.  [Analysis logs with R languag](#orgc561ed2)
+    4.  [ELK](#org8f1c6a6)
+        1.  [Logstash<code>[1/2]</code>](#org76e6836)
+        2.  [Silk](#orgda00ea4)
+        3.  [IDS](#orga1feb50)
+        4.  [filter](#org90d7684)
+    5.  [Bro](#org0a37225)
+        1.  [Protocol](#org0fbf19c)
 
 
 
-<a id="org8ca79cf"></a>
+<a id="org4b46535"></a>
 
 # About Open source NSM project
 
 The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. Those  informations will effectively draw integral structure with other open source components and academic tools in wide use.
 
 
-<a id="org383306d"></a>
+<a id="org32ef400"></a>
 
 # Quicly Start
 
+    mkdir ~/src
+    cd src
+    git clone https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles.git
+    bash Debian-GNU-Linux-Profiles/NSM/ELK/ELK_INSTALL.sh
 
-<a id="orge0d0dee"></a>
+
+<a id="org9b8d7b2"></a>
 
 ## Installing workflow Structure<code>[50%]</code>
 
@@ -144,17 +151,17 @@ The open source NSM project is manuals of pratice which can able to help other m
     3.  Logstash API
 
 
-<a id="org7f0ac26"></a>
+<a id="orge971306"></a>
 
 # Log Analysis in NSM
 
 
-<a id="orge033989"></a>
+<a id="orgf844c63"></a>
 
 ## Kafka & Spark <code>[0/1]</code>
 
 
-<a id="org09634db"></a>
+<a id="org3029317"></a>
 
 ### Troubleshooting
 
@@ -163,7 +170,7 @@ bash /opt/kafka/kafka\_2.12-1.0.0/bin/kafka-console-consumer.sh &#x2013;bootstra
 if you got some information looks like Bro log that will be good.
 
 
-<a id="org1be5635"></a>
+<a id="orga28a54d"></a>
 
 ### TODO Bro Script for Kafka <code>[1/2]</code>
 
@@ -177,61 +184,90 @@ if you got some information looks like Bro log that will be good.
 2.  TODO Example 2 or 3
 
 
-<a id="orgf426175"></a>
+<a id="org26fa899"></a>
 
 ## Bat
 
 
-<a id="org5207ad1"></a>
+<a id="org918dc57"></a>
 
 ### Virtualtotal
 
 
-<a id="orgf91799b"></a>
+<a id="org3a66bf0"></a>
 
 ### DNS
 
 
-<a id="orgeb9b575"></a>
+<a id="orgd0a6f4c"></a>
 
 ### 
 
 
-<a id="orgdca6abb"></a>
+<a id="org82fce8b"></a>
 
 ## Silk
 
 
-<a id="orgaa0252e"></a>
+<a id="orgc561ed2"></a>
 
-### Analysis logs with R languag
+### TODO Analysis logs with R languag
 
 
-<a id="orgeadadc3"></a>
+<a id="org8f1c6a6"></a>
 
 ## ELK
 
 
-<a id="orge239ca5"></a>
+<a id="org76e6836"></a>
 
-### TODO Logstash<code>[1/2]</code>
+### Logstash<code>[1/2]</code>
 
 -   [X] Bro-Kafka\_example-1 for logstash conf files
     -   NSM/ELK/conf/bro-kafka.conf
 -   [ ] Example 2 & 3
 
 
-<a id="orga9509f1"></a>
+<a id="orgda00ea4"></a>
 
-### TODO Silk
-
-
-<a id="orgf99bc47"></a>
-
-### TODO IDS
+### Silk
 
 
-<a id="org77d215e"></a>
+<a id="orga1feb50"></a>
 
-### TODO filter
+### IDS
+
+-   [X] Simple conf (/NSM/ELK/conf/syslog.conf & /NSM/logs/sys-logs-conf/ELK\_IDS.conf)
+-   [ ] [TODO] structured data apllicaitons.
+
+
+<a id="org90d7684"></a>
+
+### filter
+
+1.  Bro
+
+    1.  Protocol<code>[1/1]</code>
+    
+        1.  DONE Move out HTTP-ref tag
+        
+            -   State "DONE"       from              <span class="timestamp-wrapper"><span class="timestamp">[2018-05-29 Tue 00:45]</span></span>
+
+
+<a id="org0a37225"></a>
+
+## Bro
+
+
+<a id="org0fbf19c"></a>
+
+### Protocol
+
+1.  TODO Http <code>[0/0]</code>
+
+    -   Application <code>[2/2]</code>
+        -   [X] identifies QQ verstion and QQ\_num platform, otherwise parses some special data.
+        -   [X] decode URl and SMTP subject for Chinese unicode
+    
+    by Bro script or combined ways.
 
