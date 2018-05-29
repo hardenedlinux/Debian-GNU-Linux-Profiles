@@ -18,11 +18,12 @@ there are have some reasons important for you build own Silk platform, and why a
 
 
 #+begin_src sh :tangle yes
-cd src
+cd ~/src
 mkdir silk
 cd silk
 
 wget http://tools.netsa.cert.org/releases/silk-3.16.1.tar.gz
+tar -xvf silk-3.16.1.tar.gz
 cd silk-3.16.1
 ./configure \
  --with-libfixbuf=/usr/local/lib/pkgconfig/ \
