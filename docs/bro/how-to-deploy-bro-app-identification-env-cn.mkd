@@ -3,13 +3,15 @@
 ## 约定说明 
 ```
 ens33               为bro测试设备的局域网的网卡名  
-192.168.0.7         为bro测试设备的局域网的IP地址
+192.168.0.7         为bro测试设备的局域网的IP地址 
 ```
 
 ## 一、测试环境的准备 
 ### 1）、将debian9设置为具有路由功能 
 在/etc/sysctl.conf中添加如下行： 
+```
 net.ipv4.conf.ens33.forwarding=1 
+```
 
 ### 2）、配置手机端的wifi的网关为bro测试机的ip 
 在手机端的wifi设置界面中，IP设置下拉栏中选择“静态”，然后在路由器栏中输入192.168.0.7，保存。
@@ -108,7 +110,7 @@ TERMINATED [atexit]
 ```
 root@bro:/home/test/bro# vim /usr/local/bro/etc/node.cfg 
 ```
-修改/usr/local/bro/etc/node.cfg文件中的interface=ens33。呀 
+修改/usr/local/bro/etc/node.cfg文件中的interface=ens33  
 
 再次执行检查：
 
