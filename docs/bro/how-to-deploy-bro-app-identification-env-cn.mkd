@@ -1,0 +1,152 @@
+# 基于Debian9的bro测试环境的部署 
+
+## 约定说明 
+```
+ens33               为bro测试设备的局域网的网卡名  
+192.168.0.7         为bro测试设备的局域网的IP地址
+```
+
+## 一、测试环境的准备 
+### 1）、将debian9设置为具有路由功能 
+在/etc/sysctl.conf中添加如下行： 
+net.ipv4.conf.ens33.forwarding=1 
+
+### 2）、配置手机端的wifi的网关为bro测试机的ip 
+在手机端的wifi设置界面中，IP设置下拉栏中选择“静态”，然后在路由器栏中输入192.168.0.7，保存。
+
+## 测试环境需要安装的包 
+```
+root@bro:/home/test# apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev 
+```
+
+## 安装bro
+
+### 下载码源 
+```
+test@bro:~$ git clone --recursive git://git.bro.org/bro 
+``` 
+
+### 编译 
+```
+test@bro:~/bro$ ./configure 
+test@bro:~/bro$ make 
+root@bro:/home/test/bro# make install 
+```
+
+### 设置环境变量 
+
+通过源码安装的bro的目录为：/usr/local/bro/bin/，在进行执行命令操作的时候会不太方便，为了更加方便地使用bro的系列命令，在profile中进行系统PATH路径的设置，在/etc/profile中添加如下：
+``` 
+PATH="$PATH:/usr/local/bro/bin" 
+export PATH 
+``` 
+
+## bro的使用 
+
+### bro安装检查、安装与重启的检测 
+```
+root@bro:/home/test/bro# /usr/local/bro/bin/broctl deploy
+checking configurations ...
+installing ...
+creating policy directories ...
+installing site policies ...
+generating standalone-layout.bro ...
+generating local-networks.bro ...
+generating broctl-config.bro ...
+generating broctl-config.sh ...
+stopping ...
+stopping bro ...
+starting ...
+starting bro ...
+bro terminated immediately after starting; check output with "diag"
+```
+
+由以上信息可以看出检查工作中断，并提示使用diag命令进行详细出错信息的输出；如下 ： 
+```
+root@bro:/home/test/bro# /usr/local/bro/bin/broctl diag
+[bro]
+
+No core file found and gdb is not installed.  It is recommended to
+install gdb so that BroControl can output a backtrace if Bro crashes.
+
+Bro 2.5-569
+Linux 4.9.0-6-amd64
+
+Bro plugins: (none found)
+
+==== No reporter.log
+
+==== stderr.log
+fatal error: problem with interface eth0 (pcap_error: SIOCGIFHWADDR: No such device (pcap_activate))
+
+==== stdout.log
+max memory size         (kbytes, -m) unlimited
+data seg size           (kbytes, -d) unlimited
+virtual memory          (kbytes, -v) unlimited
+core file size          (blocks, -c) unlimited
+
+==== .cmdline
+-i eth0 -U .status -p broctl -p broctl-live -p standalone -p local -p bro local.bro broctl broctl/standalone broctl/auto
+
+==== .env_vars
+PATH=/usr/local/bro/bin:/usr/local/bro/share/broctl/scripts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+BROPATH=/usr/local/bro/spool/installed-scripts-do-not-touch/site::/usr/local/bro/spool/installed-scripts-do-not-touch/auto:/usr/local/bro/share/bro:/usr/local/bro/share/bro/policy:/usr/local/bro/share/bro/site
+CLUSTER_NODE=
+
+==== .status
+TERMINATED [atexit]
+
+==== No prof.log
+
+==== No packet_filter.log
+
+==== No loaded_scripts.log
+```
+
+由以上信息可以看出，是由于网络接口不存在造成的，因为此设备上的网络接口名称不再为eth0,而为ens33。使用如下方法进行修改：
+
+```
+root@bro:/home/test/bro# vim /usr/local/bro/etc/node.cfg 
+```
+修改/usr/local/bro/etc/node.cfg文件中的interface=ens33。呀 
+
+再次执行检查：
+
+```
+root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl deploy
+checking configurations ...
+installing ...
+removing old policies in /usr/local/bro/spool/installed-scripts-do-not-touch/site ...
+removing old policies in /usr/local/bro/spool/installed-scripts-do-not-touch/auto ...
+creating policy directories ...
+installing site policies ...
+generating standalone-layout.bro ...
+generating local-networks.bro ...
+generating broctl-config.bro ...
+generating broctl-config.sh ...
+stopping ...
+stopping bro ...
+starting ...
+starting bro ...
+```
+
+### 确认bro是否正常工作
+
+1、使用如下命令进行查看是否正常运行：
+```
+root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl  status
+Name         Type       Host          Status    Pid    Started
+bro          standalone localhost     running   975    07 Jun 00:39:52
+```
+
+2、查看各类日志 
+可以在目录/usr/local/bro/logs/current中查看bro解析出来的各类日志；
+
+## 遇到的问题 
+1、当在基于vmware安装的系统在使用tcpdump命令时会出现如下的提示，按确定即可  
+``` 
+The virtual machine's operating system has attempted to enable promiscuous mode on adapter 'Ethernet0'. This is not allowed for security reasons.
+Please go to the Web page "http://vmware.com/info?id=161" for help enabling promiscuous mode in the virtual machine.
+```
+
+
