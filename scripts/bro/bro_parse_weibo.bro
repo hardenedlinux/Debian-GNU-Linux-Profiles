@@ -4,9 +4,9 @@
 
 export {
     redef enum Software::Type += {
-        WEIBO_MOBILE,
-        WEIBO_BROWSE,
-        WEIBO_PC,
+        HTTP::WEIBO_MOBILE,
+        HTTP::WEIBO_BROWSE,
+        HTTP::WEIBO_PC,
     };
 }
 
@@ -26,7 +26,7 @@ event http_header(c: connection, is_orig: bool, name: string, value: string) &pr
                 weibo = [$host=c$id$orig_h, $unparsed_version=verstr[2]];
 				if (/android/ in value && /wifi/ in value)
 				{
-					weibo$software_type = WEIBO_MOBILE;
+					weibo$software_type = HTTP::WEIBO_MOBILE;
 				}
                 Software::found(c$id, weibo);
 			}
