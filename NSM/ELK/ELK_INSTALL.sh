@@ -1,9 +1,9 @@
 #!/bin/bash
 mkdir ~/src
 cd ~/src
-wget https://artifacts.elastic.co/downloads/kibana/kibana-6.2.3-amd64.deb
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.3.deb
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.2.3.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.2.4-amd64.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.4.deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.2.4.deb
 sudo apt-get update
 sudo apt-get install openjdk-8-jre
 sudo dpkg -i *.deb
@@ -12,7 +12,7 @@ sudo /bin/systemctl enable elasticsearch.service logstash.service kibana.service
 sudo systemctl start elasticsearch.service kibana.service logstash.service
 
 echo config.reload.automatic: true |sudo tee -a /etc/logstash/logstash.yml
-echo config.reload.interval: 3s |sudo tee -a etc/logstash/logstash.yml
+echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 echo a |sudo tee -a 1.txt 
 sudo systemctl restart logstash.service
 
