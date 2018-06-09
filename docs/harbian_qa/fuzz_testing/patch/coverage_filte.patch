@@ -1,0 +1,68 @@
+diff --git a/executor/executor.h b/executor/executor.h
+index eb8474e4..1eee1f93 100644
+--- a/executor/executor.h
++++ b/executor/executor.h
+@@ -165,6 +165,21 @@ struct kcov_comparison_t {
+ 	bool operator<(const struct kcov_comparison_t& other) const;
+ };
+ 
++struct code_region {
++	uint32 start;
++	uint32 end;
++};
++
++struct code_region white_list[] = {
++	{.start = 0x0, .end = 0xffffffff}
++};
++
++struct code_region black_list[] = {
++};
++
+ long execute_syscall(call_t* c, long a0, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
+ thread_t* schedule_call(int call_index, int call_num, bool colliding, uint64 copyout_index, uint64 num_args, uint64* args, uint64* pos);
+ void handle_completion(thread_t* th);
+@@ -489,6 +504,16 @@ thread_t* schedule_call(int call_index, int call_num, bool colliding, uint64 cop
+ 	return th;
+ }
+ 
++void coverage_filter(uint32 pc, struct code_region list[], int size, bool *flag, bool type)
++{
++	for(int i=0; i<size; i++) {
++		if((pc >= list[i].start) && (pc <= list[i].end)) {
++		  *flag = type;
++		  break;
++		}
++	}
++}
++
+ template <typename cover_t>
+ void write_coverage_signal(thread_t* th, uint32* signal_count_pos, uint32* cover_count_pos)
+ {
+@@ -497,6 +522,14 @@ void write_coverage_signal(thread_t* th, uint32* signal_count_pos, uint32* cover
+ 	cover_t* cover_data = ((cover_t*)th->cover_data) + 1;
+ 	uint32 nsig = 0;
+ 	cover_t prev = 0;
++	bool covered = false;
++
++	for (uint32 i = 0; i < th->cover_size; i++) {
++		uint32 pc = cover_data[i];
++		coverage_filter(pc, white_list, sizeof(white_list)/sizeof(struct code_region), &covered, true);
++		coverage_filter(pc, white_list, sizeof(black_list)/sizeof(struct code_region), &covered, false);
++	}
++	
+ 	for (uint32 i = 0; i < th->cover_size; i++) {
+ 		cover_t pc = cover_data[i];
+ 		if (!cover_check(pc))
+@@ -505,8 +538,10 @@ void write_coverage_signal(thread_t* th, uint32* signal_count_pos, uint32* cover
+ 		prev = hash(pc);
+ 		if (dedup(sig))
+ 			continue;
+-		write_output(sig);
+-		nsig++;
++		if (covered){
++			write_output(sig);
++			nsig++;
++		}
+ 	}
+ 	// Write out number of signals.
+ 	*signal_count_pos = nsig;
