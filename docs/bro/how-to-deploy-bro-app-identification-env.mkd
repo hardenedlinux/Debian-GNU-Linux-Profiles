@@ -1,51 +1,52 @@
-# 基于Debian9的bro测试环境的部署 
+# Bro test environment based on Debian9 deployment  
 
-## 约定说明 
+## Convention Description  
 ```
-ens33               为bro测试设备的局域网的网卡名  
-192.168.0.7         为bro测试设备的局域网的IP地址 
+ens33               a network interface name of bro test device   
+192.168.0.7         a network interface ipv4 address of bro test device    
 ```
 
-## 一、测试环境的准备 
-### 1）、将debian9设置为具有路由功能 
-在/etc/sysctl.conf中添加如下行： 
+## 一、Preparation 
+### 1）、Enable interface forwarding 
+Add the following line to /etc/sysctl.conf： 
 ```
 net.ipv4.conf.ens33.forwarding=1 
 ```
 
-### 2）、配置手机端的wifi的网关为bro测试机的ip 
-在手机端的wifi设置界面中，IP设置下拉栏中选择“静态”，然后在路由器栏中输入192.168.0.7，保存。
+### 2）、Configure mobile phone gateway 
 
-## 测试环境需要安装的包 
+In the wifi setting interface of the mobile phone, select “Static” in the IP setting drop-down list, and then enter 192.168.0.7 in the Gateway bar and save it.
+
+## Installation dependencies  
 ```
 root@bro:/home/test# apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev 
 ```
 
-## 安装bro
+## Install bro
 
-### 下载码源 
+### Download source  
 ```
 test@bro:~$ git clone --recursive git://git.bro.org/bro 
 ``` 
 
-### 编译 
+### Compiled && Install 
 ```
 test@bro:~/bro$ ./configure 
 test@bro:~/bro$ make 
 root@bro:/home/test/bro# make install 
 ```
 
-### 设置环境变量 
+### Set env value  
 
-通过源码安装的bro的目录为：/usr/local/bro/bin/，在进行执行命令操作的时候会不太方便，为了更加方便地使用bro的系列命令，在profile中进行系统PATH路径的设置，在/etc/profile中添加如下：
+Bro install to dir is /usr/local/bro/bin/，add following line to /etc/profile：
 ``` 
 PATH="$PATH:/usr/local/bro/bin" 
 export PATH 
 ``` 
 
-## bro的使用 
+## Use bro 
 
-### bro安装检查、安装与重启的检测 
+### Check, install, and restart  
 ```
 root@bro:/home/test/bro# /usr/local/bro/bin/broctl deploy
 checking configurations ...
@@ -63,7 +64,8 @@ starting bro ...
 bro terminated immediately after starting; check output with "diag"
 ```
 
-由以上信息可以看出检查工作中断，并提示使用diag命令进行详细出错信息的输出；如下 ： 
+From the above information, you can see that the inspection work is interrupted and you are prompted to 
+use the diag command to output detailed error information: 
 ```
 root@bro:/home/test/bro# /usr/local/bro/bin/broctl diag
 [bro]
@@ -105,14 +107,16 @@ TERMINATED [atexit]
 ==== No loaded_scripts.log
 ```
 
-由以上信息可以看出，是由于网络接口不存在造成的，因为此设备上的网络接口名称不再为eth0,而为ens33。使用如下方法进行修改：
+From the above information, it can be seen that the network interface does not exist 
+because the network interface name on this device is no longer eth0 but ens33.
+Use the following method to modify:
 
 ```
 root@bro:/home/test/bro# vim /usr/local/bro/etc/node.cfg 
 ```
-修改/usr/local/bro/etc/node.cfg文件中的interface=ens33  
+Modify interface=eth0 to interface=ens33 and save. 
 
-再次执行检查：
+Re-check, install, restart：
 
 ```
 root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl deploy
@@ -132,20 +136,20 @@ starting ...
 starting bro ...
 ```
 
-### 确认bro是否正常工作
+### Check bro is working 
 
-1、使用如下命令进行查看是否正常运行：
+1. Use the following command to check whether it is running normally: 
 ```
 root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl  status
 Name         Type       Host          Status    Pid    Started
 bro          standalone localhost     running   975    07 Jun 00:39:52
 ```
 
-2、查看各类日志 
-可以在目录/usr/local/bro/logs/current中查看bro解析出来的各类日志；
+2、Vies log  
+You can view the logs parsed by bro in the directory /usr/local/bro/logs/current. 
 
-## 遇到的问题 
-1、当在基于vmware安装的系统在使用tcpdump命令时会出现如下的提示，按确定即可  
+## Problems 
+1. When using the tcpdump command on a vmware-based system, the following prompt appears. Press OK.  
 ``` 
 The virtual machine's operating system has attempted to enable promiscuous mode on adapter 'Ethernet0'. This is not allowed for security reasons.
 Please go to the Web page "http://vmware.com/info?id=161" for help enabling promiscuous mode in the virtual machine.
