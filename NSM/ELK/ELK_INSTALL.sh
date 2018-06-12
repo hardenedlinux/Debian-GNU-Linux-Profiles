@@ -17,7 +17,7 @@ echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 sudo systemctl restart logstash.service
 
 ##
-sudo apt -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python-dev swig zlib1g-dev libgeoip-dev zookeeperd autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl1.0-dev
+sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev zookeeperd autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl1.0-dev
 mkdir src
 cd ~/src
 wget https://www.bro.org/downloads/bro-2.5.3.tar.gz
