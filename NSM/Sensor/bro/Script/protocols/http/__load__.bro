@@ -1,2 +1,2 @@
 @load ./owasp/
-@load ./qq_version.bro
+@load ./qq_version.bro 

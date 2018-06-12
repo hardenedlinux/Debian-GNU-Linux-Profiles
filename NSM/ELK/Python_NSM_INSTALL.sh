@@ -1,8 +1,13 @@
+mkdir ~/src/nsm-plugin
+cd ~/src/bro-plugin
+wget https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh
+sudo bash Anaconda3-5.2.0-Linux-x86_64.sh -b  -p /opt/anaconda/
+sudo ln -s /opt/anaconda/bin/conda /usr/bin/
+conda create --name python3.6 python=3.6
 pip install --upgrade pip
-pip install matplotlib bat
+conda install matplotlib pyspark docopt jinja2
 sudo apt-get install python-tk
-pip install jupyte
-pip install bat pyspark 
+pip install jupyte bat
 sudo apt-get install python-broccoli
 sudo apt-get install broccoli
 sudo apt-get install bison
@@ -14,5 +19,4 @@ make
 sudo make install
 cd ..
 git clone https://github.com/grigorescu/binpac_quickstart.git
-pip install docopt jinja2
 

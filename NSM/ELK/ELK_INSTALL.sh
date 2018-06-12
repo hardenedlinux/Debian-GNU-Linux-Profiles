@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo apt-get update
 mkdir ~/src
 cd ~/src
 wget https://artifacts.elastic.co/downloads/kibana/kibana-6.2.4-amd64.deb
@@ -13,7 +14,6 @@ sudo systemctl start elasticsearch.service kibana.service logstash.service
 
 echo config.reload.automatic: true |sudo tee -a /etc/logstash/logstash.yml
 echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
-echo a |sudo tee -a 1.txt 
 sudo systemctl restart logstash.service
 
 ##
@@ -29,12 +29,13 @@ sudo make install
 sudo ln -s /usr/local/bro/bin/bro /usr/local/bin
 ..
 cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/librdkafka.tar.gz ~/src/.
+cd ~/src
 sudo tar -xvf librdkafka.tar.gz
 cd librdkafka
 ./configure
 make
 sudo make install
-..
+cd ~/src/
 git clone https://github.com/apache/metron-bro-plugin-kafka.git
 cd metron-bro-plugin-kafka
 ./configure --bro-dist=$HOME/src/bro-2.5.3/
@@ -55,5 +56,10 @@ sudo tar -xvf ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.
 sudo mkdir -p /opt/kafka
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0 -r /opt/kafka
 sudo apt-get install libgeoip-dev
+cd ~/src
 wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 gunzip GeoLiteCity.dat.gz
+sudo mv GeoLiteCity.dat /etc/logstash/conf.d/
+wget http://apache.claz.org/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz
+tar xvf spark-2.3.0-bin-hadoop2.7.tgz
+sudo mv spark-2.3.0-bin-hadoop2.7 /opt/spark
