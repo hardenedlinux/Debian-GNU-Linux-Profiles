@@ -8,8 +8,8 @@
 ## Step  
 * Find out the mathematical operation that you want to QA. 
 * Analyse the kernel code path to the object.
-* Use [this patch](fuzz_testing/patch/coverage_filte.patch). Fill white_list with address of code path to object.
-* Use [this patch](fuzz_testing/patch/insert_beginning.patch). Insert the syscalls at the beginning of 'prog' to reach the object.
+* Use [this patch](patch/coverage_filte.patch). Fill white_list with address of code path to object.
+* Use [this patch](patch/insert_beginning.patch). Insert the syscalls at the beginning of 'prog' to reach the object.
 * Run syz-manager.
 
 ## Example
