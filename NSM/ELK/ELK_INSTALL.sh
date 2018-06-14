@@ -47,6 +47,8 @@ sudo make install
 
 sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec
 sudo /usr/share/logstash/bin/logstash-plugin install --no-verify
+sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
+
 sudo apt-get install zookeeperd
 sudo systemctl enable zookeeper
 sudo systemctl start zookeeper
