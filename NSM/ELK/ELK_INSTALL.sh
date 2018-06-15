@@ -2,9 +2,9 @@
 sudo apt-get update
 mkdir ~/src
 cd ~/src
-wget https://artifacts.elastic.co/downloads/kibana/kibana-6.2.4-amd64.deb
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.4.deb
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.2.4.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0deb
 sudo apt-get update
 sudo apt-get install openjdk-8-jre
 sudo dpkg -i *.deb
@@ -54,20 +54,18 @@ sudo systemctl enable zookeeper
 sudo systemctl start zookeeper
 
 ##
-sudo tar -xvf ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.tgz
-sudo cp -r ~/src/kafka_2.12-1.0.0 /opt/kafka
+sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.tgz ~/src
+sudo tar -xvf kafka_2.12-1.0.0.tgz
+sudo mv kafka_2.12-1.0.0 /opt/kafka
 sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
 sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
-sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kakfa.service /etc/systemd/system/
+sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable kafka
 sudo systemctl start kafka
 
 sudo apt-get install libgeoip-dev
 cd ~/src
-wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-gunzip GeoLiteCity.dat.gz
-sudo mv GeoLiteCity.dat /etc/logstash/conf.d/
 wget http://apache.claz.org/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz
-tar xvf spark-2.3.0-bin-hadoop2.7.tgz
+sudo tar -xvf spark-2.3.0-bin-hadoop2.7.tgz
 sudo mv spark-2.3.0-bin-hadoop2.7 /opt/spark
