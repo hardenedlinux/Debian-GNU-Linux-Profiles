@@ -4,7 +4,7 @@ mkdir ~/src
 cd ~/src
 wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb
 sudo apt-get update
 sudo apt-get install openjdk-8-jre
 sudo dpkg -i *.deb
