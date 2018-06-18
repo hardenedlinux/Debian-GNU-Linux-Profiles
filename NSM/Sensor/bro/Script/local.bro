@@ -1,2 +1,6 @@
+@load ./files/
 @load ./files
-@load ./protocols
+@load ./protocols/applications/Tencent
+@load ./protocols/dns/
+@load ./protocols/http/
+@load ./protocols/smtp
