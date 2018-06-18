@@ -19,8 +19,7 @@ event http_header(c: connection, is_orig: bool, name: string, value: string) &pr
 			# example: value = MX6_6.0_weibo_8.6.0_android_wifi
 			if (/jdapp/ in value && /network\/wifi/ in value)
 			{
-                jd1 = [$host=c$id$orig_h, $software_type = HTTP::JD_MOBILE, $unparsed_version=""];
-                Software::found(c$id, jd1);
+                		Software::found(c$id, [$unparsed_version="", $host=c$id$resp_h, $host_p=c$id$resp_p, $software_type=HTTP::JD_MOBILE]);
 			}
         }
     }
@@ -31,7 +30,6 @@ event ssl_extension(c: connection, is_orig: bool, code: count, val: string) &pri
     local jd:Software::Info;
     if (code == 0 && /jd.com/ in val)
     {
-        print c$id$orig_h;
         jd = [$host=c$id$orig_h, $software_type = SSL::JD_APP, $unparsed_version = ""];
         Software::found(c$id, jd);
     }
