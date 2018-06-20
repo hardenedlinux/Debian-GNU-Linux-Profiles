@@ -1,4 +1,3 @@
-
 @load base/frameworks/files
 @load frameworks/files/hash-all-files
 
@@ -39,9 +38,9 @@ event bro_init()
 
 	}
 
-event file_state_remove(f: fa_file) &priority=-3
+event  file_sniff(f: fa_file, meta: fa_metadata) &priority=-3
 	{
-	if ( f?$mime_type && identified_files in f$mime_type )
+	if ( meta?$mime_type && identified_files in meta$mime_type )
 		{
 		f$info$file_ident_descr = Files::describe(f);
 		for ( id in f$conns )
