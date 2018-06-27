@@ -49,7 +49,7 @@ run your virtual machine, then cd into your syzkaller build dirtory run：
 - $(YOUR_PATH) should be added to environment on your VM.
 
 ## Kernel module with overflow
-We will write a kernel module with heap overflow, the module provides a proc filesystem interface under /proc/test, the fileoperations of /proc/test will call the funtion with heap overflow:
+We will write a kernel module with heap overflow, the module provides a proc filesystem interface under /proc/test, the file operations of /proc/test will call the funtion with heap overflow:
 ```
 static struct file_operations a = {
                                 .open = proc_open,
@@ -72,7 +72,7 @@ Put the module code into kernel build tree and build with kernel. To verify if t
 `ls /proc/test`  
 
 ## Modify config file and run syzkaller  
-In order to test fileoperatiosn, enable these options in configuration:
+In order to test file operations, enable these options in configuration:
 ```
 "enable_syscalls": [
                 "open$proc",
