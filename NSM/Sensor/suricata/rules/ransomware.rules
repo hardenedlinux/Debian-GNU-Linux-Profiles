@@ -1,0 +1,16 @@
+
+##dns
+
+alert dns $HOME_NET any -> any any (msg"OSIF PHISH Possible Citi Bank Phish Dsh Query"l dns_query; content:"xxx.com";nocase;isdataat:1,relative;sid:1;rev1;)
+
+
+
+##Qadars Banking Trojan https://info.phishlabs.com/blog/dissecting-the-qadars-banking-trojan
+alert tls $EXTERNAL_NET -> $HOME_NET any (msg:"OSIF Mailcios SSL Cert (Qadars CnC)"; flow:established,to_client; tls_cert_subject; content:"CN=XXX.com",sid:2;rev:1;)
+
+
+
+##
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"OSIF TROJAN Ransomware CnC checkin"; flow:established,to_server; content:"GET"; http_method; content:".php?RIGHTS="; http_uri; content:"&WIN="; http_uri; distance:0; content:"&WALLET="; http_uri; distance:0; content:"&ID="; http_uri; distance:0; content:"UI="; http_url; distance:0; content:"Internet|20|Explorer"; http_user; depth:17; isdataat:!1,relative; http_header_names; content:!"Referer"; content!"Accept"; sid:3;rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"OSIF TROJAN Ransomware Encryption Activity"; flow:established,to_server; content:"GET"; http_method; content:".php?RIGHTS="; http_uri; content:"&WIN="; http_uri; distance:0; content:"&WALLET="; http_uri; distance:0; content:"&ID="; http_uri; distance:0; content:"UI="; http_url; distance:0; content:"Internet|20|Explorer"; http_user; depth:17; isdataat:!1,relative; http_header_names; content:!"Referer"; content!"Accept"; sid:4;rev:1;)

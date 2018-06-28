@@ -34,8 +34,8 @@ module DynamicDNS;
 export {
     redef enum Notice::Type += { DynDNS::HTTP, DynDNS::DNS, DynDNS::Traffic, DynDNS::SSL };
     const ignore_dyndns_fqdns: set[string] = { } &redef;
-    const dyndns_filename = "static_data/dynamic_dns.txt" &redef;
-}
+    const dyndns_filename = "dynamic_dns.txt" &redef;
+    }
 
 type Idx: record {
     domain: string;
