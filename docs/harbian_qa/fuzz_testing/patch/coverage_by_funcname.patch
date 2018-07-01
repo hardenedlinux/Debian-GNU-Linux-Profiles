@@ -1,0 +1,190 @@
+diff --git a/syz-manager/cover.go b/syz-manager/cover.go
+index 953fa3b8..ba145a98 100644
+--- a/syz-manager/cover.go
++++ b/syz-manager/cover.go
+@@ -16,6 +16,7 @@ import (
+ 	"strings"
+ 	"sync"
+ 	"time"
++	"regexp"
+ 
+ 	"github.com/google/syzkaller/pkg/cover"
+ 	"github.com/google/syzkaller/pkg/hash"
+@@ -40,6 +41,7 @@ var (
+ 	initCoverSymbols  []symbol
+ 	initCoverPCs      []uint64
+ 	initCoverVMOffset uint32
++	symbols           map[string][]symbolizer.Symbol
+ )
+ 
+ func initCover(kernelObj, arch string) error {
+@@ -47,7 +49,8 @@ func initCover(kernelObj, arch string) error {
+ 		return fmt.Errorf("kernel_obj is not specified")
+ 	}
+ 	vmlinux := filepath.Join(kernelObj, "vmlinux")
+-	symbols, err := symbolizer.ReadSymbols(vmlinux)
++	var err error
++	symbols, err = symbolizer.ReadSymbols(vmlinux)
+ 	if err != nil {
+ 		return fmt.Errorf("failed to run nm on %v: %v", vmlinux, err)
+ 	}
+@@ -70,7 +73,19 @@ func initCover(kernelObj, arch string) error {
+ 	return err
+ }
+ 
+-func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) error {
++func funcNameStartLine(fn string, vmlinux string) int {
++	var line int
++	for name, _ := range symbols {
++		if name == fn {
++			startAddr := []uint64{symbols[name][0].Addr}
++			fileNameFrame, _, _ := symbolize(vmlinux, startAddr)
++			line = fileNameFrame[0].Line
++		}
++	}
++	return line
++}
++
++func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover, fn string) error {
+ 	if len(cov) == 0 {
+ 		return fmt.Errorf("no coverage data available")
+ 	}
+@@ -92,6 +107,22 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+ 	}
+ 
+ 	coveredFrames, _, err := symbolize(vmlinux, pcs)
++
++	var filterCoveredFrames []symbolizer.Frame
++	funcNameLine := funcNameStartLine(fn, vmlinux)
++
++	var funcName string
++	if fn!= "" {
++		for _, coveredFrame := range coveredFrames {
++			if coveredFrame.Func == fn {
++				funcName = coveredFrame.Func
++				filterCoveredFrames = append(filterCoveredFrames, coveredFrame)
++			}
++		}
++	}else {
++		filterCoveredFrames = coveredFrames
++	}
++
+ 	if err != nil {
+ 		return err
+ 	}
+@@ -105,15 +136,42 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+ 	}
+ 
+ 	var d templateData
+-	for f, covered := range fileSet(coveredFrames, uncoveredFrames) {
++	for f, covered := range fileSet(filterCoveredFrames, uncoveredFrames) {
+ 		lines, err := parseFile(f)
++		var preOffset int
++		var afterOffset int
++
++		if (fn != "") && (fn == funcName) {
++			beginRegex, _ := regexp.Compile("^\\{$")
++			endRegex, _ := regexp.Compile("^\\}$")
++			for i:=0;i<funcNameLine;i++ {
++				if beginRegex.MatchString(string(lines[funcNameLine-i])) {
++					preOffset = i + 2
++					break
++				}
++			}
++			for i:=0;i<len(lines)-funcNameLine;i++ {
++				if endRegex.MatchString(string(lines[funcNameLine+i])) {
++					afterOffset = i + 1
++					break
++				}
++			}
++			lines = lines[funcNameLine-preOffset:funcNameLine+afterOffset]
++		}
++
+ 		if err != nil {
+ 			return err
+ 		}
+ 		coverage := 0
+ 		var buf bytes.Buffer
++		index := 0
+ 		for i, ln := range lines {
+-			if len(covered) > 0 && covered[0].line == i+1 {
++			if fn != "" {
++				index = funcNameLine - preOffset + i + 1
++			}else {
++				index = i + 1
++			}
++			if len(covered) > 0 && covered[0].line == index {
+ 				if covered[0].covered {
+ 					buf.Write([]byte("<span id='covered'>"))
+ 					buf.Write(ln)
+@@ -140,6 +198,9 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+ 	}
+ 
+ 	sort.Sort(templateFileArray(d.Files))
++	if fn != "" {
++		return funcNameTemplate.Execute(w, d)
++	}
+ 	return coverTemplate.Execute(w, d)
+ }
+ 
+@@ -484,3 +545,35 @@ var coverTemplate = template.Must(template.New("").Parse(`
+ 	</script>
+ </html>
+ `))
++
++var funcNameTemplate = template.Must(template.New("").Parse(`
++<!DOCTYPE html>
++<html>
++	<head>
++		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
++		<style>
++			#content {
++				font-family: 'Courier New', Courier, monospace;
++				color: rgb(70, 70, 70);
++				margin-top: 50px;
++			}
++			#covered {
++				color: rgb(0, 0, 0);
++				font-weight: bold;
++			}
++			#uncovered {
++				color: rgb(255, 0, 0);
++				font-weight: bold;
++			}
++		</style>
++	</head>
++	<body>
++		<div id="content">
++		{{range $f := .Files}}
++			<h2 value="{{$f.ID}}">{{$f.Name}} {{$f.Coverage}}</h2>
++			<pre class="file" id="{{$f.ID}}" >{{$f.Body}}</pre>
++		{{end}}
++		</div>
++	</body>
++</html>
++`))
+diff --git a/syz-manager/html.go b/syz-manager/html.go
+index df4946ac..2607d00e 100644
+--- a/syz-manager/html.go
++++ b/syz-manager/html.go
+@@ -231,10 +231,18 @@ func (mgr *Manager) httpCoverCover(w http.ResponseWriter, r *http.Request) {
+ 		}
+ 	}
+ 
+-	if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov); err != nil {
+-		http.Error(w, fmt.Sprintf("failed to generate coverage profile: %v", err), http.StatusInternalServerError)
++	funcName, ok := r.URL.Query()["funcName"]
++	if !ok || len(funcName) < 1 {
++		if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov, ""); err != nil {
++			http.Error(w, fmt.Sprintf("failed to generate coverage profile: %v", err), http.StatusInternalServerError)
++			return
++		}
++	}else {
++		if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov, funcName[0]);err != nil {
++		http.Error(w, fmt.Sprintf("failed to generate FuncName HTML"), http.StatusInternalServerError)
+ 		return
+ 	}
++	}
+ 	runtime.GC()
+ }
+ 
