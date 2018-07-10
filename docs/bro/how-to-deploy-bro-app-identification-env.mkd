@@ -38,10 +38,12 @@ root@bro:/home/test/bro# make install
 
 ### Set env value  
 
-Bro install to dir is /usr/local/bro/bin/，add following line to /etc/profile：
+Bro install to dir is /usr/local/bro/bin/，add following line to /etc/bash.bashrc：
 ``` 
-PATH="$PATH:/usr/local/bro/bin" 
-export PATH 
+if [ -d /usr/local/bro/bin ];then
+	PATH="/usr/local/bro/bin/:$PATH"
+	export PATH
+fi
 ``` 
 
 ## Use bro 
