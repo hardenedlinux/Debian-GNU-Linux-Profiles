@@ -1,0 +1,137 @@
+# ELK with Bro-based application identification 
+
+## Pre-install package 
+
+```
+sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev zookeeperd autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl1.0-dev openjdk-8-jre tcpdump  
+```
+
+## Install bro 
+
+### Download bro source and verify 
+```
+wget https://www.bro.org/downloads/bro-2.5.4.tar.gz 
+wget https://www.bro.org/downloads/bro-2.5.4.tar.gz.asc 
+gpg --recv-keys F56ACC7E
+gpg -v bro-2.5.4.tar.gz.asc
+```
+
+### Install 
+```
+tar -xvf bro-2.5.4.tar.gz 
+cd bro-2.5.4/ 
+./configure 
+make 
+sudo make install 
+```
+
+### Set env value  
+
+Bro install to dir is /usr/local/bro/bin/，add following line to /etc/bash.bashrc：
+``` 
+if [ -d /usr/local/bro/bin ];then
+	PATH="/usr/local/bro/bin/:$PATH"
+	export PATH
+fi
+``` 
+
+## Install Kafka 
+
+### Download kafka source 
+```
+wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz 
+wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz.asc 
+```
+
+### Verify 
+```
+gpg --recv-keys  3B417B9B 
+gpg -v kafka_2.12-1.0.0.tgz.asc 
+```
+
+### Install kafka and start service 
+```
+tar -xvf kafka_2.12-1.0.0.tgz
+sudo mv kafka_2.12-1.0.0 /opt/kafka
+sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
+sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
+sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable kafka
+sudo systemctl start kafka
+```
+
+### Install metron-bro-plugin-kafka
+
+#### Install librdkafka 
+```
+curl -L https://github.com/edenhill/librdkafka/archive/v0.9.4.tar.gz | tar xvz 
+cd librdkafka-0.9.4/ 
+./configure --enable-sasl 
+make 
+sudo make install 
+```
+
+#### Build the plugin 
+```
+git clone https://github.com/apache/metron-bro-plugin-kafka.git
+cd metron-bro-plugin-kafka
+./configure --bro-dist=$HOME/src/bro-2.5.4/
+make 
+sudo make install
+```
+ 
+#### Ensure the plugin was installed 
+```
+bro -N Apache::Kafka 
+``` 
+
+### How to set bro logs to kafka 
+
+Set following lines to /usr/local/bro/share/bro/site/local.bro: 
+```
+@load /usr/local/bro/lib/bro/plugins/APACHE_KAFKA/scripts/Apache/Kafka/logs-to-kafka.bro
+redef Kafka::topic_name = "bro";
+redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG, SSL::LOG, Software::LOG, DHCP::LOG, FTP::LOG, IRC::LOG, Notice::LOG, X509::LOG, Syslog::LOG, SSH::LOG, SNMP::LOG, SOCKS::LOG);
+redef Kafka::kafka_conf = table(["metadata.broker.list"] = "localhost:9092");
+```
+
+## Install ELK 
+
+### Download ELK deb package and SHA512 (512-bit) checksums file 
+```
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb 
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb.sha512 
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb 
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb.sha512 
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb 
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb.sha512 
+```
+
+### Verify ELK deb package 
+```
+sha512sum -c elasticsearch-6.3.0.deb.sha512 
+sha512sum -c logstash-6.3.0.deb.sha512 
+sha512sum -c kibana-6.3.0-amd64.deb.sha512 
+```
+
+### Install ELK deb package 
+```
+sudo dpkg -i *.deb 
+```
+
+### Start ELK service 
+```
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service logstash.service kibana.service
+sudo systemctl start elasticsearch.service kibana.service logstash.service
+
+echo config.reload.automatic: true |sudo tee -a /etc/logstash/logstash.yml
+echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
+sudo systemctl restart logstash.service
+```
+
+
+## Reference  
+
+
