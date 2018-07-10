@@ -1,0 +1,160 @@
+# Bro test environment based on Debian9 deployment  
+
+## Convention Description  
+```
+ens33               a network interface name of bro test device   
+192.168.0.7         a network interface ipv4 address of bro test device    
+```
+
+## 一、Preparation 
+### 1）、Enable interface forwarding 
+Add the following line to /etc/sysctl.conf： 
+```
+net.ipv4.conf.ens33.forwarding=1 
+```
+
+### 2）、Configure mobile phone gateway 
+
+In the wifi setting interface of the mobile phone, select “Static” in the IP setting drop-down list, and then enter 192.168.0.7 in the Gateway bar and save it.
+
+## Installation dependencies  
+```
+root@bro:/home/test# apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev 
+```
+
+## Install bro
+
+### Download source  
+```
+test@bro:~$ git clone --recursive git://git.bro.org/bro 
+``` 
+
+### Compiled && Install 
+```
+test@bro:~/bro$ ./configure 
+test@bro:~/bro$ make 
+root@bro:/home/test/bro# make install 
+```
+
+### Set env value  
+
+Bro install to dir is /usr/local/bro/bin/，add following line to /etc/bash.bashrc：
+``` 
+if [ -d /usr/local/bro/bin ];then
+	PATH="/usr/local/bro/bin/:$PATH"
+	export PATH
+fi
+``` 
+
+## Use bro 
+
+### Check, install, and restart  
+```
+root@bro:/home/test/bro# /usr/local/bro/bin/broctl deploy
+checking configurations ...
+installing ...
+creating policy directories ...
+installing site policies ...
+generating standalone-layout.bro ...
+generating local-networks.bro ...
+generating broctl-config.bro ...
+generating broctl-config.sh ...
+stopping ...
+stopping bro ...
+starting ...
+starting bro ...
+bro terminated immediately after starting; check output with "diag"
+```
+
+From the above information, you can see that the inspection work is interrupted and you are prompted to 
+use the diag command to output detailed error information: 
+```
+root@bro:/home/test/bro# /usr/local/bro/bin/broctl diag
+[bro]
+
+No core file found and gdb is not installed.  It is recommended to
+install gdb so that BroControl can output a backtrace if Bro crashes.
+
+Bro 2.5-569
+Linux 4.9.0-6-amd64
+
+Bro plugins: (none found)
+
+==== No reporter.log
+
+==== stderr.log
+fatal error: problem with interface eth0 (pcap_error: SIOCGIFHWADDR: No such device (pcap_activate))
+
+==== stdout.log
+max memory size         (kbytes, -m) unlimited
+data seg size           (kbytes, -d) unlimited
+virtual memory          (kbytes, -v) unlimited
+core file size          (blocks, -c) unlimited
+
+==== .cmdline
+-i eth0 -U .status -p broctl -p broctl-live -p standalone -p local -p bro local.bro broctl broctl/standalone broctl/auto
+
+==== .env_vars
+PATH=/usr/local/bro/bin:/usr/local/bro/share/broctl/scripts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+BROPATH=/usr/local/bro/spool/installed-scripts-do-not-touch/site::/usr/local/bro/spool/installed-scripts-do-not-touch/auto:/usr/local/bro/share/bro:/usr/local/bro/share/bro/policy:/usr/local/bro/share/bro/site
+CLUSTER_NODE=
+
+==== .status
+TERMINATED [atexit]
+
+==== No prof.log
+
+==== No packet_filter.log
+
+==== No loaded_scripts.log
+```
+
+From the above information, it can be seen that the network interface does not exist 
+because the network interface name on this device is no longer eth0 but ens33.
+Use the following method to modify:
+
+```
+root@bro:/home/test/bro# vim /usr/local/bro/etc/node.cfg 
+```
+Modify interface=eth0 to interface=ens33 and save. 
+
+Re-check, install, restart：
+
+```
+root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl deploy
+checking configurations ...
+installing ...
+removing old policies in /usr/local/bro/spool/installed-scripts-do-not-touch/site ...
+removing old policies in /usr/local/bro/spool/installed-scripts-do-not-touch/auto ...
+creating policy directories ...
+installing site policies ...
+generating standalone-layout.bro ...
+generating local-networks.bro ...
+generating broctl-config.bro ...
+generating broctl-config.sh ...
+stopping ...
+stopping bro ...
+starting ...
+starting bro ...
+```
+
+### Check bro is working 
+
+1. Use the following command to check whether it is running normally: 
+```
+root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl  status
+Name         Type       Host          Status    Pid    Started
+bro          standalone localhost     running   975    07 Jun 00:39:52
+```
+
+2、Vies log  
+You can view the logs parsed by bro in the directory /usr/local/bro/logs/current. 
+
+## Problems 
+1. When using the tcpdump command on a vmware-based system, the following prompt appears. Press OK.  
+``` 
+The virtual machine's operating system has attempted to enable promiscuous mode on adapter 'Ethernet0'. This is not allowed for security reasons.
+Please go to the Web page "http://vmware.com/info?id=161" for help enabling promiscuous mode in the virtual machine.
+```
+
+

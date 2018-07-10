@@ -1,0 +1,81 @@
+# 基于Grsecurity RBAC的信息安全等级保护三级中的三权分离  
+
+## 引言 
+
+信息安全等级保护是国家信息安全保障的一项基本性、制度性工作，也是公司确保信息系统安全稳定运行和内网安全的一件大事。 
+
+## 三权分离简介 
+
+根据《GB/T 20272—2006-信息安全技术操作系统安全技术要求》等级保护三级:安全标记保护级部分，在4.3.1.4 强制访问控章节中对于三权分离的描述：
+
+一般应按 GB/T 20271-2006 中 6.3.3.5 的要求,从以下方面设计和实现操作系统的强制访问控制功能:
+a) 由专门设置的系统安全员统一管理操作系统中与强制访问控制等安全机制有关的事件和信息,并将系统的常规管理、与安全有关的管理以及审计管理,分别由系统管理员、系统安全员和系统审计员来承担,按职能分割原则分别授予它们各自为完成自己所承担任务所需的权限,并形成相互制约关系;
+
+这句话本身并没有讲解的非常具体化，以下为个人对三权分离涉及到的三个用户的权力划分范围的一个理解（有一些具体哪些权限或能力是划分到哪种管理员来进行管理，会因为根据实际场景需求或理解的不同而不同）： 
+
+系统管理员：仅能够进行服务的启动/查询/关闭(例如：nginx的服务启动/关闭)，对grsecurity RBAC系统的开启/关闭，能够进行系统维护的日常工作(如进行ping,netstat,ifconfig)；   
+系统安全员：仅能够进行与安全功能的查询，仅能够进行用户/组的创建、删除；  
+系统审计员：仅能够进行审计日志的查看、审计系统的规则的修改及显示，仅能够对系统日志目录的查看；  
+
+## Grsecurity RBAC系统简介  
+基于角色的访问控制（RBAC）系统是Grsecurity的除了PaX部分的另一个值得注意的部分。基于角色的访问控制（RBAC）系统是限制访问系统的授权用户的一种方法。如果要限制对所有用户（包括root）的文件，功能，资源或套接字的访问，则需要RBAC系统。这与强制访问控制（MAC）模型类似。RBAC旨在对基于自主访问控制(discretionary access control, DAC)的类*nix系统提供更多的权限管理，目的是创建一个完全最小权限的系统，其中用户和进程拥有绝对最低限度的特权才能正常工作。这样，如果系统受到攻击，攻击者破坏或获取系统敏感信息的能力可以大大降低。RBAC通过基于“角色”的规则来工作。 每个角色可以单独限制他们可以或不可以做的事情，这些角色和限制形成一个“政策”，可以根据需要进行修改。 
+在Grsecurity中，RBAC系统是通过policy文件来进行管理的，当使用gradm命令进行RBAC系统的激活时，polocy文件将被解析并检查是否在policy的配置上存在不安全的配置，例如生成了能够访问类似policy文件本身的敏感设置或文件时。当不安全的配置被发现时，gradm将拒绝激活RBAC系统，将会给出对应的提示以使管理员能够对其进行修复。当RBAC系统被激活时，只有admin角色能够对policy进行访问。  
+
+## 基于Grsecurity RBAC系统的三权分离的实现 
+
+### 准备工作 
+
+* 下载Grsecurity的补丁包 
+* 下载Grsecurity补丁包对应的内核版本的源代码 
+* 校验补丁包及内核源码包的完整性 
+* 使用打了Grsecurity的内核代码包进行内核的编译 
+* gradm管理程序的安装 
+
+以上的这些步骤请参考文档grsecurity_RBAC_with_nginx_practice中的安装部分，这里不再重复阐述，地址为：
+https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/grsecurity_RBAC_with_nginx_practice.mkd
+
+假设系统中的系统管理员、系统安全员、系统审计员名称分别为：root，secadmin，auditadmin；在此文档中后续将使用这三个用户进行示例的说明；
+
+### 规则 
+
+#### 准备工作 
+1、创建用户 
+``` 
+# adduser secadmin -gid 0
+# adduser auditadmin -gid 0
+``` 
+
+2、配置  
+```  
+# apt-get update; apt-get install -y libcap2-bin
+``` 
+
+1)、对系统管理员用户的配置说明 
+
+2)、对系统审计员auditadmin用户所使用的命令进行capability的配置说明   
+```  
+# echo > /etc/security/capability.conf 
+# cat > /etc/security/capability.conf << EOF
+cap_dac_override,cap_audit_control auditadmin
+none *
+> EOF
+# setcap cap_audit_control+ep /sbin/auditctl  
+# setcap cap_dac_override+ep /sbin/aureport  
+# setcap cap_dac_override+ep /sbin/ausearch  
+```  
+
+3)、对系统安全员的配置说明 
+
+
+
+#### 用户之间不能够进行切换的规则 
+要做到真正地权力的分离，就要防止各个用户之间通过su、sudo这样的命令直接进行切换，规则如下：
+
+
+## 引用 
+
+https://grsecurity.net/  
+https://en.wikibooks.org/wiki/Grsecurity  
+https://en.wikibooks.org/wiki/Grsecurity/The_RBAC_System  
+http://www.djbh.net/webdev/file/webFiles/File/jsbz/2012323103356.pdf  
+

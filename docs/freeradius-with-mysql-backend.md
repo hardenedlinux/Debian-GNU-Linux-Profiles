@@ -108,7 +108,8 @@ modify connection info `/etc/freeradius/3.0/mods-enabled/sql`
 ```
 sql {
 ...
-        server = "localhost"
+        dialect = "mysql"
+        server = "localhost"
         port = 3306
         login = "radius"
         password = "radpass"

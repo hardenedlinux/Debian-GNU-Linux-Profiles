@@ -1,0 +1,399 @@
+* Solution Overview
+we chose the following technological components to creat our monitoring system.
+
+** NsmLab example
+The folloing table summarizes the techology at Esxi-NSM.lab
+
+- Virtual Server Host:
+ - Vmware ESXi
+ - qemu (company machines)
+
+- Virtual Machines:
+ - Window
+ - Linux
+
+Sensor Server:
+: Snort
+: Suricata
+: Bro
+: Silk
+  
+Pcap Server:
+: Netsniff-NG 
+
+
+Analysis Server:
+: Sguil
+: FLowBat
+: Bat
+
+
+Operating Systems(client)
+
+: Windows 10
+: Debian 9
+: Operating Systems(Server)
+
+: Debian 9
+: Windows Server 2012 Domain controller
+
+Managerment platform
+: The hive 
+
+** Data Sources
+| Category                    |   |
+| Packet Capture	          |   |
+| Network Flow Data	       |   |
+| Operating System Logs       |   |
+| Windows Sysmon Logs	     |   |
+| HTTP Transaction Logs	   |   |
+| DNS Transaction Logs	    |   |
+| Antivirus Logs	          |   |
+| IDS Alerts logs	         |   |
+| Firewall Logs	           |   |
+| Application Access Logs	 |   |
+| E-Mail Logs	             |   |
+| Bro Logs	                |   |
+| VPN Access Logs             |   |
+| SSL Transaction Logs	    |   |
+| Memory Image	            |   |
+| OSINT – Reputation Data	 |   |
+| OSINT – Ownership Data	  |   |
+| Malware Sandbox             |   |
+
+** Map cyber activity to attacker infrastructure.
+Actually, we are planning through follow ways to achieve this function, including domains and IPs, and connect them with nearly every active's relationship on the Internet (Platform like ELK or real-time Web Ui).
+
+*** GeoIP
+In this part, we will test and show your how to build a visual mapping of the ip addresses of your nsm lab, by using Elasticsearch, Logstash, and Kibana. So, make sure you have already done of the depoly Bro-suricata-Snort tutorial.
+The MaxMInd provides the following products:
+
+
+#+begin_src sh :tangle yes
+free databases
+Paid databases
+#+end_src
+
+you should be know their most services and higt precision for customers, but this lab we are going to use free databases.
+
+#+begin_src sh :tangle yes
+sudo apt-get install libgeoip-dev
+
+  wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+  ## Install database
+  gunzip GeoLiteCity.dat.gz
+  sudo mkdir  /usr/local/share/GeoIP/
+  sudo mv GeoLiteCity.dat /usr/local/share/GeoIP/
+  sudo mv GeoLiteCity.dat /usr/local/share/GeoIP/
+#+end_src
+
+Geolocation
+
+https://github.com/bro/bro-scripts/blob/master/conn-add-geodata.bro
+#+begin_src sh :tangle yes
+filter {
+  geoip {
+    source => "evt_dstip"
+    target => "geoip"
+    database => "/usr/local/share/GeoIP/GeoLiteCity.dat"
+    add_field => [ "[geoip][coordinates]", "%{[geoip][longitude]}" ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][latitude]}"  ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][city\_name]}"  ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][continent\_code]}" ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][country\_code2]}"  ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][country\_code3]}"  ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][country\_name]}" ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][dma\_code]}"  ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][postal\_code]}"  ]
+    add_field => [ "[geoip][coordinates]", "%{[geoip][region\_name]}"  ]
+  }
+}
+#+end_src
+
+.
+├── GeoIPCity.dat
+├── GeoIPCityv6.dat
+├── GeoIP.dat
+└── GeoIPv6.dat
+
+#+begin_src sh :tangle yes
+sudo wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/GeoLiteCityv6.dat.gz
+#+end_src
+
+- Testing GeoIp Database 
+bro -e "print lookup_location(8.8.8.8);"
+
+if you have an error message like this: 
+it's does matter, then you may need to either rename or move your GeoIP city database file (the error message should give you the full pathname of the database file that Bro is looking for).
+#+begin_src sh :tangle yes
+<command line>, line 3: Failed to open GeoIP City database: /usr/share/GeoIP/GeoIPCity.dat
+<command line>, line 3: Fell back to GeoIP Country database
+<command line>, line 3: Failed to open GeoIP Cityv6 database: /usr/share/GeoIP/GeoIPCityv6.dat
+<command line>, line 3: Failed to open GeoIPv6 Country database: /usr/share/GeoIP/GeoIPv6.dat
+#+end_src
+
+sudo bin/logstash-plugin install logstash-filter-geoip
+
+- Testing GeoIp Database
+
+bro -e "print lookup_location(8.8.8.8);"
+
+~[country_code=US, region=<uninitialized>, city=<uninitialized>, latitude=37.750999, longitude=-97.821999]~
+
+if you got this output that should be good.
+
+if you want to know more information about the produce, please reading here: https://dev.maxmind.com/geoip/legacy/downloadable/#Download_Limits
+
+- Geoip filter Plugin
+https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html#plugins-filters-geoip
+
+Configure Logstash to use GeoIP
+
+- Domain Tools
+those toolkit will help us uses various soures to gather information about domain names, host names, autonomous systems, routers etc. https://www.robtex.com/
+
+https://www.domaintools.com/
+
+** Malware analysis
+In this example, I've shown here on the lab we see that will need serveral different tools and operating systems avaliable to cover the range of use cases. that will help and support our work.
+
+Malware analysis and simulations signature development that feed the detection mechanisms，thus generates alerts within their environment, this is usually going to be with more signature-base intrusion detection systems like snort and suricata or both in some cases the bro framewokk Signature.
+
+*** Virtualotal
+virustotal-search.py is a Python program to search VirusTotal for hashes.
+
+virustotal-submit.py is a Python program to submit files to VirusTotal. if you want detecting malware automatically and dont hae to submit a file. this scipt is useful for own investigation.
+
+https://blog.didierstevens.com/programs/virustotal-tools/
+** ALternative Tecnology stacks
+***  Bro
+**** PF_RING
+ Pre installtion requirements
+ #+begin_src sh :tangle yes
+ sudo apt-get -y install libpcre3 libpcre3-dbg libpcre3-dev \
+ build-essential autoconf automake libtool libpcap-dev libnet1-dev \
+ libyaml-0-2 libyaml-dev zlib1g zlib1g-dev libcap-ng-dev libcap-ng0 \
+ make libmagic-dev libnuma-dev build-essential bison flex linux-headers-$(uname -r)
+
+ ;; next step, Download and install PF_RING for you system followin the instructions here.
+
+ mkdir src
+ cd src
+ git clone https://github.com/ntop/PF_RING.git
+ cd PF_RING
+ make 
+ ;;*NOT* as root
+
+ make install
+
+ ;;elevate as *root*
+
+
+ cd kernel
+ sudo make install
+ cd ../userland/lib
+ sudo make install
+
+ ;;then
+ sudo modprobe pf_ring
+
+ ;;To check if you have everything you need, enter:
+
+ modinfo pf_ring && cat /proc/net/pf_ring/info
+
+ ;;;;;;;;;;;; the feedback likes this:
+
+ filename:       /lib/modules/4.9.0-4-amd64/kernel/net/pf_ring/pf_ring.ko
+ alias:          net-pf-27
+ version:        7.1.0
+ description:    Packet capture acceleration and analysis
+ author:         ntop.org
+ license:        GPL
+ srcversion:     D173304DA43FD84C21E264E
+ depends:
+ vermagic:       4.9.0-4-amd64 SMP mod_unload modversions
+ parm:           min_num_slots:Min number of ring slots (uint)
+ parm:           perfect_rules_hash_size:Perfect rules hash size (uint)
+ parm:           enable_tx_capture:Set to 1 to capture outgoing packets (uint)
+ parm:           enable_frag_coherence:Set to 1 to handle fragments (flow coherence) in clusters (uint)
+ parm:           enable_ip_defrag:Set to 1 to enable IP defragmentation(only rx traffic is defragmentead) (uint)
+ parm:           quick_mode:Set to 1 to run at full speed but with upto one socket per interface (uint)
+ parm:           force_ring_lock:Set to 1 to force ring locking (automatically enable with rss) (uint)
+ parm:           enable_debug:Set to 1 to enable PF_RING debug tracing into the syslog, 2 for more verbosity (uint)
+ parm:           transparent_mode:(deprecated) (uint)
+ PF_RING Version          : 7.1.0 (dev:fcc142db7e2d5586a2923cc20f6a2cc4d7ebded5)
+ Total rings              : 0
+
+ Standard (non ZC) Options
+ Ring slots               : 4096
+ Slot version             : 17
+ Capture TX               : Yes [RX+TX]
+ IP Defragment            : No
+ Socket Mode              : Standard
+ Cluster Fragment Queue   : 0
+ Cluster Fragment Discard : 0
+
+       #+end_src
+**** Bro to Kafka to Spark
+- Install librdkafka C library implementation of the Apache Kafka protocol
+ #+begin_src sh :tangle yes
+  sudo apt-get install  librdkafka-dev
+#+end_src
+
+- Inbstall local spark server
+ ~pip install pyspark~
+
+- Setting up Bro with the Kafka Plugin
+ #+begin_src sh :tangle yes
+git clone https://github.com/apache/metron-bro-plugin-kafka
+cd metron-bro-plugin-kafka
+ ./configure --bro-dist=/home/gtrun/src/bro ##$BRO_SRC_PATH
+sudo make install
+## ensure you have already cloned Bro Path in SRC (~/src/bro) directory.
+
+##Test this command that the plugin was installed successfully.
+
+sudo bro -N Apache::Kafka
+Apache::Kafka - Writes logs to Kafka (dynamic, version 0.1)
+#+end_src
+
+- Install Kafka:
+
+#+begin_src sh :tangle yes
+
+  # You can verify that JDK  is installed properly by running the following command:
+  sudo java -version
+  #Next install  ZooKeeper
+  sudo apt-get install zookeeperd
+  # test it by running the following command:
+
+  netstat -ant | grep :2181
+  #if the zookeeperd installed successfully , you should see the following Output:
+
+  tcp6       0      0 :::2181                 :::*                    LISTEN
+
+  #  Create a service User for Kafka
+  sudo adduser --system --no-create-home --disabled-password --disabled-login kafka
+
+
+  # Download kafka and create a directory for Kafka installation:
+  cd src
+  sudo mkdir /opt/kafka
+  wget http://apache.mirrors.hoobly.com/kafka/1.0.0/kafka_2.12-1.0.0.tgz
+  sudo tar -xvzf kafka_2.12-1.0.0.tgz --directory /opt/kafka --strip-components 1
+
+  ## Configuring Kafka Server
+
+  ## create a directory for Kafka persists data to disk 
+
+  sudo mkdir /var/lib/kafka
+  sudo mkdir /var/lib/kafka/data
+
+
+  ###By default, Kafka doesn’t allow us to delete topics. To be able to delete topics, find the line and change it.
+  The server config file stored in ~/opt/kafka/config/server.properties~
+  ## find the line and change the value to true
+
+  delete.topic.enable = true
+
+  ###then, change log directory.
+  log.dirs=/var/lib/kafka/data
+
+  ## Permission of Directories
+  sudo chown -R kafka:nogroup /opt/kafka
+  sudo chown -R kafka:nogroup /var/lib/kafka
+
+
+  sudo chown -R kafka:nogroup /opt/kafka/data ##when you finished testing.
+
+  ## edit  /opt/kafka/config/server.properties 
+  sudo nano /opt/kafka/config/server.properties 
+
+  ###Testing Kafka Server
+  sudo /opt/kafka/bin/kafka-server-start.sh /opt/Kafka/kafka_2.12-1.0.0/config/server.propertie
+  ## In another terminal create a topi
+
+  ##You should get the following output, if the server has started successfully:
+  /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+  ~Created topic "testing".~
+
+  ##After, publish some massages in testing topic.
+  sudo /opt/Kafka/kafka_2.12-1.0.0/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic testing
+
+  > hello
+
+  #finally,use consumer command to check for messages on Apache Kafka Topic called testing by running the following command:
+  sudo /opt/Kafka/kafka_2.12-1.0.0/bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic testing --from-beginning
+
+  >hello
+
+  ##Creating Kafka as a service on startup
+  sudo chown -R kafka:nogroup /opt/kafka/data 
+  sudo chown -R kafka:nogroup /var/lib/kafka/data
+  sudo nano /etc/systemd/system/kafka.service
+
+  [Unit]
+  Description=High-available, distributed message broker
+  After=network.target
+  [Service]
+  User=kafka
+  Environment=HOME=/var/lib/kafka/data
+  ExecStart=/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
+  [Install]
+  WantedBy=multi-user.target
+
+
+  #Start the newly created service
+
+
+  sudo systemctl restart kafka.service && sudo systemctl status kafka.service
+  sudo systemctl status zookeeper.service
+
+
+  sudo  tcpreplay -i ens192 -tK --loop 10  xxx.pcap
+
+  sudo broctl stop
+  sudo bro -i ens192 xxx.bro
+#+end_src
+**** Bat
+sudo apt-get install libsasl2-dev
+sudo apt-get install libsasl2-dev libssl-dev libevent-pthreads-2.0-5
+
+The local policy scripts (which you can edit) are located in/usr/local/bro/share/bro/site/local.bro, add the Bro script language to your local.bro file as shown to demonstrate the example.
+
+@load /home/gtrun/src/metron-bro-plugin-kafka/scripts/Apache/Kafka/logs-to-kafka.bro
+redef Kafka::topic_name = "";
+redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG);
+redef Kafka::kafka_conf = table(["metadata.broker.list"] = "localhost:9092");
+*** Snort/Suricata
+- AF_PACKET
+- RF_RING
+- NetMap
+  
+IPFW
+NFQ
+** Open source intelligence (OSINT)
+*** Threl intel platform
+   osint can be almost anything that criteria it could be a list of domains that are resolved to a specific IP address a list of malware hash is associated with Google search any of those pieces of information
+(like Virtualotal, you can use these type of websites to help determine reputation)
+Ownership: Using domain tools(whois etc.) checking RIPE or ARIN for IP addresss registered to the information. if this domain that is inherently mailicous.
+
+Age - The age of a website is really important. if its someting that malicious actor recently created for possbile a redirect.
+
+Related Indicators: checking any source informaiton for  intelligence, blog posts, reports etx. with related indicators.
+
+
+
+ will Upload later...
+** Data analysis with python or Clojure
+** PySpark
+#+begin_src sh :tangle yes 
+pip install matplotlib bat
+sudo apt-get install python-tk
+pip install jupyter
+#+end_src
+upload later...
+*** Using Clojure achived Spark steaming
+TODO
+*** Virtualotal type of collected netflow.
+Todo

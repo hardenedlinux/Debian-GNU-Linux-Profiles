@@ -123,3 +123,38 @@ bash(2402) kernel.function("kmalloc@./include/linux/slab.h:478")
 -----------------------------------------------
 
 ```  
+## Monitoring the VM(qemu) with systemtap
+Systemtap can be used as a monitor of remote host. This example use a virtual machine with custom kernel  as a remote host.  
+Step:  
+1. Run your custom kernel on qemu with specified ssh port
+2. Run systemtap with the script on your host
+
+### Custom kernel & qemu
+Compile custom kernel on your host( I use the default configure of debian):  
+```  
+make O=$(BUILD_TREE) bindeb-pkg
+```  
+After a long wait, several *.deb package will be generated, run `scp` to your VM and `dpkg -i *.deb` on your VM.  
+The the follow command line to check your VM & kernel:  
+```  
+qemu-system-x86_64 -m 2048 -net nic -net user,host=10.0.2.10,hostfwd=tcp::$(SSH_PORT)-:22 -no-reboot -enable-kvm -hda $(IMAGE_OF_YOUR_VM)
+```  
+```  
+ssh -p $(SSH_PORT) root@127.0.0.1
+```  
+Please make sure ssh can sucessfully connect to VM. 
+
+### Prepare the debug info for systemtap
+A self-built systemtap with new version may be necessary, please refer the documentations of source.  
+The systemtap need the kernel debug info, which is locate /lib/modules/$(KERNEL_VERSION)/build( I am not sure if it can be specified in build time).So, run:
+```  
+cp -r $(BUILD_TREE) /lib/modules/`ssh -p $(SSH_PORT) root@127.0.0.1 uname -r`/build
+```  
+Then, run:
+```  
+stap --remote=root@127.0.0.1:$(SSH_PORT) $(PATH_TO_YOUR_SCRIPT)
+```  
+
+### Note
+* Make sure the kernel version of the running and debug_info is the same, specify the custom kernel for qemu is support
+* I met the error "frame size larger than *** byte" when the script print backtrace 

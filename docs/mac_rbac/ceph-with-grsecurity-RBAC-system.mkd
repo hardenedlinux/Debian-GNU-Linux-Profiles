@@ -1,0 +1,259 @@
+# Grsecurity RBAC system with Ceph 
+
+## How to install Ceph 
+
+Please refer to the following document:  
+
+https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/storage/manually_deploy_ceph_cluster_step_by_step.md
+
+## How to enable Grsecurity-RBAC system 
+
+Please refer to the following documents to install grsecurity RBAC system installation and enable:  
+
+https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/grsecurity_RBAC_with_nginx_practice.mkd
+
+## The topology of the ceph environment in this example 
+
+On a physical machine, there is a Monitor, three OSD nodes, and one libvirt virtual machine.A libvirt virtual machine is created in the libvirt virtual machine and the storage for this virtual machine uses the space in ceph. 
+
+```
+Monitor IP address: 10.0.100.103
+OSD-1 IP address: 10.0.100.119 
+OSD-2 IP address: 10.0.100.167
+OSD-3 IP address: 10.0.100.122 
+```
+
+## Grsecurity RBAC system rules  
+
+### Monitor 
+
+```
+# Role: root
+subject /usr/bin/ceph o {
+	/				h
+	/dev				h
+	/dev/null			w 
+	/dev/urandom			r
+	/etc				r
+	/etc/ceph			h
+	/etc/ceph/ceph.client.admin.keyring	r
+	/etc/ceph/ceph.conf		r
+	/etc/grsec			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/python2.7			h
+	/etc/python2.7/sitecustomize.py	r
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				rx
+	/lib/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/mounts			
+	/proc/slabinfo			h
+	/proc/sys			h
+	/sbin				h
+	/sbin/ldconfig			x
+	/tmp				
+	/usr				
+	/usr/bin			rx
+	/usr/lib			rx
+	/usr/local			h
+	/usr/local/lib/python2.7/dist-packages	
+	/usr/share			h
+	/usr/share/zoneinfo		r
+	/usr/src			h
+	/var				h
+	/var/tmp			
+	-CAP_ALL
+	bind	disabled
+	connect 10.0.100.103/32:6789 stream tcp
+}
+
+role ceph u
+role_allow_ip	0.0.0.0/32
+# Role: ceph
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: ceph
+subject /usr/bin/ceph-mon o {
+	/				h
+	/dev				h
+	/dev/urandom			r
+	/var				h
+	/var/lib/ceph/mon/ceph-cephmon0	rwcd
+	/var/log/ceph/ceph-mon.cephmon0.log	a
+	/var/log/ceph/ceph.audit.log	a
+	/var/log/ceph/ceph.log		a
+	-CAP_ALL
+	bind 10.0.100.103/32:6789 stream tcp
+	connect	disabled
+}
+```
+
+### OSD Daemon 1 
+
+```
+role ceph u
+role_allow_ip	0.0.0.0/32
+# Role: ceph
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: ceph
+subject /usr/bin/ceph-osd o {
+	/				h
+	/dev				h
+	/dev/urandom			r
+	/proc				h
+	/proc/loadavg			r
+	/var				h
+	/var/lib			rwcd
+	/var/log			h
+	/var/log/ceph/ceph-osd.0.log	a
+	/var/log/ceph/ceph-osd.1.log	a
+	/var/log/ceph/ceph-osd.2.log	a
+	-CAP_ALL
+	bind 10.0.100.119/32:6800 stream tcp
+	bind 10.0.100.119/32:6804 stream tcp
+	bind 0.0.0.0/32:6801 stream tcp
+	bind 0.0.0.0/32:6809 stream tcp
+	bind 0.0.0.0/32:6805 stream tcp
+	connect 10.0.100.103/32:6789 stream tcp
+	connect 10.0.100.167/32:6801 stream tcp
+	connect 10.0.100.167/32:6805 stream tcp
+	connect 10.0.100.167/32:6809 stream tcp
+	connect 10.0.100.122/32:6802 stream tcp
+	connect 10.0.100.122/32:6809 stream tcp
+	connect 10.0.100.122/32:6806 stream tcp
+}
+```
+
+### OSD Daemon 2 
+
+```
+role ceph u
+role_allow_ip	0.0.0.0/32
+# Role: ceph
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: ceph
+subject /usr/bin/ceph-osd o {
+	/				h
+	/dev				h
+	/dev/urandom			r
+	/proc				h
+	/proc/loadavg			r
+	/var				h
+	/var/lib			rwcd
+	/var/log			h
+	/var/log/ceph/ceph-osd.3.log	a
+	/var/log/ceph/ceph-osd.4.log	a
+	/var/log/ceph/ceph-osd.5.log	a
+	-CAP_ALL
+	bind 10.0.100.167/32:6808 stream tcp
+	bind 10.0.100.167/32:6804 stream tcp
+	bind 10.0.100.167/32:6800 stream tcp
+	bind 0.0.0.0/32:6801 stream tcp
+	bind 0.0.0.0/32:6805 stream tcp
+	bind 0.0.0.0/32:6809 stream tcp
+	connect 10.0.100.103/32:6789 stream tcp
+	connect 10.0.100.122/32:6809 stream tcp
+	connect 10.0.100.122/32:6806 stream tcp
+	connect 10.0.100.122/32:6802 stream tcp
+	connect 10.0.100.119/32:1024-65535 stream tcp
+}
+```
+
+### OSD Daemon 3
+
+```
+role ceph u
+role_allow_ip	0.0.0.0/32
+# Role: ceph
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: ceph
+subject /usr/bin/ceph-osd o {
+	/				h
+	/dev				h
+	/dev/urandom			r
+	/proc				h
+	/proc/loadavg			r
+	/var				h
+	/var/lib			rwcd
+	/var/log			h
+	/var/log/ceph/ceph-osd.6.log	a
+	/var/log/ceph/ceph-osd.7.log	a
+	/var/log/ceph/ceph-osd.8.log	a
+	-CAP_ALL
+	bind 10.0.100.122/32:6805 stream tcp
+	bind 10.0.100.122/32:6800 stream tcp
+	bind 10.0.100.122/32:6801 stream tcp
+	bind 0.0.0.0/32:6802 stream tcp
+	bind 0.0.0.0/32:6809 stream tcp
+	bind 0.0.0.0/32:6806 stream tcp
+	connect 10.0.100.103/32:6789 stream tcp
+	connect 10.0.100.122/32:6806 stream tcp
+	connect 10.0.100.119/32:1024-65535 stream tcp
+	connect 10.0.100.167/32:1024-65535 stream tcp
+}
+```
+
+### libvirt virtual machine   
+
+```
+# Role: libvirt-qemu
+subject /usr/bin/qemu-system-x86_64 o {
+    ……
+    ……
+	/etc/ceph			h
+	/etc/ceph/ceph.client.libvirt.keyring	r
+	/etc/ceph/ceph.conf		r
+    ……
+    ……
+}
+```
+
+```
+# Role: root
+subject /usr/bin/qemu-img o {
+	/				h
+	/dev				h
+	/dev/urandom			r
+	/etc				h
+	/etc/ceph/ceph.client.admin.keyring	r
+	/etc/ceph/ceph.conf		r
+	……
+}
+```
+
+## Reference 
+
+http://ceph.com/  
+https://en.wikibooks.org/wiki/Grsecurity  

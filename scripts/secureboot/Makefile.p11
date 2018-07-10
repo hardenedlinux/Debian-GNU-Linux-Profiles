@@ -4,6 +4,9 @@ DISKPATH:=EFIBOOT
 CARD:="SmartCard-HSM (UserPIN)"
 export GNUTLS_PIN:=$(PIN)
 
+# Prevent make(1) from removing any intermediate targets.
+.SECONDARY:
+
 all: auth signedtools
 
 auth: pk.auth kek.auth db.auth dbx.auth #nopk.auth

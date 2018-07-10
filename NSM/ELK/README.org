@@ -1,0 +1,141 @@
+#+OPTIONS: ^:nil
+#+TITLE:NSM_Framework_Phase-1
+
+* About Open source NSM project
+  The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. This information will effectively draw integral structure with other open source components and academic tools in wide use.
+* Quicly Start
+#+begin_src sh :tangle yes
+mkdir ~/src
+cd src
+git clone https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles.git
+bash Debian-GNU-Linux-Profiles/NSM/ELK/ELK_INSTALL.sh
+#+end_src
+Some configure files we were not coding shell in bash script such as logstash conf and ids conf etc.  So you should be know how to move conf files and control it.
+** Installing workflow Structure[50%]
+**** DONE ELK_INSTALL.sh
+     CLOSED: [2018-05-28 Mon 17:34]
+     - State "DONE"       from              [2018-05-28 Mon 17:34]
+    1. Kibana
+    You just need to modify two commands line in Kibana
+#+begin_src sh :tangle yes
+ server.port: 5601 ##default setting
+ server.host: "localhost"  
+ elasticsearch.url: "http://localhost:9200"
+#+end_src
+
+    2. Logstash
+ The configuation command exists was there (ELK_INSTALL.SH)
+ #+begin_src sh :tangle yes
+ config.reload.automatic: true 
+ config.reload.interval: 3s
+ #+end_src
+    3. Elasticsearch
+
+      Testing Service
+    4. Bro
+    5. Lib-Kafka
+
+    if you straight download  or clone Lib-kafka whatever librdkafka-dev or ..lib++1 0.9 verstion that will be got a error loaded in library. So I had put correctly Librd verstion sotred in Debian_Profile/NSM/ELK/Package/
+
+    6. kafka
+    Check directory Package or run command Bash shell.
+
+    7. metro_bro-plugin-kafka
+
+       metro_bro_plugin-kafka git repository is located at github. 
+
+    8. Zookeeper
+    9.Geoip
+***** Plugin for ELK[2/2]
+      + [X] [] X-pack
+      + [X] [] elasticdump
+**** TODO Python-Components [2/4]
+    run NSM_PYTHON.sh  
+    + [X] []  Bat
+    + [X] []  Broccoli
+      Brocoolie is a API
+    + [ ] []  Pyspark
+    + [ ] []  Other Scripts of the 
+**** Testing Scripts[2/4]
+       + [X] [private]  Reply sources
+       + [X] []  Automatically Reply Pcap's Scripts
+         
+       + [ ] []  Export Kibana Configuration
+         The Bash shell can be exported in Json file, and easy to set up and use.
+       you can make them as templates or simply export them.
+       + [ ] []  Loaded Config files in Logstash
+         same like way.
+**** Check_ELK_Service.sh
+**** IDS_INSTALL.sh [1/3]
+      + [X] []  Snort & Suricata 
+      + [ ] [TODO]  Basic and defaulted configuration
+      + [ ] [30%] Configuring Suricata Rules
+**** Filter
+      1. Bro logs
+      2. IDS logs
+      3. Silk [0/0]
+**** Log setting & configure files[2/3]
+      + [X] [testing]  Logstash
+      + [X] []  syslog
+      + [ ] [TODO]  Snort & Suricata
+**** Dashboard & Data visualization[0/0]
+      - Index of the Bro
+      - Index of suricata and snort
+      - Index of the Silk
+**** Silk [1/1]    
+      + [X] []  SIlk_INSTALL.sh
+**** Demo Show up
+      1. Bro Scripts
+         - Detect popular Application
+         - Notice
+      2. Bat Scripts
+      3. Logstash API
+* Log Analysis in NSM
+** Kafka & Spark [0/1]
+*** Troubleshooting
+    bash /opt/kafka/kafka_2.12-1.0.0/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic software
+
+if you got some information looks like Bro log that will be good.
+
+*** TODO Bro Script for Kafka [1/2]
+**** DONE Example 1  
+     CLOSED: [2018-05-29 Tue 00:17]
+     - State "DONE"       from "TODO"       [2018-05-29 Tue 00:17]
+     Bro-kafka-log.bro: from https://github.com/apache/metron-bro-plugin-kafk
+ README we were knew Example 1. because of phase-1 is a  basic NSMsystem or that is first push. So loaded Example 1 at local.bro
+**** TODO Example 2 or 3 
+** Bat
+*** Virtualtotal
+*** BRO-->HTTP
+**** DONE Agent & uri keyword to parse specialy info.
+     CLOSED: [2018-05-29 Tue 14:23]
+     - State "DONE"       from "TODO"       [2018-05-29 Tue 14:23]
+**** TODO DNS [0/1]
+***** TODO pdns & bro scirpt[100%]
+      - [X] count DNS and record first time and last time
+
+
+** Silk
+*** TODO Analysis logs with R languag
+** ELK
+*** Logstash[1/2]
+    + [X] Bro-Kafka_example-1 for logstash conf files
+      - NSM/ELK/conf/bro-kafka.conf 
+    + [ ] Example 2 & 3 
+*** Silk
+*** IDS
+    - [X] Simple conf (/NSM/ELK/conf/syslog.conf & /NSM/logs/sys-logs-conf/ELK_IDS.conf)
+    - [ ] [TODO] structured data apllicaitons.
+*** filter
+**** Bro
+***** Protocol[1/1]
+****** DONE Move out HTTP-ref tag
+       CLOSED: [2018-05-29 Tue 00:45]
+       - State "DONE"       from              [2018-05-29 Tue 00:45]
+** Bro
+*** Protocol
+**** TODO Http [0/0]
+     - Application [2/2]
+       - [X] identifies QQ verstion and QQ_num platform, otherwise parses some special data.
+       - [X] decode URl and SMTP subject for Chinese unicode
+by Bro script or combined ways.

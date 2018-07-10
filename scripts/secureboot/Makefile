@@ -2,6 +2,9 @@ EFITOOLPATH:=/usr/lib/efitools/x86_64-linux-gnu
 SIGNEDTOOLS:=$(shell ls $(EFITOOLPATH)|sed 's/efi/signed.efi/g')
 DISKPATH:=EFIBOOT
 
+# Prevent make(1) from removing any intermediate targets.
+.SECONDARY:
+
 all: auth signedtools
 
 auth: pk.auth kek.auth db.auth dbx.auth nopk.auth

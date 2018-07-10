@@ -1,0 +1,79 @@
+diff --git a/prog/generation.go b/prog/generation.go
+index 86092403..737e241f 100644
+--- a/prog/generation.go
++++ b/prog/generation.go
+@@ -15,6 +15,14 @@ func (target *Target) Generate(rs rand.Source, ncalls int, ct *ChoiceTable) *Pro
+ 	}
+ 	r := newRand(target, rs)
+ 	s := newState(target, ct)
++	syscallName := []string{"socket$inet6"}
++	for _, n := range syscallName {
++		calls := r.generateSeqCall(s, n)
++		for _, c := range calls {
++			s.analyze(c)
++			p.Calls = append(p.Calls, c)
++		}
++	}
+ 	for len(p.Calls) < ncalls {
+ 		calls := r.generateCall(s, p)
+ 		for _, c := range calls {
+diff --git a/prog/mutation.go b/prog/mutation.go
+index 43788590..7aa4f31f 100644
+--- a/prog/mutation.go
++++ b/prog/mutation.go
+@@ -131,6 +131,18 @@ outer:
+ 		}
+ 	}
+ 
++	var concreteCalls []*Call
++	s := newState(p.Target, ct)
++	syscallName := []string{"socket$inet6"}
++	for _, n := range syscallName {
++		calls := r.generateSeqCall(s, n)
++		for _, c := range calls {
++			s.analyze(c)
++			concreteCalls = append(concreteCalls, c)
++		}
++	}
++	p.insertBegin(concreteCalls)
++
+ 	for _, c := range p.Calls {
+ 		p.Target.SanitizeCall(c)
+ 	}
+diff --git a/prog/prog.go b/prog/prog.go
+index 3474950b..860593be 100644
+--- a/prog/prog.go
++++ b/prog/prog.go
+@@ -424,6 +424,14 @@ func (p *Prog) insertBefore(c *Call, calls []*Call) {
+ 	p.Calls = newCalls
+ }
+ 
++func (p *Prog) insertBegin(concreteCalls []*Call) {
++	var newCalls []*Call
++	newCalls = append(newCalls, concreteCalls[:]...)
++	newCalls = append(newCalls, p.Calls[:]...)
++	p.Calls = newCalls
++}
++
++
+ // replaceArg replaces arg with arg1 in a program.
+ func replaceArg(arg, arg1 Arg) {
+ 	switch a := arg.(type) {
+diff --git a/prog/rand.go b/prog/rand.go
+index 5489ca10..eae3bfc4 100644
+--- a/prog/rand.go
++++ b/prog/rand.go
+@@ -401,6 +401,13 @@ func (r *randGen) generateCall(s *state, p *Prog) []*Call {
+ 	return r.generateParticularCall(s, meta)
+ }
+ 
++func (r *randGen) generateSeqCall(s *state, name string) []*Call {
++	idx := r.target.SyscallMap[name].ID
++	meta := r.target.Syscalls[idx]
++	return r.generateParticularCall(s, meta)
++}
++
++
+ func (r *randGen) generateParticularCall(s *state, meta *Syscall) (calls []*Call) {
+ 	c := &Call{
+ 		Meta: meta,
