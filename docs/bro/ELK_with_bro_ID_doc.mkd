@@ -1,0 +1,255 @@
+# ELK with Bro-based application identification 
+## Topology introduction 
+
+The application identification system will identify the application and generate logs by bro. The ELK is deployed at the remote end for all logs to be collected, analyzed, stored, and identifiable. The BRO is installed on a machine with an IP of 192.168.1.7 and the ELK is installed on a machine with an IP of 192.168.1.147. 
+
+## Convention Description  
+``` 
+ens33               a network interface name    
+192.168.1.7         a network interface ipv4 address of bro device    
+192.168.1.147       a network interface ipv4 address of ELK device 
+``` 
+
+## Install bro 
+
+Because the metron-bro-plugin-kafka plugin will rely on the source code of the brother to compile and install. So, use the bro source code to install.
+
+### Pre-install package  
+```
+sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev 
+```
+
+### Download bro source and verify 
+```
+wget https://www.bro.org/downloads/bro-2.5.4.tar.gz 
+wget https://www.bro.org/downloads/bro-2.5.4.tar.gz.asc 
+gpg --recv-keys F56ACC7E
+gpg -v bro-2.5.4.tar.gz.asc
+```
+
+### Install 
+```
+tar -xvf bro-2.5.4.tar.gz 
+cd bro-2.5.4/ 
+./configure 
+make 
+sudo make install 
+``` 
+
+### Set env value  
+
+Bro install to dir is /usr/local/bro/bin/，add following line to /etc/bash.bashrc：
+``` 
+if [ -d /usr/local/bro/bin ];then
+	PATH="/usr/local/bro/bin/:$PATH"
+	export PATH
+fi
+``` 
+
+### Install Kafka 
+
+#### Download kafka source 
+```
+wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz 
+wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz.asc 
+```
+
+#### Verify 
+```
+gpg --recv-keys  3B417B9B 
+gpg -v kafka_2.12-1.0.0.tgz.asc 
+```
+
+#### Install kafka and start service 
+```
+tar -xvf kafka_2.12-1.0.0.tgz
+sudo mv kafka_2.12-1.0.0 /opt/kafka
+sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
+sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
+sudo sed -i '$alisteners=bro://192.168.1.7:9092' /opt/kafka/config/server.properties 
+
+sudo cat > /etc/systemd/system/kafka.service << EOF
+[Unit]
+Description=Kafka Service
+Wants=network.target
+After=network.target
+
+[Service]
+ExecStart=/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
+ExecReload=on-failure
+Restart=always
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable kafka
+sudo systemctl start kafka
+```
+
+### Install metron-bro-plugin-kafka
+
+#### Install librdkafka 
+```
+curl -L https://github.com/edenhill/librdkafka/archive/v0.9.4.tar.gz | tar xvz 
+cd librdkafka-0.9.4/ 
+./configure --enable-sasl 
+make 
+sudo make install 
+```
+
+#### Build the plugin 
+```
+git clone https://github.com/apache/metron-bro-plugin-kafka.git
+cd metron-bro-plugin-kafka
+./configure --bro-dist=$HOME/src/bro-2.5.4/
+make 
+sudo make install
+```
+ 
+#### Ensure the plugin was installed 
+```
+bro -N Apache::Kafka 
+``` 
+
+### How to set bro logs to kafka 
+
+Set following lines to /usr/local/bro/share/bro/site/local.bro: 
+```
+@load /usr/local/bro/lib/bro/plugins/APACHE_KAFKA/scripts/Apache/Kafka/logs-to-kafka.bro
+redef Kafka::topic_name = "bro";
+redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG, SSL::LOG, Software::LOG, DHCP::LOG, FTP::LOG, IRC::LOG, Notice::LOG, X509::LOG, Syslog::LOG, SSH::LOG, SNMP::LOG, SOCKS::LOG);
+redef Kafka::kafka_conf = table(["metadata.broker.list"] = "192.168.1.7:9092");
+```
+
+### Ensure bro logs to kafka 
+
+following command to check:
+```
+ls /var/lib/kafka/bro-0/00000000000000000000.log 
+```
+
+### Satrt bro service 
+```
+sudo broctl deploy 
+```
+For detailed installation and use of bro, please refer to the how-to-deploy-bro-app-identification-env.mkd documentation.
+
+
+## Install ELK 
+
+### Pre-install package 
+
+```
+sudo apt-get install -y openjdk-8-jre curl wget 
+```
+
+### Download ELK deb package and SHA512 (512-bit) checksums file 
+```
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb 
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb.sha512 
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb 
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb.sha512 
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb 
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb.sha512 
+```
+
+### Verify ELK deb package 
+```
+sha512sum -c elasticsearch-6.3.0.deb.sha512 
+sha512sum -c logstash-6.3.0.deb.sha512 
+sha512sum -c kibana-6.3.0-amd64.deb.sha512 
+```
+
+### Install ELK deb package 
+```
+sudo dpkg -i *.deb 
+```
+
+### Logstash configuration  
+``` 
+echo config.reload.automatic: true |sudo tee -a /etc/logstash/logstash.yml
+echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
+```
+
+### Create new logstash configuration 
+```
+cat > /etc/logstash/conf.d/bro-01.conf << EOF 
+ input {
+   kafka {
+     topics => ["dns","http","ssl","software"]
+     bootstrap_servers => "192.168.1.7:9092"
+     codec => json
+     auto_offset_reset => "earliest"
+   }
+ }
+ 
+ output {
+   elasticsearch {
+     hosts => ["192.168.1.147:9200"]
+   }
+ } 
+ 
+EOF
+``` 
+
+### Elasticsearch configuration 
+#### Bind Elasticsearch to localhost 
+Following lines to /etc/elasticsearch/elasticsearch.yml:
+```
+network.host: "192.168.1.147" 
+http.port:9200 
+```
+
+If elasticsearch service is remote, set the bind address to a specific IP.  
+
+#### Ensure elasticsearch is working 
+```
+sudo systemctl start elasticsearch 
+curl http://192.168.1.147:9200
+{
+  "name" : "VZDjFmY",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "xql3xQSbSvinXDIYchwswQ",
+  "version" : {
+    "number" : "6.3.0",
+    "build_flavor" : "default",
+    "build_type" : "deb",
+    "build_hash" : "424e937",
+    "build_date" : "2018-06-11T23:38:03.357887Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.3.1",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+### Kibana configuration 
+
+Enter the following lines to Kibana configuration file /etc/kibana/kibana.yml: 
+``` 
+server.port: 5601
+server.host: "192.168.1.147"
+elasticsearch.url: "http://192.168.1.147:9200"
+```
+
+### Start ELK service 
+```
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service logstash.service kibana.service
+sudo systemctl start elasticsearch.service kibana.service logstash.service
+```
+
+## Reference  
+
+https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html 
+
+
+
