@@ -138,7 +138,7 @@ ls /var/lib/kafka/bro-0/00000000000000000000.log
 ```
 sudo broctl deploy 
 ```
-For detailed installation and use of bro, please refer to the how-to-deploy-bro-app-identification-env.mkd documentation.
+For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/bro/how-to-deploy-bro-app-identification-env.mkd) documentation.  
 
 
 ## Install ELK 
