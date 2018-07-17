@@ -46,6 +46,26 @@ if [ -d /usr/local/bro/bin ];then
 fi
 ``` 
 
+### Satrt bro service 
+```
+sudo broctl deploy 
+```
+For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env.mkd](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/bro/how-to-deploy-bro-app-identification-env.mkd) documentation.
+
+### Add a local parse configuration file to BRO 
+
+The following will use an example to explain, local bro parse configuration is [bro_parse_jd.bro](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/scripts/bro/bro_parse_jd.bro).  
+
+Create a directory called harbian under the directory /usr/local/bro/share/bro/site and place the ./bro_parse_jd.bro file in this directory. Then create a file named __load__.bro in the harbian directory, enter the following line in the __load__.bro file:  
+```
+@load ./bro_parse_jd.bro.
+``` 
+
+Then use the following command to restart the bro service:
+```
+sudo broctl deploy 
+```
+
 ### Install Kafka 
 
 #### Download kafka source 
@@ -133,13 +153,6 @@ following command to check:
 ```
 ls /var/lib/kafka/bro-0/00000000000000000000.log 
 ```
-
-### Satrt bro service 
-```
-sudo broctl deploy 
-```
-For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/bro/how-to-deploy-bro-app-identification-env.mkd) documentation.  
-
 
 ## Install ELK 
 
