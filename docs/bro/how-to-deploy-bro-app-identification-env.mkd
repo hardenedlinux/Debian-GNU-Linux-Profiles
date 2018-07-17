@@ -6,14 +6,14 @@ ens33               a network interface name of bro test device
 192.168.0.7         a network interface ipv4 address of bro test device    
 ```
 
-## 一、Preparation 
-### 1）、Enable interface forwarding 
+## Preparation 
+### 1). Enable interface forwarding 
 Add the following line to /etc/sysctl.conf： 
 ```
 net.ipv4.conf.ens33.forwarding=1 
 ```
 
-### 2）、Configure mobile phone gateway 
+### 2). Configure mobile phone gateway 
 
 In the wifi setting interface of the mobile phone, select “Static” in the IP setting drop-down list, and then enter 192.168.0.7 in the Gateway bar and save it.
 
@@ -140,18 +140,18 @@ starting bro ...
 
 ### Check bro is working 
 
-1. Use the following command to check whether it is running normally: 
+1). Use the following command to check whether it is running normally: 
 ```
 root@bro:/usr/local/bro/spool/bro# /usr/local/bro/bin/broctl  status
 Name         Type       Host          Status    Pid    Started
 bro          standalone localhost     running   975    07 Jun 00:39:52
 ```
 
-2、Vies log  
+2). View log  
 You can view the logs parsed by bro in the directory /usr/local/bro/logs/current. 
 
 ## Problems 
-1. When using the tcpdump command on a vmware-based system, the following prompt appears. Press OK.  
+1). When using the tcpdump command on a vmware-based system, the following prompt appears. Press OK.  
 ``` 
 The virtual machine's operating system has attempted to enable promiscuous mode on adapter 'Ethernet0'. This is not allowed for security reasons.
 Please go to the Web page "http://vmware.com/info?id=161" for help enabling promiscuous mode in the virtual machine.
