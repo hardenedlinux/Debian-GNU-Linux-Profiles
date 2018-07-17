@@ -1,8 +1,8 @@
 diff --git a/syz-manager/cover.go b/syz-manager/cover.go
-index 953fa3b8..ba145a98 100644
+index 953fa3b8..862c7261 100644
 --- a/syz-manager/cover.go
 +++ b/syz-manager/cover.go
-@@ -16,6 +16,7 @@ import (
+@@ -16,11 +16,13 @@ import (
  	"strings"
  	"sync"
  	"time"
@@ -10,7 +10,13 @@ index 953fa3b8..ba145a98 100644
  
  	"github.com/google/syzkaller/pkg/cover"
  	"github.com/google/syzkaller/pkg/hash"
-@@ -40,6 +41,7 @@ var (
+ 	"github.com/google/syzkaller/pkg/osutil"
+ 	"github.com/google/syzkaller/pkg/symbolizer"
++	"github.com/google/syzkaller/pkg/rpctype"
+ )
+ 
+ type symbol struct {
+@@ -40,6 +42,7 @@ var (
  	initCoverSymbols  []symbol
  	initCoverPCs      []uint64
  	initCoverVMOffset uint32
@@ -18,7 +24,7 @@ index 953fa3b8..ba145a98 100644
  )
  
  func initCover(kernelObj, arch string) error {
-@@ -47,7 +49,8 @@ func initCover(kernelObj, arch string) error {
+@@ -47,7 +50,8 @@ func initCover(kernelObj, arch string) error {
  		return fmt.Errorf("kernel_obj is not specified")
  	}
  	vmlinux := filepath.Join(kernelObj, "vmlinux")
@@ -28,34 +34,23 @@ index 953fa3b8..ba145a98 100644
  	if err != nil {
  		return fmt.Errorf("failed to run nm on %v: %v", vmlinux, err)
  	}
-@@ -70,7 +73,19 @@ func initCover(kernelObj, arch string) error {
+@@ -70,7 +74,7 @@ func initCover(kernelObj, arch string) error {
  	return err
  }
  
 -func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) error {
-+func funcNameStartLine(fn string, vmlinux string) int {
-+	var line int
-+	for name, _ := range symbols {
-+		if name == fn {
-+			startAddr := []uint64{symbols[name][0].Addr}
-+			fileNameFrame, _, _ := symbolize(vmlinux, startAddr)
-+			line = fileNameFrame[0].Line
-+		}
-+	}
-+	return line
-+}
-+
-+func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover, fn string) error {
++func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover, fn string, sigsMap map[string]rpctype.RPCInput) error {
  	if len(cov) == 0 {
  		return fmt.Errorf("no coverage data available")
  	}
-@@ -92,6 +107,22 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+@@ -91,7 +95,40 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+ 		return err
  	}
  
++
  	coveredFrames, _, err := symbolize(vmlinux, pcs)
 +
 +	var filterCoveredFrames []symbolizer.Frame
-+	funcNameLine := funcNameStartLine(fn, vmlinux)
 +
 +	var funcName string
 +	if fn!= "" {
@@ -69,10 +64,27 @@ index 953fa3b8..ba145a98 100644
 +		filterCoveredFrames = coveredFrames
 +	}
 +
++	firstCoveredPC := filterCoveredFrames[0].PC
++	lastCoveredPC := filterCoveredFrames[len(filterCoveredFrames)-1].PC
++
++	var sigs []string
++	for sig, inp := range sigsMap {
++		for _, mapPc := range inp.Cover{
++			fullMapPc := cover.RestorePC(mapPc, initCoverVMOffset)
++			prevMapPc := previousInstructionPC(arch, fullMapPc)
++			if prevMapPc >= firstCoveredPC && prevMapPc <= lastCoveredPC {
++				sigs = append(sigs, sig)
++				break
++			}
++		}
++	}
++
++	funcNameLine := filterCoveredFrames[0].Line
++
  	if err != nil {
  		return err
  	}
-@@ -105,15 +136,42 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+@@ -105,15 +142,42 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
  	}
  
  	var d templateData
@@ -117,7 +129,12 @@ index 953fa3b8..ba145a98 100644
  				if covered[0].covered {
  					buf.Write([]byte("<span id='covered'>"))
  					buf.Write(ln)
-@@ -140,6 +198,9 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+@@ -136,10 +200,14 @@ func generateCoverHTML(w io.Writer, kernelObj, arch string, cov cover.Cover) err
+ 			Name:     f,
+ 			Body:     template.HTML(buf.String()),
+ 			Coverage: coverage,
++			Sigs:     sigs,
+ 		})
  	}
  
  	sort.Sort(templateFileArray(d.Files))
@@ -127,7 +144,15 @@ index 953fa3b8..ba145a98 100644
  	return coverTemplate.Execute(w, d)
  }
  
-@@ -484,3 +545,35 @@ var coverTemplate = template.Must(template.New("").Parse(`
+@@ -384,6 +452,7 @@ type templateFile struct {
+ 	Name     string
+ 	Body     template.HTML
+ 	Coverage int
++	Sigs	 []string
+ }
+ 
+ type templateFileArray []*templateFile
+@@ -484,3 +553,41 @@ var coverTemplate = template.Must(template.New("").Parse(`
  	</script>
  </html>
  `))
@@ -158,13 +183,19 @@ index 953fa3b8..ba145a98 100644
 +		{{range $f := .Files}}
 +			<h2 value="{{$f.ID}}">{{$f.Name}} {{$f.Coverage}}</h2>
 +			<pre class="file" id="{{$f.ID}}" >{{$f.Body}}</pre>
++			<h2>corpus ids:</h2>
++			<ul>
++				{{range $sig := $f.Sigs}}
++					<li class="corpus-id">{{$sig}}</li>
++				{{end}}
++			</ul>
 +		{{end}}
 +		</div>
 +	</body>
 +</html>
 +`))
 diff --git a/syz-manager/html.go b/syz-manager/html.go
-index df4946ac..2607d00e 100644
+index df4946ac..e497346d 100644
 --- a/syz-manager/html.go
 +++ b/syz-manager/html.go
 @@ -231,10 +231,18 @@ func (mgr *Manager) httpCoverCover(w http.ResponseWriter, r *http.Request) {
@@ -175,16 +206,15 @@ index df4946ac..2607d00e 100644
 -		http.Error(w, fmt.Sprintf("failed to generate coverage profile: %v", err), http.StatusInternalServerError)
 +	funcName, ok := r.URL.Query()["funcName"]
 +	if !ok || len(funcName) < 1 {
-+		if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov, ""); err != nil {
++		if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov, "", mgr.corpus); err != nil {
 +			http.Error(w, fmt.Sprintf("failed to generate coverage profile: %v", err), http.StatusInternalServerError)
 +			return
 +		}
 +	}else {
-+		if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov, funcName[0]);err != nil {
++		if err := generateCoverHTML(w, mgr.cfg.KernelObj, mgr.cfg.TargetVMArch, cov, funcName[0], mgr.corpus);err != nil {
 +		http.Error(w, fmt.Sprintf("failed to generate FuncName HTML"), http.StatusInternalServerError)
  		return
  	}
 +	}
  	runtime.GC()
  }
- 
