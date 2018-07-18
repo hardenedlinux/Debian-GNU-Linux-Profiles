@@ -15,7 +15,7 @@ Add the follow-up option to  ~/.bashrc
 - The path of golang compiler pack:  
 
 `export GOROOT=/home/root/go`  
-`export PATH=$GOROOT/bin;$PATH`  
+`export PATH=$GOROOT/bin:$PATH`  
 - The diryory golang work in:  
 
 `export GOPATH=/home/root/syzkalls/`  
