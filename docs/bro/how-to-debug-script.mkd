@@ -1,0 +1,142 @@
+# How to debug bro when write new script 
+
+## 1, Use print method in script 
+
+Add a line with print in the if(/qq.com/ in value) block:
+```
+print "value is", value; 
+```
+
+Added content:
+
+```
+@load base/frameworks/software
+
+
+export {
+    redef enum Software::Type += {
+        SSL::QQ,
+        HTTP::QQ,
+    };
+}
+
+event http_header(c: connection, is_orig: bool, name: string, value: string) &priority=10
+{
+	local qq: Software::Info;  
+	if ( is_orig )
+    {
+   	 	if ( name == "HOST")
+        {
+			if (/qq.com/ in value)
+			{
+				print "value is", value;
+				qq=[$software_type = HTTP::QQ, $host=c$id$orig_h, $unparsed_version="QQ"];
+				Software::found(c$id, qq);
+		    }
+        }
+    }
+}
+
+
+event ssl_extension(c: connection, is_orig: bool, code: count, val: string) &priority=2
+{
+    local qq:Software::Info;
+    if (code == 0 && /qq.com/ in val )
+    {
+        qq = [$host=c$id$orig_h, $software_type = SSL::QQ, $unparsed_version="QQ"];
+        Software::found(c$id, qq);
+    }
+}
+
+```
+
+Execute the following commands and the results of the execution:
+
+```
+# bro -C -r 0718-bro-for-qq.pcap bro_parse_qq.bro 
+value is, sqimg.qq.com
+value is, sqimg.qq.com
+value is, configsvr.msf.3g.qq.com
+value is, astrategy.beacon.qq.com:8080
+value is, aeventlog.beacon.qq.com:8080
+value is, aeventlog.beacon.qq.com:8080
+value is, astrategy.beacon.qq.com:8080
+value is, gxh.vip.qq.com
+value is, gxh.vip.qq.com
+value is, gxh.vip.qq.com
+value is, gxh.vip.qq.com
+value is, gxh.vip.qq.com
+value is, mcgi.v.qq.com
+value is, commdata.v.qq.com
+value is, sdkconfig.video.qq.com
+value is, vv.video.qq.com
+value is, mcgi.v.qq.com
+```
+
+## 2, View bro's log 
+
+Logs are viewed in the /usr/local/bro/logs/current/ directory of the log executed by bro.
+
+```
+# ls /usr/local/bro/logs/current
+capture_loss.log   conn.log  known_services.log  packet_filter.log  software.log  stats.log   stdout.log
+communication.log  dns.log   loaded_scripts.log  reporter.log	    ssh.log	  stderr.log  weird.log
+```
+
+## 3, Try bro(online test)  
+
+Open bro online test web site:  try.bro.org 
+
+Copy the contents of the file bro_parse_qq.bro into the main.bro window, load the file 0718-bro-for-qq.pcap at the Use PCAP button, and click RUN to execute. 
+
+
+## 4, tcpreplay 
+
+### Install 
+```
+sudo apt-get install -y tcpreplay  
+```
+
+### Start bro 
+```
+#broctl deploy 
+```
+
+### Replay network traffic stored in 0718-bro-for-qq.pcap 
+
+```
+# tcpreplay -i ens33 ./0718-bro-for-qq.pcap 
+sending out ens33 
+processing file: ./0718-bro-for-qq.pcap
+Warning in send_packets.c:send_packets() line 178:
+Unable to send packet: Error with PF_PACKET send() [1142]: Message too long (errno = 90)
+Actual: 1234 packets (145854 bytes) sent in 56.42 seconds.		Rated: 2585.1 bps, 0.02 Mbps, 21.87 pps
+Statistics for network device: ens33
+	Attempted packets:         1234
+	Successful packets:        1233
+	Failed packets:            1
+	Retried packets (ENOBUFS): 0
+	Retried packets (EAGAIN):  0
+```
+
+### Check software.log 
+```
+$ tailf software.log 
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	software
+#open	2018-07-20-23-30-31
+#fields	ts	host	host_p	software_type	name	version.major	version.minor	version.minor2	version.minor3	version.addl	unparsed_version
+#types	time	addr	port	enum	string	count	count	count	count	string	string
+1532100631.176125	192.168.5.11	-	SSH::CLIENT	OpenSSH	7	2	-	-	p2	OpenSSH_7.2p2 Ubuntu-4ubuntu2.4
+1532101707.940178	192.168.1.145	-	HTTP::BROWSER	Dalvik	2	1	0	-	Linux	Dalvik/2.1.0 (Linux; U; Android 6.0; Redmi Pro MIUI/V9.5.2.0.MHQCNFA)
+1532101707.940178	192.168.1.145	-	HTTP::QQ	QQ	-	-	-	-	-	QQ
+1532101712.275712	192.168.1.145	-	HTTP::BROWSER	Apache-HttpClient/UNAVAILABLE (java	1	4	-	-	-	Apache-HttpClient/UNAVAILABLE (java 1.4)
+1532101712.284172	192.168.1.145	-	HTTP::BROWSER	qqlive4Android	7	0	0	-	Dalvik	qqlive4Android/7.0.0  Dalvik (Android 6.0;Redmi Pro)
+1532101712.315750	192.168.1.145	-	HTTP::BROWSER	qqlive	-	-	-	-	-	qqlive
+1532101713.996152	192.168.1.145	-	HTTP::BROWSER	MSIE	6	0	-	-	-	Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+1532101716.204151	192.168.1.145	-	HTTP::BROWSER	AssistantDownloader	-	-	-	-	-	AssistantDownloader
+```
+
