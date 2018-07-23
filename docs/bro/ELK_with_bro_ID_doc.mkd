@@ -1,13 +1,13 @@
 # ELK with Bro-based application identification 
 ## Topology introduction 
 
-The application identification system will identify the application and generate logs by bro. The ELK is deployed at the remote end for all logs to be collected, analyzed, stored, and identifiable. The BRO is installed on a machine with an IP of 192.168.1.7 and the ELK is installed on a machine with an IP of 192.168.1.147. 
+The application identification system will identify the application and generate logs by bro. The ELK is deployed at the remote end for all logs to be collected, analyzed, stored, and identifiable. The BRO is installed on a machine with an IP of 192.168.1.147 and the ELK is installed on a machine with an IP of 192.168.1.142. 
 
 ## Convention Description  
 ``` 
 ens33               a network interface name    
-192.168.1.7         a network interface ipv4 address of bro device    
-192.168.1.147       a network interface ipv4 address of ELK device 
+192.168.1.147         a network interface ipv4 address of bro device    
+192.168.1.142      a network interface ipv4 address of ELK device 
 ``` 
 
 ## Install bro 
@@ -16,24 +16,24 @@ Because the metron-bro-plugin-kafka plugin will rely on the source code of the b
 
 ### Pre-install package  
 ```
-sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev 
+~/src$ sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev dirmngr curl 
 ```
 
 ### Download bro source and verify 
 ```
-wget https://www.bro.org/downloads/bro-2.5.4.tar.gz 
-wget https://www.bro.org/downloads/bro-2.5.4.tar.gz.asc 
-gpg --recv-keys F56ACC7E
-gpg -v bro-2.5.4.tar.gz.asc
+~/src$ wget https://www.bro.org/downloads/bro-2.5.4.tar.gz 
+~/src$ wget https://www.bro.org/downloads/bro-2.5.4.tar.gz.asc 
+~/src$ gpg --recv-keys C68B494DF56ACC7E
+~/src$ gpg -v bro-2.5.4.tar.gz.asc
 ```
 
 ### Install 
 ```
-tar -xvf bro-2.5.4.tar.gz 
-cd bro-2.5.4/ 
-./configure 
-make 
-sudo make install 
+~/src$ tar -xvf bro-2.5.4.tar.gz 
+~/src$ cd bro-2.5.4/ 
+~/src/bro-2.5.4$ ./configure --enable-debug 
+~/src/bro-2.5.4$ make 
+~/src/bro-2.5.4$ sudo make install 
 ``` 
 
 ### Set env value  
@@ -48,7 +48,7 @@ fi
 
 ### Satrt bro service 
 ```
-sudo broctl deploy 
+~# broctl deploy 
 ```
 For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env.mkd](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/bro/how-to-deploy-bro-app-identification-env.mkd) documentation.
 
@@ -56,44 +56,44 @@ For detailed installation and use of bro, please refer to the [how-to-deploy-bro
 
 The following will use an example to explain, local bro parse configuration is [bro_parse_jd.bro](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/scripts/bro/bro_parse_jd.bro).  
 
-Create a directory called harbian under the directory /usr/local/bro/share/bro/site and place the bro_parse_jd.bro file in this directory. Then create a file named __load__.bro in the harbian directory, enter the following line in the __load__.bro file:  
+Create a directory called harbian under the directory /usr/local/bro/share/bro/site and place the bro_parse_jd.bro file in this directory. Then create a file named \_\_load\_\_.bro in the harbian directory, enter the following line in the \_\_load\_\_.bro file:  
 ```
 @load ./bro_parse_jd.bro.
 ``` 
 
-The __load__.bro file is only used to automatically load the bro configuration file in the current directory when the bro is started. Also need to add the following line to the file /usr/local/bro/share/bro/site/local.bro: 
+The \_\_load\_\_.bro file is only used to automatically load the bro configuration file in the current directory when the bro is started. Also need to add the following line to the file /usr/local/bro/share/bro/site/local.bro: 
 ```
 @load ./harbian 
 ```
 
 Then use the following command to restart the bro service:
 ```
-sudo broctl deploy 
+~# broctl deploy 
 ```
 
 ### Install Kafka 
 
 #### Download kafka source 
 ```
-wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz 
-wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz.asc 
+~/src$ wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz 
+~/src$ wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz.asc 
 ```
 
 #### Verify 
 ```
-gpg --recv-keys  3B417B9B 
-gpg -v kafka_2.12-1.0.0.tgz.asc 
+~/src$ gpg --recv-keys  3B417B9B 
+~/src$ gpg -v kafka_2.12-1.0.0.tgz.asc 
 ```
 
 #### Install kafka and start service 
 ```
-tar -xvf kafka_2.12-1.0.0.tgz
-sudo mv kafka_2.12-1.0.0 /opt/kafka
-sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
-sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
-sudo sed -i '$alisteners=bro://192.168.1.7:9092' /opt/kafka/config/server.properties 
+~/src$ tar -xvf kafka_2.12-1.0.0.tgz
+~/src$ sudo mv kafka_2.12-1.0.0 /opt/kafka
+~/src$ sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
+~/src$ sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
+~/src$ sudo sed -i '$alisteners=bro://192.168.1.7:9092' /opt/kafka/config/server.properties 
 
-sudo cat > /etc/systemd/system/kafka.service << EOF
+~/src# cat > /etc/systemd/system/kafka.service << EOF
 [Unit]
 Description=Kafka Service
 Wants=network.target

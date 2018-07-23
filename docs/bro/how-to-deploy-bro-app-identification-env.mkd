@@ -41,7 +41,7 @@ root@bro:/home/test/bro# make install
 Bro install to dir is /usr/local/bro/bin/，add following line to /etc/bash.bashrc：
 ``` 
 if [ -d /usr/local/bro/bin ];then
-	PATH="/usr/local/bro/bin/:$PATH"
+	PATH="/usr/local/bro/bin:$PATH"
 	export PATH
 fi
 ``` 
