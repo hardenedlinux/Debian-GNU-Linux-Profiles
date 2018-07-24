@@ -1,4 +1,3 @@
-#@load ./qq_version.bro
 @load ./bro_parse_weibo.bro
 @load ./bro_parse_jd.bro
 @load ./bro_parse_bilibili.bro
