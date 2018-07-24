@@ -16,7 +16,7 @@ Because the metron-bro-plugin-kafka plugin will rely on the source code of the b
 
 ### Pre-install package  
 ```
-~/src$ sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev dirmngr curl 
+~/src$ sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev dirmngr curl openjdk-8-jre zookeeperd 
 ```
 
 ### Download bro source and verify 
@@ -91,7 +91,7 @@ Then use the following command to restart the bro service:
 ~/src$ sudo mv kafka_2.12-1.0.0 /opt/kafka
 ~/src$ sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
 ~/src$ sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
-~/src$ sudo sed -i '$alisteners=bro://192.168.1.7:9092' /opt/kafka/config/server.properties 
+~/src$ sudo sed -i '$alisteners=bro://192.168.1.147:9092' /opt/kafka/config/server.properties 
 
 ~/src# cat > /etc/systemd/system/kafka.service << EOF
 [Unit]
@@ -112,34 +112,42 @@ StandardError=syslog
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable kafka
-sudo systemctl start kafka
+```
+
+#### Enable kafka service and start 
+
+When the kafka service is started, the zookeeper service must have been started. 
+``` 
+~/src$ systemctl enable zookeeper 
+~/src$ systemctl start zookeeper
+~/src$ sudo systemctl daemon-reload
+~/src$ sudo systemctl enable kafka 
+~/src$ sudo systemctl start kafka
 ```
 
 ### Install metron-bro-plugin-kafka
 
 #### Install librdkafka 
 ```
-curl -L https://github.com/edenhill/librdkafka/archive/v0.9.4.tar.gz | tar xvz 
-cd librdkafka-0.9.4/ 
-./configure --enable-sasl 
-make 
-sudo make install 
+~/src$ curl -L https://github.com/edenhill/librdkafka/archive/v0.9.4.tar.gz | tar xvz 
+~/src$ cd librdkafka-0.9.4/ 
+~/src/librdkafka-0.9.4$ ./configure --enable-sasl 
+~/src/librdkafka-0.9.4$ make 
+~/src/librdkafka-0.9.4$ sudo make install 
 ```
 
 #### Build the plugin 
 ```
-git clone https://github.com/apache/metron-bro-plugin-kafka.git
-cd metron-bro-plugin-kafka
-./configure --bro-dist=$HOME/src/bro-2.5.4/
-make 
-sudo make install
+~/src$ git clone https://github.com/apache/metron-bro-plugin-kafka.git
+~/src$ cd metron-bro-plugin-kafka
+~/src/metron-bro-plugin-kafka$ ./configure --bro-dist=$HOME/src/bro-2.5.4/
+~/src/metron-bro-plugin-kafka$ make 
+~/src/metron-bro-plugin-kafka$ sudo make install
 ```
  
 #### Ensure the plugin was installed 
 ```
-bro -N Apache::Kafka 
+~/src# bro -N Apache::Kafka 
 ``` 
 
 ### How to set bro logs to kafka 
@@ -148,79 +156,95 @@ Set following lines to /usr/local/bro/share/bro/site/local.bro:
 ```
 @load /usr/local/bro/lib/bro/plugins/APACHE_KAFKA/scripts/Apache/Kafka/logs-to-kafka.bro
 redef Kafka::topic_name = "bro";
-redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG, SSL::LOG, Software::LOG, DHCP::LOG, FTP::LOG, IRC::LOG, Notice::LOG, X509::LOG, Syslog::LOG, SSH::LOG, SNMP::LOG, SOCKS::LOG);
-redef Kafka::kafka_conf = table(["metadata.broker.list"] = "192.168.1.7:9092");
+redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG, SSL::LOG, Software::LOG, DHCP::LOG, FTP::LOG, IRC::LOG, Notice::LOG, X509::LOG, SSH::LOG, SNMP::LOG);
+redef Kafka::kafka_conf = table(["metadata.broker.list"] = "192.168.1.147:9092");
 ```
 
 ### Ensure bro logs to kafka 
 
 following command to check:
 ```
-ls /var/lib/kafka/bro-0/00000000000000000000.log 
+~/src# systemctl status kafka | grep "Active:.active"
+   Active: active (running) since Tue 2018-07-24 03:25:10 CST; 23min ago
+
+~/src# netstat -ntpl  | grep 9092
+tcp6       0      0 192.168.1.147:9092      :::*                    LISTEN      30913/java 
+
+~/src$ ls /var/lib/kafka/bro-0/00000000000000000000.log 
 ```
+
 
 ## Install ELK 
 
 ### Pre-install package 
 
 ```
-sudo apt-get install -y openjdk-8-jre curl wget 
+~$ sudo apt-get install -y openjdk-8-jre curl wget libgeoip-dev 
 ```
 
 ### Download ELK deb package and SHA512 (512-bit) checksums file 
 ```
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb 
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb.sha512 
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb 
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb.sha512 
-wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb 
-wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb.sha512 
+~$ mkdir src; cd src 
+~/src$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb 
+~/src$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb.sha512 
+~/src$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb 
+~/src$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb.sha512 
+~/src$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb 
+~/src$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb.sha512 
 ```
 
 ### Verify ELK deb package 
 ```
-sha512sum -c elasticsearch-6.3.0.deb.sha512 
-sha512sum -c logstash-6.3.0.deb.sha512 
-sha512sum -c kibana-6.3.0-amd64.deb.sha512 
+~/src$ sha512sum -c elasticsearch-6.3.0.deb.sha512  
+elasticsearch-6.3.0.deb: OK
+~/src$ sha512sum -c logstash-6.3.0.deb.sha512 
+logstash-6.3.0.deb: OK
+~/src$ sha512sum -c kibana-6.3.0-amd64.deb.sha512 
+kibana-6.3.0-amd64.deb: OK
 ```
 
 ### Install ELK deb package 
 ```
-sudo dpkg -i *.deb 
+~/src$ sudo dpkg -i *.deb 
 ```
 
 ### Logstash configuration  
 ``` 
-echo config.reload.automatic: true |sudo tee -a /etc/logstash/logstash.yml
-echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
+~/src$ echo config.reload.automatic: true |sudo tee -a /etc/logstash/logstash.yml
+~/src$ echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 ```
 
 ### Create new logstash configuration 
 ```
-cat > /etc/logstash/conf.d/bro-01.conf << EOF 
- input {
-   kafka {
-     topics => ["dns","http","ssl","software"]
-     bootstrap_servers => "192.168.1.7:9092"
-     codec => json
-     auto_offset_reset => "earliest"
-   }
- }
+~/src# cat > /etc/logstash/conf.d/bro-01.conf << EOF 
+input {
+	kafka {
+		topics => ["bro"]
+		group_id => "bro_logstash"
+     		bootstrap_servers => "192.168.1.147:9092"
+     		codec => json
+     		auto_offset_reset => "earliest"
+   	}
+}
  
- output {
-   elasticsearch {
-     hosts => ["192.168.1.147:9200"]
-   }
- } 
- 
+output {
+	elasticsearch {
+     		hosts => ["192.168.1.142:9200"]
+		index => "bro-kafka-%{+YYYY.MM}"
+		document_type => "bro"
+   	}
+}
 EOF
 ``` 
+
+Note: The name of the topic here must be the same as the topic_name in the /usr/local/bro/share/bro/site/local.bro configuration file.
+
 
 ### Elasticsearch configuration 
 #### Bind Elasticsearch to localhost 
 Following lines to /etc/elasticsearch/elasticsearch.yml:
 ```
-network.host: "192.168.1.147" 
+network.host: "192.168.1.142" 
 http.port:9200 
 ```
 
@@ -229,7 +253,7 @@ If elasticsearch service is remote, set the bind address to a specific IP.
 #### Ensure elasticsearch is working 
 ```
 sudo systemctl start elasticsearch 
-curl http://192.168.1.147:9200
+curl http://192.168.1.142:9200
 {
   "name" : "VZDjFmY",
   "cluster_name" : "elasticsearch",
@@ -254,20 +278,27 @@ curl http://192.168.1.147:9200
 Enter the following lines to Kibana configuration file /etc/kibana/kibana.yml: 
 ``` 
 server.port: 5601
-server.host: "192.168.1.147"
-elasticsearch.url: "http://192.168.1.147:9200"
+server.host: "192.168.1.142"
+elasticsearch.url: "http://192.168.1.142:9200"
 ```
 
 ### Start ELK service 
 ```
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable elasticsearch.service logstash.service kibana.service
-sudo systemctl start elasticsearch.service kibana.service logstash.service
-```
+~/src$ sudo /bin/systemctl daemon-reload
+~/src$ sudo /bin/systemctl enable elasticsearch.service logstash.service kibana.service
+~/src$ sudo systemctl start elasticsearch.service kibana.service logstash.service
+``` 
+
+### Use Kibana 
+
+
 
 ## Reference  
 
 https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html 
+https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html 
+
+
 
 
 
