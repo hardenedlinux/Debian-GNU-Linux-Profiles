@@ -292,6 +292,46 @@ elasticsearch.url: "http://192.168.1.142:9200"
 ~/src$ sudo systemctl start elasticsearch.service kibana.service logstash.service
 ``` 
 
+### Use Kibana 
+
+#### Open Kibana 
+
+Enter 192.168.1.142:5601 in the address bar of the browser. The page that opens is as shown below: 
+
+![Open Kibana](./image/kibana-open.png)  
+
+#### Create index pattern 
+
+The following will be an example of creating a pattern with the software log. 
+
+![Create_software_01](./image/create_pattern_1.png)   
+
+![Create_software_02](./image/create_pattern_2.png)   
+
+![Create_software_03](./image/create_pattern_3.png)   
+
+![Create_software_04](./image/create_pattern_4.png)   
+
+![Create_software_05](./image/create_pattern_5.png)   
+
+#### Discover software index pattern 
+
+![Create_software_01](./image/discover_software.png)   
+
+#### Create visualize  
+
+![Create_software_01](./image/create_visualize-1.png)   
+
+![Create_software_01](./image/create_visualize-2.png)   
+
+![Create_software_01](./image/create_visualize-3.png)   
+
+![Create_software_01](./image/create_visualize-4.png)   
+
+![Create_software_01](./image/create_visualize-5.png)   
+
+![Create_software_01](./image/create_visualize-6.png)   
+
 ## Reference  
 
 https://www.bro.org   
