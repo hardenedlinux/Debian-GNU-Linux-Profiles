@@ -5,8 +5,8 @@ The application identification system will identify the application and generate
 
 ## Convention Description  
 ``` 
-ens33               a network interface name    
-192.168.1.147         a network interface ipv4 address of bro device    
+ens33              a network interface name    
+192.168.1.147      a network interface ipv4 address of bro device    
 192.168.1.142      a network interface ipv4 address of ELK device 
 ``` 
 
@@ -155,7 +155,7 @@ When the kafka service is started, the zookeeper service must have been started.
 Set following lines to /usr/local/bro/share/bro/site/local.bro: 
 ```
 @load /usr/local/bro/lib/bro/plugins/APACHE_KAFKA/scripts/Apache/Kafka/logs-to-kafka.bro
-redef Kafka::topic_name = "bro";
+redef Kafka::topic_name = "";
 redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG, SSL::LOG, Software::LOG, DHCP::LOG, FTP::LOG, IRC::LOG, Notice::LOG, X509::LOG, SSH::LOG, SNMP::LOG);
 redef Kafka::kafka_conf = table(["metadata.broker.list"] = "192.168.1.147:9092");
 ```
@@ -215,29 +215,32 @@ kibana-6.3.0-amd64.deb: OK
 ```
 
 ### Create new logstash configuration 
+
+The conf file will be generated for each type of log. The following is only an example of software: 
+
 ```
-~/src# cat > /etc/logstash/conf.d/bro-01.conf << EOF 
+~/src# cat > /etc/logstash/conf.d/bro-software.conf << EOF 
 input {
 	kafka {
-		topics => ["bro"]
+		topics => ["software"]
 		group_id => "bro_logstash"
      		bootstrap_servers => "192.168.1.147:9092"
      		codec => json
      		auto_offset_reset => "earliest"
    	}
 }
- 
+
 output {
 	elasticsearch {
      		hosts => ["192.168.1.142:9200"]
-		index => "bro-kafka-%{+YYYY.MM}"
-		document_type => "bro"
+		index => "bro-software"
+		document_type => "software"
    	}
 }
-EOF
+
 ``` 
 
-Note: The name of the topic here must be the same as the topic_name in the /usr/local/bro/share/bro/site/local.bro configuration file.
+Other conf files are stored in the [logstash-conf](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/bro/logstash-conf). Put these configuration files in the /etc/logstash/conf.d directory. 
 
 
 ### Elasticsearch configuration 
@@ -289,14 +292,13 @@ elasticsearch.url: "http://192.168.1.142:9200"
 ~/src$ sudo systemctl start elasticsearch.service kibana.service logstash.service
 ``` 
 
-### Use Kibana 
-
-
-
 ## Reference  
 
-https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html 
-https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html 
+https://www.bro.org   
+http://try.bro.org/   
+https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html   
+https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html   
+https://www.elastic.co/    
 
 
 
