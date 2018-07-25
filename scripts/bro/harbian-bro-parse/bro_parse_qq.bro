@@ -27,7 +27,7 @@ event http_header(c: connection, is_orig: bool, name: string, value: string) &pr
 				}
 				else
 				{
-					qq=[$software_type = HTTP::WORK_WEIXIN, $host=c$id$orig_h, $unparsed_version="QQ"];
+					qq=[$software_type = HTTP::QQ, $host=c$id$orig_h, $unparsed_version="QQ"];
 					Software::found(c$id, qq);
 				}
 
