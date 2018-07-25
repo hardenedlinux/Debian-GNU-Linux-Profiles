@@ -299,6 +299,8 @@ http://try.bro.org/
 https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html   
 https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html   
 https://www.elastic.co/    
+https://github.com/apache/metron-bro-plugin-kafka  
+
 
 
 
