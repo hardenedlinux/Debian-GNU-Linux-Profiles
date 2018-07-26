@@ -50,11 +50,11 @@ fi
 ```
 ~# broctl deploy 
 ```
-For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env.mkd](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/bro/how-to-deploy-bro-app-identification-env.mkd) documentation.
+For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env.mkd](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/how-to-deploy-bro-app-identification-env.mkd) documentation.
 
 ### Add a local parse configuration file to BRO 
 
-The following will use an example to explain, local bro parse configuration is [bro_parse_jd.bro](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/scripts/bro/bro_parse_jd.bro).  
+The following will use an example to explain, local bro parse configuration is [bro_parse_jd.bro](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/bro/scripts/frameworks/software/own-software/bro_parse_jd.bro).  
 
 Create a directory called harbian under the directory /usr/local/bro/share/bro/site and place the bro_parse_jd.bro file in this directory. Then create a file named \_\_load\_\_.bro in the harbian directory, enter the following line in the \_\_load\_\_.bro file:  
 ```
@@ -240,7 +240,7 @@ output {
 
 ``` 
 
-Other conf files are stored in the [logstash-conf](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/scripts/bro/logstash-conf). Put these configuration files in the /etc/logstash/conf.d directory. 
+Other conf files are stored in the [logstash-conf](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/ELK/conf). Put these configuration files in the /etc/logstash/conf.d directory. 
 
 
 ### Elasticsearch configuration 
