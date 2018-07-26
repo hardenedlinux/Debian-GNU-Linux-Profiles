@@ -1,4 +1,4 @@
-# ELK with Bro-based application identification 
+# ELK with Bro-based Application Layer Packet Classifier
 ## Topology introduction 
 
 The application identification system will identify the application and generate logs by bro. The ELK is deployed at the remote end for all logs to be collected, analyzed, stored, and identifiable. The BRO is installed on a machine with an IP of 192.168.1.147 and the ELK is installed on a machine with an IP of 192.168.1.142. 
