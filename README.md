@@ -34,6 +34,8 @@
 
 [SOC Overview](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/soc_overview.md)  
 
+[ELK with Bro-based application identification](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/ELK_with_bro_ID_doc.mkd)   
+
 
 #### Storage
 [Manually deploy ceph cluster step by step](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/storage/manually_deploy_ceph_cluster_step_by_step.md)
