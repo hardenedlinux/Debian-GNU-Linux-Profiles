@@ -46,10 +46,35 @@ if [ -d /usr/local/bro/bin ];then
 fi
 ``` 
 
-### Satrt bro service 
+### Set bro to systemd and satrt bro service 
+
 ```
-~# broctl deploy 
+~# cat > /etc/systemd/system/bro.service << EOL
+[Unit]
+Description=Bro
+After=network.target
+
+[Service]
+ExecStartPre=/usr/local/bro/bin/broctl cleanup
+ExecStartPre=/usr/local/bro/bin/broctl check
+ExecStartPre=/usr/local/bro/bin/broctl install
+ExecStart=/usr/local/bro/bin/broctl start
+ExecStop=/usr/local/bro/bin/broctl stop
+RestartSec=10s
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStopSec=600
+
+[Install]
+WantedBy=multi-user.target
+
+EOL
+
+~# systemctl daemon-reload   
+~# systemctl enable bro  
+~# systemctl start bro   
 ```
+
 For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env.mkd](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/how-to-deploy-bro-app-identification-env.mkd) documentation.
 
 ### Add a local parse configuration file to BRO 
@@ -68,7 +93,7 @@ The \_\_load\_\_.bro file is only used to automatically load the bro configurati
 
 Then use the following command to restart the bro service:
 ```
-~# broctl deploy 
+~# systemctl restart bro 
 ```
 
 ### Install Kafka 
@@ -172,7 +197,6 @@ tcp6       0      0 192.168.1.147:9092      :::*                    LISTEN      
 
 ~/src$ ls /var/lib/kafka/bro-0/00000000000000000000.log 
 ```
-
 
 ## Install ELK 
 
