@@ -1,0 +1,63 @@
+diff --git a/syz-fuzzer/proc.go b/syz-fuzzer/proc.go
+index 5629714f..c56ed04f 100644
+--- a/syz-fuzzer/proc.go
++++ b/syz-fuzzer/proc.go
+@@ -38,6 +38,11 @@ type Proc struct {
+ 	execOptsNoCollide *ipc.ExecOpts
+ }
+ 
++type Region struct {
++	Start uint32
++	End   uint32
++}
++
+ func newProc(fuzzer *Fuzzer, pid int) (*Proc, error) {
+ 	env, err := ipc.MakeEnv(fuzzer.config, pid)
+ 	if err != nil {
+@@ -103,6 +108,36 @@ func (proc *Proc) loop() {
+ 	}
+ }
+ 
++func coverHit(cover uint32) bool {
++	var region = []Region {
++		Region {
++			Start: 0x0,
++			End:   0xffffffff,
++		},
++		Region {
++			Start: 0x0,
++			End:   0xffffffff,
++		},
++	}
++	for _, addr := range region {
++		if cover < addr.End && cover > addr.Start {
++			return true
++		}
++	}
++	return false
++}
++
++func coverCheck(info []ipc.CallInfo) bool{
++	for _, inf := range info {
++		for _, cover := range inf.Cover {
++			if coverHit(cover) == true {
++				return true
++			}
++		}
++	}
++	return false
++}
++
+ func (proc *Proc) triageInput(item *WorkTriage) {
+ 	log.Logf(1, "#%v: triaging type=%x", proc.pid, item.flags)
+ 
+@@ -136,6 +171,9 @@ func (proc *Proc) triageInput(item *WorkTriage) {
+ 		newSignal = newSignal.Intersection(thisSignal)
+ 		// Without !minimized check manager starts losing some considerable amount
+ 		// of coverage after each restart. Mechanics of this are not completely clear.
++		if coverCheck(info) == false {
++			return
++		}
+ 		if newSignal.Empty() && item.flags&ProgMinimized == 0 {
+ 			return
+ 		}
