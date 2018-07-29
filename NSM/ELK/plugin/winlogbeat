@@ -1,0 +1,16 @@
+winlogbeat.event_logs:
+  - name: Application
+    event_id: 1000,1001,1002
+  - name: Security
+    event_id: 4740,4728,4732,4756,4735,4724,4625,4648,1102,4624,5038,6281
+  - name: System
+    event_id: 6,104,1102,4697,4719,7022,7023,7024,7025,7026,7031,7032,7034
+  - name: "Microsoft-Windows-Sysmon/Operational"
+
+output.logstash:
+  hosts: ["10.2.2.103:5044"]
+
+logging.to_files: true
+logging.files:
+  path: C:/ProgramData/winlogbeat/Logs
+logging.level: info
