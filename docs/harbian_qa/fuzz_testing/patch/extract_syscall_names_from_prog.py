@@ -15,7 +15,7 @@ if len(sys.argv) == 2:
 		with open(corpus_dir_path + "/" + file, "r") as f:
 			line = f.readline()
 			while line:
-                matches = re.findall(line_reg, line)
+				matches = re.findall(line_reg, line)
 				if matches:
 					res = re.sub(pattern, '', matches[0].strip())
 					dict_syscall[format(res)] = 1
