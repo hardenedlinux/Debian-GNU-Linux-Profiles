@@ -1,0 +1,62 @@
+* Bro Script Debugger
+
+
+#+begin_src sh :tangle yes
+bro version 2.5-445
+   -d|--debug-policy              | activate policy file debugging
+#+end_src
+
+~sudo bro -C -r -d file.pcap file.bro~
+
+** Argument in Command-line
+ - ~list~
+ #+begin_src sh :tangle yes
+ (Bro [0]) list
+ 272
+ 273	event bro_init() &priority=100000
+ 274		{
+ #+end_src
+- ~step~
+#+begin_src sh :tangle yes
+(Bro [1]) step
+In SumStats::register_observe_plugins() at /usr/local/bro/share/bro/base/frameworks/sumstats/./plugins/./average.bro:27
+21		register_observe_plugin(AVERAGE, function(r: Reducer, val: double, obs: Observation, rv: ResultVal)
+22			{ 
+#+end_src
+- ~break~
+
+#+begin_src sh :tangle yes
+break bro_init      ##break <bro_function_name>
+Setting breakpoint on bro_init:
+There are multiple definitions of that event handler.
+Please choose one of the following options:
+[1] /usr/local/bro/share/bro/base/frameworks/sumstats/./main.bro:276
+#+end_src
+
+
+- ~info breakpoint~
+#+begin_src sh :tangle yes
+(Bro [5]) info breakpoint
+Num Type           Disp Enb What
+#+end_src
+
+- ~c~ Continue
+#+begin_src sh :tangle yes
+(Bro [6]) c
+Continuing.
+#+end_src
+- ~backtrace~
+
+#+begin_src sh :tangle yes
+(Bro [0]) backtrace
+#0  In bro_init() at /usr/local/bro/share/bro/base/frameworks/sumstats/./main.bro:276
+#+end_src
+
+* Debugging logs
+
+** Turn on profiling for bro resource consumption
+   ~@load policy/misc/profiling.bro~
+
+   ~@load policy/misc/capture-loss.bro~
+   ~@load policy/misc/stats.bro~
+
