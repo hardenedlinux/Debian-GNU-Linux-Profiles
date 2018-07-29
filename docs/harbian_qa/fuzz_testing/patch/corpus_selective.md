@@ -22,7 +22,7 @@ In fact, the above filter is very crude. In practic, using and combining differe
 Syzkaller has web infterfaces. We extern a [corpus ids track](coverage_and_track_corpus_ids_by_funcname.patch) base on it. It can help you find out all the progs that trigger a special kernel function you want to test. Using this infterface with [syz-redb](syz-redb.go) help you easily rebuild a samll and directional corpus test you want. This is called corpus selective. 
 
 ## Extract syscall name from prog
-This [tool]() help you extract all the syscalls name from a set of prog. Reconfigure you syz-manager can be more easier.
+This [tool](extract_syscall_names_from_prog.py) help you extract all the syscalls name from a set of prog. Reconfigure you syz-manager can be easier.
 
 ## Change you fuzzer algorithm
 Change the Prog interface 'Mutate' to customize your prog generation.
