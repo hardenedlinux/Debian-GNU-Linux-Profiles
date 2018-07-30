@@ -34,7 +34,7 @@
 
 [SOC Overview](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/soc_overview.md)  
 
-[ELK with Bro-based application identification](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/ELK_with_bro_ID_doc.mkd)   
+[ELK with Bro-based Application Layer Packet Classifier](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/ELK_with_bro_ID_doc.mkd)   
 
 
 #### Storage
