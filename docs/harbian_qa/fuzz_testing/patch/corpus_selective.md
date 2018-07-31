@@ -14,7 +14,7 @@ As a coverage-guide fuzzer, syzkaller collect progs which trigger a new coverage
 * New coverage and object code are in the same prog which can't be minimized. It make sure that the all the progs will hit the object code. [Here is a patch implement this kind of filter in syz-executor](coverage_filte.patch).
 * New coverage and code coverage are in the same syscall. It means that only new coverage and object code appear in the same call stack, prog can be put into corpus. Actually modifying first patch can easily implement this filter
 
-Because both syz-fuzzer and syz-excutor know nothing about target kernel binary, these filters filter coverage by address region. [Here is a tool help you list the region of a kernel function by scaning vmlinux]().
+Because both syz-fuzzer and syz-excutor know nothing about target kernel binary, these filters filter coverage by address region. [Here is a tool help you list the region of a kernel function by scaning vmlinux](fun2addr.go).
 In fact, the above filter is very crude. In practic, using and combining different kinds of filter( include blacklist) is more useful in different purpos fuzzer. 
 
 
