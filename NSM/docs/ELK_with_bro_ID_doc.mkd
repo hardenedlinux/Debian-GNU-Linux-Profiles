@@ -143,8 +143,8 @@ EOF
 
 When the kafka service is started, the zookeeper service must have been started. 
 ``` 
-~/src$ systemctl enable zookeeper 
-~/src$ systemctl start zookeeper
+~/src$ sudo systemctl enable zookeeper 
+~/src$ sudo systemctl start zookeeper
 ~/src$ sudo systemctl daemon-reload
 ~/src$ sudo systemctl enable kafka 
 ~/src$ sudo systemctl start kafka
