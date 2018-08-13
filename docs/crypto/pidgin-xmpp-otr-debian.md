@@ -25,14 +25,14 @@ The finite cyclic groups practical for cryptography need to satisfy that it is e
 Groups commonly used for cryptography include **multiplicative group of integers modulo prime p**(in which P is the modular multiplication, M is the modular exponentiation) and **additive group of points on an elliptic curve over finite fields**(in which P is the modular addition of points, M is the modular multiplication between of a point and an integer).
 
 #### Key Exchanging procedure
-Started here, A=M(a,G) is called the (mapped) image within the cyclic group about its generator G of integer a, and a is the source of A.
+Started here, A=M(a,G) is called the (mapped) image within the cyclic group about its generator G of integer a, and a is the preimage of A.
 1. Alice and Bob agree to use a finite cyclic groups practical for cryptography and one of its generator G.
 2. Alice and Bob respectively choose their secret integer a and b randomly, compute corresponding image A=M(a,G) and B=M(b,G), then send the image to the other part.
-3. Alice and Bob respectively compute the shared secret from their own source and the image sent from the other part: S=M(a,B)=M(a,M(b,G))==M(ab,G)==M(b,M(a,G))=M(b,A).
+3. Alice and Bob respectively compute the shared secret from their own preimage and the image sent from the other part: S=M(a,B)=M(a,M(b,G))==M(ab,G)==M(b,M(a,G))=M(b,A).
 
 Now they get the same shared secret, and they can derive the session key for symmetric encryption via the same algorithm.
 
-Note that only the information about the group itself, and images A and B, appear on the communication channel, but it is very hard to get a source from its image within a finite cyclic groups practical for cryptography, thus the security is kept.
+Note that only the information about the group itself, and images A and B, appear on the communication channel, but it is very hard to get a preimage from its image within a finite cyclic groups practical for cryptography, thus the security is kept.
 
 
 ### Cryptographic hash algorithm
@@ -72,14 +72,14 @@ In order to unite the integrity and deniability, OTR in **handshaking** phase ut
 
 OTR utilizes AES for symmetric encryption, and HMAC-SHA256 for message authentication.
 
-After handshaking succeeded, the two parts have their own source and image sent from the other, from which identical shared secrets could be computed respectively.
+After handshaking succeeded, the two parts have their own preimage and image sent from the other, from which identical shared secrets could be computed respectively.
 
 The way for OTR to implement perfect forward secrecy is extremely paranoid.
 
-* With their source and the other's image, the sender computes the shared secret, from which the encryption key is derived, from which the authentication key is derived. They encrypt the message with encryption key, randomly select a new DH source to replace the current and compute its image, then send the other part the combination of `images' serial number of the two, new image of theirselves' side, cipher text, etc`, with MAC generated with the authentication key for the above-mentioned stuffs attached, and finally update the image's serial number of theirselves' side.
+* With their preimage and the other's image, the sender computes the shared secret, from which the encryption key is derived, from which the authentication key is derived. They encrypt the message with encryption key, randomly select a new DH preimage to replace the current and compute its image, then send the other part the combination of `images' serial number of the two, new image of theirselves' side, cipher text, etc`, with MAC generated with the authentication key for the above-mentioned stuffs attached, and finally update the image's serial number of theirselves' side.
 
-* After receiving the message, with their source and the other's image, the receiver 
- computes the shared secret, derives encryption and authentication keys as well, verify the integrity of the message with the authentication key, decrypt the cipher text with the encryption key, and finally update the cached image from the other as well as both serial numbers. It can be seen that the DH parameters (the source and the corresponding image) of one side is updated during sending, and if one side only receives but does not send messages in a period of time, their DH parameters remain unchanged.
+* After receiving the message, with their preimage and the other's image, the receiver 
+ computes the shared secret, derives encryption and authentication keys as well, verify the integrity of the message with the authentication key, decrypt the cipher text with the encryption key, and finally update the cached image from the other as well as both serial numbers. It can be seen that the DH parameters (the preimage and the corresponding image) of one side is updated during sending, and if one side only receives but does not send messages in a period of time, their DH parameters remain unchanged.
  
 It is clear that OTR performs DH exchanging for the next message every time when sending a message, thus every message is encrypted with different encryption key, to approach the security level of `one-time pad`.
 
@@ -105,7 +105,7 @@ Install pidgin and the otr plugin with the following commands, respectively.
 Apt package manager automatically resolves dependencies and installs other required packages。
 
 #### Building a helper plugin: pidgin-xmpp-receipts
-There is a problem in OTR: network instability may make the source held by one side inconsistent with the mapped image held by the other side, in which case a message sent will be unable to decrypt correctly, but OTR protocol usually cannot automatically recovery synchronization, and requires manually re-handshaking (usually represented as "refresh conversation" on user interfaces).
+There is a problem in OTR: network instability may make the preimage held by one side inconsistent with the mapped image held by the other side, in which case a message sent will be unable to decrypt correctly, but OTR protocol usually cannot automatically recovery synchronization, and requires manually re-handshaking (usually represented as "refresh conversation" on user interfaces).
 
 An extension of XMPP -- receipt functionality is helpful to detect the synchronization loss problem of OTR: This extension could deliver a "receipt" defined within the protocol to the sender of a message to notice that the message is received successfully, while cooperated with OTR, "successful receiving" will contain "successful decryption" -- only a successfully decrypted message generates its receipt. According to this, sender could detect synchronization losses, and perform re-handshaking in time.
 
