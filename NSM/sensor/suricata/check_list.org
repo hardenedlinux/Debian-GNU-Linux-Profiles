@@ -1,0 +1,172 @@
+* Deployment
+
+** Workflows
+
+
+   *Capture methods*
+
+
+|                     |                    |          |           |        |
+|---------------------+--------------------+----------+-----------+--------|
+| IDS mode            | AF_Packet          | PF_RING  | NETMAP    |        |
+| IPS mode            | Netfilter(nfqueue) | IPFW     | AF_Packet | NETMAP |
+| Cross platform      | Libpcap            |          |           |        |
+| Specialized Capture | Endace             | Napatech |           |        |
+
+
+- AF_Packet 
+  - Linux default
+  - Workds outside the box
+- PF_RING
+  - Linux and intel NICs only
+  - Needs kernel module compilation
+
+- NETMAP
+  - Linux and FreeBSD
+  - needs kernel module complied and loaded
+
+- PCAP
+  - Cross platform (Linux/BSD/Windows)
+  - Least performant of the above mentioned
+
+    
+
+| System             |
+| Ethernet Card      |
+| RX- Receive Buffer |
+| Suricata           |
+
+
+Start suricata with af-packet (AFP): 
+
+~suricata -c /etc/suricata/suricata.yaml -v --af-packet~
+
+
+Start suricata with af-packet (AFP) only on eth0:
+
+~suricata -c /etc/suricata/suricata.yaml -v --af-packet=eth0~
+
+Ethtool installation: 
+
+~apt-get install ethtool~
+
+For more information: 
+
+~man ethtool~
+
+~sudo ethtool -h~
+
+
+
+
+#+begin_src sh :tangle yes
+Here is how you can disable specific offloading settings if needed: 
+
+ethtool -K eth3 tso off 
+ethtool -K eth3 gro off 
+ethtool -K eth3 lro off 
+ethtool -K eth3 gso off 
+ethtool -K eth3 rx off 
+ethtool -K eth3 tx off 
+ethtool -K eth3 sg off 
+ethtool -K eth3 rxvlan off 
+ethtool -K eth3 txvlan off
+#+end_src
+
+
+** Extension[2/2]
+ https://github.com/StamusNetworks/scirius
+
+- [X] Scirius Ruleset Manager 
+- [X] EVEBOX
+
+
+** TODO Lua
+
+** TODO Yaml
+* alert
+
+*tls*
+
+#+begin_src sh :tangle yes
+alert tls $EXTERNAL_NET any -> $HOME_NET any (msg:"OSIF TROJAN Observed Malicious SSL Cert (Orcus RAT)"; flow:established,from_server;tls_cert_subject;content:"CN=XXX";classtype:trojan-activity;sid:1;rev:1;)
+#+end_src
+|-------------+------------------------+----------------------+------------------------------------|
+|             |                        | Details & wireshark  | Rules_format                       |
+|-------------+------------------------+----------------------+------------------------------------|
+| protocol    | tls                    |                      | alert tls                          |
+| Destination | $HOME_NET,port any     |                      | $EXTERNAL_NET any -> $HOME_NET any |
+| Content     | Common Name (CN) field | printableString:XXXX | content:"CN=XXXX";                 |
+| Signature   |                        | Subject: rdnSequence |                                    |
+|             |                        |                      | tls_cert_subject;                  |
+| classtype   |                        |                      | trojan-activity                    |
+|-------------+------------------------+----------------------+------------------------------------|
+
+|-------------+-------------------+--------------------+-----------------------+------------------------|
+| wireshark   | Next level        | marked             | Key                   | Rules_format           |
+|-------------+-------------------+--------------------+-----------------------+------------------------|
+| Certificate | signedCertificate | Suject:rdnSequence | UTF8String =site_name | content:"CN=site_name" |
+|             |                   |                    |                       |                        |
+
+*DNS*
+
+#+begin_src sh :tangle yes
+alert dns $HOME_NET any -> any nay (msg:"OISP TROJAN   "; dns_query; context:"XXX";isdataat:!1,relative;reference:url,site_name;classtype:trojan-activity;)
+#+end_src
+
+|-------------+-------------------+---+---------------------+-------------------------------------------|
+|             |                   |   | Details & wireshark | Rules_format                              |
+|-------------+-------------------+---+---------------------+-------------------------------------------|
+| protocol    | DNS               |   |                     | alert DNS                                 |
+| Destination | any, any          |   |                     |                                           |
+| Content     | normalized domain |   |                     |                                           |
+| classtype   |                   |   |                     | trojan-activity                           |
+| reference   | url               |   | queries-->site.name | url,<site_name>                           |
+| msg         |                   |   |                     | Observed DNS query to Know XXX;dns_query; |
+|             |                   |   |                     |                                           |
+
+
+
+
+*Maldoc Payload*
+#+begin_src sh :tangle yes
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"OISF CURRENT_EVENTS Maldoc Retrieving Payload";flow:established,to_server;content"<Key_Word>";fast_pattern;context:"<arguments>";http_user_agent;depth:15;pcre"/$/";http_header_names; content:!"Referer"; sid:2;rev:1;)
+#+end_src
+
+
+
+|-----------------------------+------------+------------+-------------------------+--------------------------------------|
+| wireshark                   | Next level | marked     | Key                     | Rules_format                         |
+|-----------------------------+------------+------------+-------------------------+--------------------------------------|
+| Hypertext Transfer Protocol | HEAD       | HEAD       | HEAD=<payload_Key_Word> | context:"Key_Word";                  |
+|                             |            |            |                         | fast_pattern;                        |
+|                             |            | User-agent | <String>                | context:"<arguments>"                |
+|                             |            | HEAD_NAMES | payload_charact         | pcre:"<charact_(regular expression>" |
+|                             |            |            |                         |                                      |
+** TCP
+  *DDOS*
+
+#+begin_src sh :tangle yes
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg"ET TROJAN DDOS Client Information CheckIN"; flow:established; to_server;context"Windows";nocase;depth:7; content:"MHZ | 00 00 00 00 00 00 | ";distance:0; nocase; content:" | 00 00 00 00 00 00 | Win";distance:0; nocase;classtype:trojan-activity; )
+#+end_src
+|-----------+-------------------+----------+---+-----------------------------------------------+-------------------+---------------------------------+-------------------+---------------------------------------------------|
+| Wireshard | Charact_KEY       | protocol |   | Rules_format                                  |                   |                                 |                   |                                                   |
+|-----------+-------------------+----------+---+-----------------------------------------------+-------------------+---------------------------------+-------------------+---------------------------------------------------|
+| DATA      | System_Name & MHZ | TCP      |   | context"Windows";nocase;depth:7; content:"MHZ | 00 00 00 00 00 00 | ";distance:0; nocase; content:" | 00 00 00 00 00 00 | Win";distance:0; nocase;classtype:trojan-activity; |
+|           |                   |          |   |                                               |                   |                                 |                   |                                                   |
+** http
+ *Phish Website*
+
+|------------------+--------+-----------------+----------------------+------------------------------------------------------------------------------------------|
+| HTTP             | METHOD | Arguments       |                      | Rules_Format                                                                             |
+|------------------+--------+-----------------+----------------------+------------------------------------------------------------------------------------------|
+| HTTP_HEAD        |        | META HTTP-EQUIV |                      | content:"200";http_stat_code; http_content_type; content:"text/html"; nocase; file_data; |
+| HTTP_REQUEST     |        |                 |                      |                                                                                          |
+| INFO             | POST   |                 | viewer.php>idp=login | content:"POST";  http_method;                                                            |
+| OTHER            |        | uri             |                      | content:".php"; http_uri; nocase; isdataat:!1,relative;                                  |
+| HTTP_CLIENT_BODY |        | String          |                      | content:"<String>"; depth:9; nocase; http_client_body;                                   |
+| HTTP_REFERER     |        |                 |                      | content:"<charact>"; nocase;                                                             |
+|                  |        |                 |                      |                                                                                          |
+
+
+

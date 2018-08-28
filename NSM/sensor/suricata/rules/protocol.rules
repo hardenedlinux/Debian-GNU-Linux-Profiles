@@ -1,0 +1,13 @@
+
+
+
+
+
+
+alert ip $HOME_NET any -> 119.147.227.14 [80,433] (msg:"Access to pg.qq.com"; sid:2001;)
+alert ip $HOME_NET any -> 180.163.21.166 [80,433] (msg:"Access to servicewechat.com"; sid:2002;)
+
+
+
+
+alert ip $HOME_NET any -> [10.0.0.0/8,192.168.0.0/16] any (msg:"RFC 1918"; sid:1003)

@@ -19,4 +19,9 @@ make
 sudo make install
 cd ..
 git clone https://github.com/grigorescu/binpac_quickstart.git
+#Suricata
+##Updating rules
+sudo apt-get install python-yaml
+sudo -H pip installl --pre --upgrade suricata-update
+
 
