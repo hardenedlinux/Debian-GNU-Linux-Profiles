@@ -501,7 +501,7 @@ syz-db unpack $(YOUR_CORPUS.DB) $(YOUR_TMP_DIR)
 You can found a lot of files in $(YOUR_TMP_DIR). You may want to add to or modify it according to your need.
 Then repack your corpus run:
 ```  
-syz-db pack  $(YOUR_TMP_DIR)  $(YOUR_TMP_DIR)
+syz-db pack  $(YOUR_TMP_DIR) $(YOUR_CORPUS.DB)
 ```  
 In MakeEnv, setup the share memory to get the output from process:
 ```  
