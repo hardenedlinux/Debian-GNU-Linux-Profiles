@@ -1,22 +1,40 @@
 
 # Table of Contents
 
-1.  [Deployment](#orgde65247)
-    1.  [Workflows](#org9988ff5)
-    2.  [Extension<code>[2/2]</code>](#org5823e0a)
-    3.  [Lua](#org7233285)
-    4.  [Yaml](#orgb96720f)
-2.  [alert](#orged30172)
-    1.  [TCP](#org148ebd6)
-    2.  [http](#orgc93e527)
+1.  [Deployment](#orgf3182fe)
+    1.  [Basic information](#org5fca9b7)
+    2.  [Snort.conf to Suricata.yaml](#org552d4d6)
+    3.  [Workflows](#orgb274a07)
+    4.  [Extension<code>[2/2]</code>](#org2ef2714)
+    5.  [Lua](#org0ea61c6)
+    6.  [Yaml](#orga0424f3)
+2.  [alert](#org21cf219)
+    1.  [TCP](#org0dfd745)
+    2.  [http](#org059d445)
 
 
-<a id="orgde65247"></a>
+<a id="orgf3182fe"></a>
 
 # Deployment
 
 
-<a id="org9988ff5"></a>
+<a id="org5fca9b7"></a>
+
+## Basic information
+
+<https://researchspace.auckland.ac.nz/bitstream/handle/2292/31460/whole.pdf>
+
+
+<a id="org552d4d6"></a>
+
+## Snort.conf to Suricata.yaml
+
+<https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Snortconf_to_Suricatayaml>
+
+<https://bricata.com/blog/snort-suricata-bro-ids/> [BLOG]
+
+
+<a id="orgb274a07"></a>
 
 ## Workflows
 
@@ -158,7 +176,7 @@ For more information:
     ethtool -K eth3 txvlan off
 
 
-<a id="org5823e0a"></a>
+<a id="org2ef2714"></a>
 
 ## Extension<code>[2/2]</code>
 
@@ -168,17 +186,19 @@ For more information:
 -   [X] EVEBOX
 
 
-<a id="org7233285"></a>
+<a id="org0ea61c6"></a>
 
 ## TODO Lua
 
+Suricata signatures for network fingerprints
 
-<a id="orgb96720f"></a>
+
+<a id="orga0424f3"></a>
 
 ## TODO Yaml
 
 
-<a id="orged30172"></a>
+<a id="org21cf219"></a>
 
 # alert
 
@@ -470,7 +490,7 @@ For more information:
 </table>
 
 
-<a id="org148ebd6"></a>
+<a id="org0dfd745"></a>
 
 ## TCP
 
@@ -543,7 +563,7 @@ For more information:
 </table>
 
 
-<a id="orgc93e527"></a>
+<a id="org059d445"></a>
 
 ## http
 

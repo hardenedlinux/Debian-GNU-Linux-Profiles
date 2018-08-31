@@ -1,5 +1,11 @@
 * Deployment
 
+** Basic information
+https://researchspace.auckland.ac.nz/bitstream/handle/2292/31460/whole.pdf
+** Snort.conf to Suricata.yaml
+https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Snortconf_to_Suricatayaml
+
+https://bricata.com/blog/snort-suricata-bro-ids/ [BLOG]
 ** Workflows
 
 
@@ -81,8 +87,10 @@ ethtool -K eth3 txvlan off
 - [X] EVEBOX
 
 
-** TODO Lua
 
+
+** TODO Lua
+Suricata signatures for network fingerprints
 ** TODO Yaml
 * alert
 

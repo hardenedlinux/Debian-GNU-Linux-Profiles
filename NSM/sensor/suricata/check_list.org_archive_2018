@@ -1,0 +1,16 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /Users/gtrun/project/Debian-GNU-Linux-Profiles/NSM/sensor/suricata/check_list.org
+
+
+* Snort.conf to Suricata.yaml
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2018-08-31 Fri 00:52
+  :ARCHIVE_FILE: ~/project/Debian-GNU-Linux-Profiles/NSM/sensor/suricata/check_list.org
+  :ARCHIVE_OLPATH: Deployment
+  :ARCHIVE_CATEGORY: check_list
+  :END:
+https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Snortconf_to_Suricatayaml
+
+https://bricata.com/blog/snort-suricata-bro-ids/ [BLOG]

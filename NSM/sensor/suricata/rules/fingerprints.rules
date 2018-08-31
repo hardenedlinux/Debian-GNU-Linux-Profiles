@@ -1,0 +1,32 @@
+#refer: https://aaltodoc.aalto.fi/bitstream/handle/123456789/23297/master_Larinkoski_Luukas_2016.pdf
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any ( msg :" Network
+fingerprint server transaction Lua script ";
+flow : established , to_server ;
+flowbits : set , fingerprint_server_lua ;
+flowint : fingerprint_disable , notset ;
+lua : fingerprint_server . lua ; flowbits : noalert ;)
+# Network fingerprint Suricata signatures
+alert tcp $HOME_NET any -> $EXTERNAL_NET any ( msg :" Network
+fingerprint signature #1 ( no alert ) ";
+flowbits : isset , fingerprint_lua ;
+flow : established , to_server ; flowint : client . idx ,== ,1;
+dsize :141; flowint : client . entropy , > ,550;
+flowbits : set , NF .1; flowbits : noalert ;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any ( msg :" Network
+fingerprint signature #2 ( no alert ) "; flowbits : isset , NF .1;
+flowbits : isset , fingerprint_lua ;
+flow : established , to_server ; flowint : client . idx ,== ,2;
+dsize :97; flowint : client . entropy , > ,550;
+flowbits : unset , NF .1; flowbits : set , NF .2; flowbits : noalert ;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any ( msg :" Network
+fingerprint signature #3 ( no alert ) "; flowbits : isset , NF .2;
+flowbits : isset , fingerprint_lua ;
+flow : established , to_server ; flowint : client . idx ,== ,3;
+dsize :23 < >37; flowbits : unset , NF .2; flowbits : set , NF .3;
+flowbits : noalert ;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any ( msg :" Network
+fingerprint signature #4"; flowbits : isset , NF .3;
+flowbits : isset , fingerprint_lua ;
+flow : established , to_server ; flowint : client . idx ,== ,4;
+dsize :65; flowbits : unset , NF .3;)
