@@ -12,13 +12,13 @@ All of these is for special testing, not for general case.
 ## Customize syzkaller
 To guide syzkaller to hit the specific code region. There are several ways:
 1. Specify syscalls for subsystem test
-2. [Corpus selective]()( by coverage)
-3. Run a [semi-fixed or fixed syscalls sequence]()
+2. [Corpus selective](corpus_selective.md)( by coverage)
+3. Run a [semi-fixed or fixed syscalls sequence](https://github.com/hardenedlinux/community-QA/blob/master/syz_patch/insert_beginning.patch)
 
 ## Kernel function level fail-injection
 Kernel fault-injection can change the kernel control flow more directly. Syzkaller already use kernel fail-injection frame, but it is for general case, isn't base on specific kernel code. I use ftrace as a kernel function hook that can inject true/false data to kernel in function level. Usually, data in kernel function level means argument and retval of kernel function.
 ### Ftrace hook
-[Here is a sample code]() which can hijack tcp_setsockopt, change it arguments tp->repair. 
+[Here is a sample code](https://github.com/hardenedlinux/community-QA/blob/master/syz_patch/tp_repair.c) which can hijack tcp_setsockopt, change it arguments tp->repair. 
 Usage:
 ```  
 insmod tp_repair.ko obj_ppid=$$
