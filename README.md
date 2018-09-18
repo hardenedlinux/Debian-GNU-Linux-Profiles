@@ -56,6 +56,9 @@
 [Separating the three powers with grsecurity RBAC system](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/mac_rbac/security_standard_and_compliance/separating_the_three_powers-with-grsec-rbac.mkd)    
 #### 
 
+#### NGINX Hardening  
+[Pretty config for nginx](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/nginx/nginx.conf)  
+
 #### Unclassified
 [Small-scale Enterprise KVM Deployments With Kimchi](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/small-scale-enterprise-KVM-deployments-with-kimchi.md)  
 [The recommended configs of host computers and management console running Debian GNU/Linux within clusters](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/recommended_cluster_config.md)  
