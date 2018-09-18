@@ -57,7 +57,7 @@
 #### 
 
 #### NGINX Hardening  
-[Pretty config for nginx](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/nginx/nginx.conf)  
+[Pretty config for nginx](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/nginx/nginx.md)  
 
 #### Unclassified
 [Small-scale Enterprise KVM Deployments With Kimchi](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/small-scale-enterprise-KVM-deployments-with-kimchi.md)  
