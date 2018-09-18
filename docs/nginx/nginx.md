@@ -1,7 +1,7 @@
 
 ### This configuration gives A+ on ssllabs.com test and A+ on securityheaders.com
 
-![ssllabs](/img/aplus.png)
+![ssllabs](https://github.com/r3dlight/Debian-GNU-Linux-Profiles/blob/master/docs/nginx/img/aplus.png)
 
 
 ##Features :
