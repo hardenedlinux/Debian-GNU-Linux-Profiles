@@ -1,10 +1,11 @@
 
 ### This configuration gives A+ on ssllabs.com test and A+ on securityheaders.com
 
-![ssllabs](https://github.com/r3dlight/Debian-GNU-Linux-Profiles/blob/master/docs/nginx/img/aplus.png)
+![ssllabs](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/nginx/img/aplus.png)
 
 
-##Features :
+
+###Features :
 
 - [x] TLS configuration using ca-intermediate and fullchain files
 - [x] OCSP Must Staple / OCSP stapling enabled
