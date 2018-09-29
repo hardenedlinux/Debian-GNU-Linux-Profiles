@@ -28,7 +28,24 @@ make
 sudo make install
 sudo ln -s /usr/local/bro/bin/bro* /usr/local/bin
 ..
+#
+su
+curl -sL https://deb.nodesource.com/setup_9.x | bash -
+apt-get install nodejs
+exit
+### if you git issue for nop, just put this command "sudo npm rebuild"
+sudo npm install vis
+cd /usr/share/kibana/plugins
+git clone https://github.com/JuanCarniglia/area3d_vis
+cd area3d_vis
+npm install
+cd ..
+sudo git clone https://github.com/dlumbrer/kbn_network.git network_vis -b 6-dev
+cd network_vis
+sudo rm -rf images/
+sudo npm install
 
+cd ~/src
 wget https://github.com/edenhill/librdkafka/archive/v0.11.4.tar.gz
 sudo tar -xvf v0.11.4.tar.gz
 cd librdkafka-0.11.4/

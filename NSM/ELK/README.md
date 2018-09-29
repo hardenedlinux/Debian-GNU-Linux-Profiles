@@ -1,36 +1,36 @@
 
 # Table of Contents
 
-1.  [About Open source NSM project](#org775cea0)
-2.  [Quicly Start](#org797416b)
-    1.  [Installing workflow Structure<code>[50%]</code>](#org225da86)
-3.  [Log Analysis in NSM](#org5ba6280)
-    1.  [Kafka & Spark <code>[0/1]</code>](#orgeac0e1a)
-        1.  [Troubleshooting](#orgb77e361)
-        2.  [Bro Script for Kafka <code>[1/2]</code>](#orgef442b8)
-    2.  [Bat](#org924be4f)
-        1.  [Virtualtotal](#orgcb5fa1c)
-        2.  [BRO&#x2013;>HTTP](#orge218576)
-    3.  [Silk](#orgbe4e7a5)
-        1.  [Analysis logs with R languag](#orge1ad245)
-    4.  [ELK](#org6ee46da)
-        1.  [Logstash<code>[1/2]</code>](#orgc863ad8)
-        2.  [Silk](#orga4a39c3)
-        3.  [IDS](#org4d35022)
-        4.  [filter](#org77a1b79)
-    5.  [Bro](#org38917e3)
-        1.  [Protocol](#org9e12dbb)
+1.  [About Open source NSM project](#orgac1e130)
+2.  [Quicly Start](#org3e71585)
+    1.  [Installing workflow Structure<code>[50%]</code>](#org5c69eb0)
+3.  [Log Analysis in NSM](#orgf7010b6)
+    1.  [Kafka & Spark <code>[0/1]</code>](#org23d4e7c)
+        1.  [Troubleshooting](#org1fd7b3b)
+        2.  [Bro Script for Kafka <code>[1/2]</code>](#orga867f20)
+    2.  [Bat](#org93bd155)
+        1.  [Virtualtotal](#org4caf6b6)
+        2.  [BRO&#x2013;>HTTP](#org80a5e4a)
+    3.  [Silk](#orga4faca7)
+        1.  [Analysis logs with R languag](#orgc3aef93)
+    4.  [ELK](#org6f041b7)
+        1.  [Logstash<code>[1/2]</code>](#orgc47c072)
+        2.  [Silk](#org82847ce)
+        3.  [IDS](#org35a1aec)
+        4.  [filter](#org6b48216)
+    5.  [Bro](#org0a7f50c)
+        1.  [Protocol](#org78c6c48)
 
 
 
-<a id="org775cea0"></a>
+<a id="orgac1e130"></a>
 
 # About Open source NSM project
 
 The open source NSM project is manuals of pratice which can able to help other maintainer to build a monitoring system. For data analysis and data visualization. This information will effectively draw integral structure with other open source components and academic tools in wide use.
 
 
-<a id="org797416b"></a>
+<a id="org3e71585"></a>
 
 # Quicly Start
 
@@ -42,7 +42,7 @@ The open source NSM project is manuals of pratice which can able to help other m
 Some configure files we were not coding shell in bash script such as logstash conf and ids conf etc.  So you should be know how to move conf files and control it.
 
 
-<a id="org225da86"></a>
+<a id="org5c69eb0"></a>
 
 ## Installing workflow Structure<code>[50%]</code>
 
@@ -123,27 +123,48 @@ Some configure files we were not coding shell in bash script such as logstash co
 
 6.  Filter
 
-    1.  Bro logs
+    1.  Bro logs <code>[4/4]</code>
+        -   [X] HTTP
+        -   [X] ssh
+        -   [X] dns
+        -   [X] syslog
     2.  IDS logs
     3.  Silk <code>[0/0]</code>
 
-7.  Log setting & configure files<code>[2/3]</code>
+7.  Log setting & configure files<code>[3/3]</code>
 
     -   [X] [testing]  Logstash
     -   [X] []  syslog
-    -   [ ] [TODO]  Snort & Suricata
+    -   [X] [DONE]  Snort & Suricata rule's templates
+    -   [ ] [TODO] IDS yaml
 
-8.  Dashboard & Data visualization<code>[0/0]</code>
+8.  ELK plugin
+
+    1.  DONE area3d\_vis
+    
+        -   State "DONE"       from              <span class="timestamp-wrapper"><span class="timestamp">[2018-09-28 Fri 19:42]</span></span>
+    
+    2.  DONE kbn\_network
+    
+        -   State "DONE"       from              <span class="timestamp-wrapper"><span class="timestamp">[2018-09-28 Fri 19:42]</span></span>
+
+9.  Dashboard & Data visualization<code>[0/0]</code>
 
     -   Index of the Bro
     -   Index of suricata and snort
     -   Index of the Silk
 
-9.  Silk <code>[1/1]</code>
+10. Silk <code>[1/1]</code>
 
     -   [X] []  SIlk\_INSTALL.sh
 
-10. Demo Show up
+11. AntiVirus<code>[1/1]</code>
+
+    1.  DONE Clamav
+    
+        -   State "DONE"       from              <span class="timestamp-wrapper"><span class="timestamp">[2018-09-28 Fri 19:43]</span></span>
+
+12. Demo Show up
 
     1.  Bro Scripts
         -   Detect popular Application
@@ -152,17 +173,17 @@ Some configure files we were not coding shell in bash script such as logstash co
     3.  Logstash API
 
 
-<a id="org5ba6280"></a>
+<a id="orgf7010b6"></a>
 
 # Log Analysis in NSM
 
 
-<a id="orgeac0e1a"></a>
+<a id="org23d4e7c"></a>
 
 ## Kafka & Spark <code>[0/1]</code>
 
 
-<a id="orgb77e361"></a>
+<a id="org1fd7b3b"></a>
 
 ### Troubleshooting
 
@@ -171,7 +192,7 @@ bash /opt/kafka/kafka\_2.12-1.0.0/bin/kafka-console-consumer.sh &#x2013;bootstra
 if you got some information looks like Bro log that will be good.
 
 
-<a id="orgef442b8"></a>
+<a id="orga867f20"></a>
 
 ### TODO Bro Script for Kafka <code>[1/2]</code>
 
@@ -185,17 +206,17 @@ if you got some information looks like Bro log that will be good.
 2.  TODO Example 2 or 3
 
 
-<a id="org924be4f"></a>
+<a id="org93bd155"></a>
 
 ## Bat
 
 
-<a id="orgcb5fa1c"></a>
+<a id="org4caf6b6"></a>
 
 ### Virtualtotal
 
 
-<a id="orge218576"></a>
+<a id="org80a5e4a"></a>
 
 ### BRO&#x2013;>HTTP
 
@@ -210,22 +231,22 @@ if you got some information looks like Bro log that will be good.
         -   [X] count DNS and record first time and last time
 
 
-<a id="orgbe4e7a5"></a>
+<a id="orga4faca7"></a>
 
 ## Silk
 
 
-<a id="orge1ad245"></a>
+<a id="orgc3aef93"></a>
 
 ### TODO Analysis logs with R languag
 
 
-<a id="org6ee46da"></a>
+<a id="org6f041b7"></a>
 
 ## ELK
 
 
-<a id="orgc863ad8"></a>
+<a id="orgc47c072"></a>
 
 ### Logstash<code>[1/2]</code>
 
@@ -234,12 +255,12 @@ if you got some information looks like Bro log that will be good.
 -   [ ] Example 2 & 3
 
 
-<a id="orga4a39c3"></a>
+<a id="org82847ce"></a>
 
 ### Silk
 
 
-<a id="org4d35022"></a>
+<a id="org35a1aec"></a>
 
 ### IDS
 
@@ -247,7 +268,7 @@ if you got some information looks like Bro log that will be good.
 -   [ ] [TODO] structured data apllicaitons.
 
 
-<a id="org77a1b79"></a>
+<a id="org6b48216"></a>
 
 ### filter
 
@@ -260,12 +281,12 @@ if you got some information looks like Bro log that will be good.
             -   State "DONE"       from              <span class="timestamp-wrapper"><span class="timestamp">[2018-05-29 Tue 00:45]</span></span>
 
 
-<a id="org38917e3"></a>
+<a id="org0a7f50c"></a>
 
 ## Bro
 
 
-<a id="org9e12dbb"></a>
+<a id="org78c6c48"></a>
 
 ### Protocol
 

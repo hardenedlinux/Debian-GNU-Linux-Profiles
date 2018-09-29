@@ -1,0 +1,8 @@
+
+#!/bin/sh
+
+users=$(who | awk '{print $1}'|sort -u)
+for user in $users
+do
+	DISPLAY=:0 sudo -u $user notify-send "" "(${CLAM_VIRUSEVENT_VIRUSNAME})($CLAM_VIRUSEVENT_FILENAME)"
+done

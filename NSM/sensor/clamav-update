@@ -1,0 +1,4 @@
+cd /usr/local/share/clamav
+sudo wget http://database.clamav.net/main.cvd -O main.cvd
+sudo wget http://database.clamav.net/daily.cvd -O daily.cvd
+sudo wget http://database.clamav.net/bytecode.cvd -O bytecode.cvd

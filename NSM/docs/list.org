@@ -1,0 +1,20 @@
+
+* Bro
+
+** STARTED https://github.com/ncsa/bro-simple-scan [Performance testing]
+   
+** STARTED https://github.com/salesforce/hassh
+* Data Suitability Checklist & Hunting Process
+
+
+** Clamav
+*** Clamav Virus Database definitions to YARA rules
+   + [ ] []  https://github.com/sec51/clamav-yara
+** Spider
+*** https://github.com/s0md3v/Photon
+** Watchlist
+*** Hash
+**** Malware Samples for Analysis
+     - https://blog.didierstevens.com/2018/08/20/obtaining-malware-samples-for-analysis/
+
+**** https://github.com/s0md3v/Hash-Buster                      :Crack hashes:

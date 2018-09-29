@@ -71,19 +71,36 @@ Some configure files we were not coding shell in bash script such as logstash co
       + [ ] [TODO]  Basic and defaulted configuration
       + [ ] [30%] Configuring Suricata Rules
 **** Filter
-      1. Bro logs
+      1. Bro logs [4/4]
+         - [X] HTTP
+         - [X] ssh
+         - [X] dns
+         - [X] syslog
       2. IDS logs
       3. Silk [0/0]
-**** Log setting & configure files[2/3]
+**** Log setting & configure files[3/3]
       + [X] [testing]  Logstash
       + [X] []  syslog
-      + [ ] [TODO]  Snort & Suricata
+      + [X] [DONE]  Snort & Suricata rule's templates
+      + [ ] [TODO] IDS yaml
+        
+**** ELK plugin
+***** DONE area3d_vis
+      CLOSED: [2018-09-28 Fri 19:42]
+      - State "DONE"       from              [2018-09-28 Fri 19:42]
+***** DONE kbn_network
+      CLOSED: [2018-09-28 Fri 19:42]
+      - State "DONE"       from              [2018-09-28 Fri 19:42]
 **** Dashboard & Data visualization[0/0]
       - Index of the Bro
       - Index of suricata and snort
       - Index of the Silk
 **** Silk [1/1]    
       + [X] []  SIlk_INSTALL.sh
+**** AntiVirus[1/1]
+***** DONE Clamav
+      CLOSED: [2018-09-28 Fri 19:43]
+      - State "DONE"       from              [2018-09-28 Fri 19:43]
 **** Demo Show up
       1. Bro Scripts
          - Detect popular Application

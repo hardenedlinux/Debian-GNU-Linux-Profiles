@@ -3,6 +3,33 @@ sudo apt-get install aptitude
 sudo aptitude install suricata
 sudo aptitude install suricata-oinkmaster
 
+cd ~/src
+wget https://www.clamav.net/downloads/production/clamav-0.100.1.tar.gz
+tar zxpvf clamav-0.100.1.tar.gz
+cd clamav-0.100.1/
+./configure
+make -j 4
+sudo make install
+cd ..
+sudo mkdir -p /usr/local/share/clamav
+
+sudo cp clamd.service /lib/systemd/system/clamd.service
+sudo cp clamd.conf /usr/local/etc/clamd.conf
+sudo cp clamav-update /usr/local/bin/
+sudo cp clamd-response /usr/local/bin/clamd-response
+
+sudo cp ./rules/*.yar /usr/local/share/clamav/ 
+
+sudo mkdir /var/log/clamav
+sudo chown -R root:adm /var/log/clamav
+sudo chmod 2755 /var/log/clamav
+
+sudo ldconfig
+sudo systemctl enable clamd
+sudo systemctl start clamd
+
+
+
 mkdir ~/src/snort_src
 cd ~/src/snort_src
 wget https://www.snort.org/downloads/snortplus/daq-2.2.2.tar.gz

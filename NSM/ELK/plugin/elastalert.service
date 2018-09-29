@@ -1,0 +1,16 @@
+[Unit]
+Description=ElastAlert Service
+Wants=network.target
+After=network.target
+
+[Service]
+ExecStart=/bin/bash -c "cd /opt/elastalert && /usr/bin/python -m elastalert.elastalert --config /opt/elastalert/config.yaml"
+ExecReload=on-failure
+Restart=always
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
