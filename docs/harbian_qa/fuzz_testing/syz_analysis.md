@@ -13,7 +13,7 @@ Syz-manager will run the command in VM by ssh:
 ```  
 In the fuzzer side, syz-fuzzer will run executors and send data to it by using pipe.
 In syz-fusser/fuzzer.go function main, we can see:
-```  
+```go
 /* flagProcs is from -procs */
 for pid := 0; pid < *flagProcs; pid++ {
 	/* initiate Proc struct */
@@ -26,7 +26,7 @@ for pid := 0; pid < *flagProcs; pid++ {
 }
 ```  
 The loop() is in syz-fuzzer/proc.go. 'Generate' and 'Mutate' will determine syscall sequence of userspace process. 'proc.execute' send data to executor to run syscalls. 
-```  
+```go
 func (proc *Proc) loop() {
 	ct := proc.fuzzer.choiceTable
 	/* The corpus reflash every times */
@@ -48,7 +48,7 @@ func (proc *Proc) loop() {
 The process will be executed as following:
 proc.execute -> executeRaw -> env.Exec -> env.cmd.exec
 'env.Exec' setup the environment and make the commandline of executor. 'env.cmd.exec' will send progDate to executor continuously.
-```  
+```go
 func (env *Env) Exec(opts *ExecOpts, p *prog.Prog) (output []byte, info []CallInfo, failed, hanged bool, err0 error) {
 	......
 
@@ -82,7 +82,7 @@ func (env *Env) Exec(opts *ExecOpts, p *prog.Prog) (output []byte, info []CallIn
 }
 ```  
 'makeCommand': first, setup executor stdio to os.Pipe. Then, run executor by using osutil.Command:
-```  
+```go
 func makeCommand(pid int, bin []string, config *Config, inFile *os.File, outFile *os.File) (*command, error) {
         .....
 	// executor->ipc command pipe.
@@ -135,7 +135,7 @@ func makeCommand(pid int, bin []string, config *Config, inFile *os.File, outFile
 }
 ```  
 Send progData continuously, executor run the syscalls continuously. 
-```  
+```go
 func (c *command) exec(opts *ExecOpts, progData []byte) (output []byte, failed, hanged,
 	restart bool, err0 error) {
 	req := &executeReq{
@@ -163,7 +163,7 @@ func (c *command) exec(opts *ExecOpts, progData []byte) (output []byte, failed, 
 On the executor side, it just read the input from fuzzer and run the syscalls. 
 'executor' is run by fuzzer. First, it remap its input/output. 'do_sandbox_*' fork child process to get data and run syscalls.
 In executor_linux.cc:
-```  
+```c
 int main(int argc, char** argv)
 {
 	if (argc == 2 && strcmp(argv[1], "version") == 0) {
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 }
 ```  
 We use the do_sandbox_none as a example, fork and run a loop to recive data:
-```  
+```c
 #if defined(SYZ_EXECUTOR) || defined(SYZ_SANDBOX_NONE)
 static int do_sandbox_none(void)
 {
@@ -258,7 +258,7 @@ static int do_sandbox_none(void)
 }
 ```  
 Here is the loop:
-```  
+```c
 static void loop()
 {
 #if defined(SYZ_EXECUTOR)
@@ -318,7 +318,7 @@ execute_one -> schedule_call -> thread_create -> thread_start -> worker_thread -
 
 ### Generation && Mutation   
 'Generate' and 'Mutate' determine the sequence of syscalls in userspace. 'Generate' generates a random, new program. 'Mutate' will mutate from it. Mutate may insert/remove a syscall, change the call args or splice from the other corpus. The choice of behavior base on the probability.
-```  
+```go
 // Generate generates a random program of length ~ncalls.
 // calls is a set of allowed syscalls, if nil all syscalls are used.
 func (target *Target) Generate(rs rand.Source, ncalls int, ct *ChoiceTable) *Prog {
@@ -343,7 +343,7 @@ func (target *Target) Generate(rs rand.Source, ncalls int, ct *ChoiceTable) *Pro
 RegisterTarget will initiate the target.Syscalls.
 buildCallList will enable the Syscall refer to configure from syz-manager. 
 BuildChoiceTable add information about prios. Prios in syzkaller is a two-dimensional array. Represent from syscall a to syscall b.
-```  
+```go
 func (r *randGen) generateCall(s *state, p *Prog) []*Call {
 	idx := 0
 	if s.ct == nil {
@@ -364,7 +364,7 @@ func (r *randGen) generateCall(s *state, p *Prog) []*Call {
 }
 ```  
 Here we can see several kinds of mutate in the switch, 'case' determin the probability of mutate mode choice. Probability of oneOf(n) is 1/n.  Probability of nOutOf(n, m) is n/m. The method used is similar to generate a call.
-```  
+```go
 func (p *Prog) Mutate(rs rand.Source, ncalls int, ct *ChoiceTable, corpus []*Prog) {
 	r := newRand(p.Target, rs)
 
@@ -504,7 +504,7 @@ Then repack your corpus run:
 syz-db pack  $(YOUR_TMP_DIR) $(YOUR_CORPUS.DB)
 ```  
 In MakeEnv, setup the share memory to get the output from process:
-```  
+```go
 func MakeEnv(config *Config, pid int) (*Env, error) {
 	// CreateMemMappedFile creates a temp file with the requested size and maps it into memory.
 	inf, inmem, err = osutil.CreateMemMappedFile(prog.ExecBufferSize)
@@ -521,7 +521,7 @@ func MakeEnv(config *Config, pid int) (*Env, error) {
 	}
 ```  
 Pass args to makeCommand:
-```  
+```go
 func (env *Env) Exec(opts *ExecOpts, p *prog.Prog) (output []byte, info []CallInfo, failed, hanged bool, err0 error){
 		......
 		/* 'env.inFile, env.outFile' as extrafiles, except stdio */
@@ -530,7 +530,7 @@ func (env *Env) Exec(opts *ExecOpts, p *prog.Prog) (output []byte, info []CallIn
 }
 ```  
 In executor main func, apply extrafiles for output. 
-```  
+```c
 /* After stdin, stdout, stderr */
 const int kInFd = 3;
 const int kOutFd = 4;
@@ -544,7 +544,7 @@ int main(int argc, char** argv)
 }
 ```  
 In executor loop, handle_completion will be called indirectly. This function will write out the signal/coverage information to share memory. The data will be process by fuzzer.
-```  
+```cpp
 void handle_completion(thread_t* th)
 {
 	......
@@ -626,7 +626,7 @@ void handle_completion(thread_t* th)
 
 ```  
 Env.readOutCoverage read the information written out by handle_completion.
-```  
+```go
 func (env *Env) readOutCoverage(p *prog.Prog) (info []CallInfo, err0 error) {
 	/* Slice env.out */
 	out := ((*[1 << 28]uint32)(unsafe.Pointer(&env.out[0])))[:len(env.out)/int(unsafe.Sizeof(uint32(0)))]
@@ -681,7 +681,7 @@ func (env *Env) readOutCoverage(p *prog.Prog) (info []CallInfo, err0 error) {
 ```  
 
 Finally, 'triageInput' will process the data read. 'triageInput' convert signal from uint32 to 'Signal' map. Signal is base on pc. Then pick out new signal by comparing all the maps. The new signal may need verifity and minimizing. Then add to fuzzer corpus and manager corpus.
-```  
+```go
 func (proc *Proc) triageInput(item *WorkTriage) {
 	Logf(1, "#%v: triaging type=%x", proc.pid, item.flags)
 	if !proc.fuzzer.coverageEnabled {
