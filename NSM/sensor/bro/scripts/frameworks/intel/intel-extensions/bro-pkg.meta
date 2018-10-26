@@ -1,0 +1,4 @@
+[package]
+description = Extensions for Bro's intelligence framework.
+tags = intel, expiration, removal, preserve files
+script_dir = scripts

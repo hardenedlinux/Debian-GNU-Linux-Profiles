@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# BTest helper script for getting values of Bro-related environment variables.
+# The script uses the development version of Bro located by bro-config.
+
+base=`dirname $0`
+bro=`bro-config --bro_dist`
+
+if [ "$1" = "brobase" ]; then
+    echo ${bro}
+elif [ "$1" = "bropath" ]; then
+    echo $(${bro}/build/bro-path-dev):${base}/../scripts
+elif [ "$1" = "bro_plugin_path" ]; then
+    bro-config --plugin_dir
+elif [ "$1" = "bro_seed_file" ]; then
+    echo ${bro}/testing/btest/random.seed
+elif [ "$1" = "path" ]; then
+    echo ${bro}/build/src:${bro}/aux/btest:${base}/:${bro}/aux/bro-cut:$PATH
+else
+    echo "usage: `basename $0` <var>" >&2
+    exit 1
+fi

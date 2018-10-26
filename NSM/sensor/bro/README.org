@@ -1,0 +1,54 @@
+
+* Intel
+ Indicators like file hashes, IP addresses, and domain names have become the focal point for many network defenders.
+  - enabling the intelligence framework
+     @load policy/framworkds/intel/seen
+  - using common intelligence Framework (CIF)
+     @load policy/integration/collective-intel
+  - Raise a NOTICE on an intelligence match
+     @load policy/frameworkds/intel/do_notic
+  *What is the Collective Intelligence Framework?*
+  - https://csirtgadgets.com/
+  CIF is a cyber threat intelligence management system. CIF allows you to combine known malicious threat information from many sources and use that information for identification (incident response), detection (IDS) and mitigation (null route). The most common types of threat intelligence warehoused in CIF are IP addresses, domains and urls that are observed to be related to malicious activity. 
+** DONE Threat-Intelligence-Data
+   CLOSED: [2018-10-25 Thu 14:56]
+   - State "DONE"       from              [2018-10-25 Thu 14:56]
+   Defenses focus on signatures or indicators of compromise (IOCs). IOCs are artifacts or combinations of artifacts that may be observed in the presence of known malicious software. 
+ - https://github.com/kinomakino/Threat-Intelligence-Data
+   we are going to use IOCs public source data as method effectively
+** DONE Bro intelligence Linter
+   CLOSED: [2018-10-25 Thu 14:56]
+   - State "DONE"       from              [2018-10-25 Thu 14:56]
+   provides a means of verifing correlation of indicator and indicator_type.
+   - https://github.com/packetsled/bro_intel_linter/tree/9769f35763f0628be4632349cb378ebc618a33f3
+** DONE intel-extensions
+   CLOSED: [2018-10-25 Thu 14:56]
+   - State "DONE"       from              [2018-10-25 Thu 14:56]
+ it gives you regarding peace of mind and Facilities of Intelligence, offers quick overview live URL to the originating feeds overarching statement and approaches to set the common intelligence framework.
+what it is this is taken from the website no malicious threat information from many sources and use that information for identification in mitigation the most common types of threat intelligence warehouse and stiffer IP address system
+   https://github.com/J-Gras/intel-extensions
+   
+** bro-intel-generator
+   - https://github.com/exp0se/bro-intel-generator
+Script for generating Bro intel files from pdf or html reports
+
+* analyzer
+* Fitler
+* Broccoli Python bindings
+*InputFramework*
+    /what are they differcent?/
+   by the ssllogmux process into native bro event types:
+   sshd -> stunnel -> ssllogmux -> file -> tail -f -> bropipe -> bro 
+   
+   by the ssh_audit_mux process into native bro event types:
+   sshd -> stunnel -> python script -> broccoli protocol -> bro
+** STARTED detecting Applcation via audit_mux
+** DONE sshd_audit_mux
+   CLOSED: [2018-10-25 Thu 15:09]
+   - State "DONE"       from              [2018-10-25 Thu 15:09]
+   - [[https://github.com/jsiwek/sshd_audit_mux][jsiwek/sshd_audit_mux]]
+
+* Detection
+** DONE [[https://github.com/set-element/bro_memcached_detect][set-element/bro_memcached_detect: Simple policy to detect memcached attacks]]
+   CLOSED: [2018-10-25 Thu 14:56]
+   - State "DONE"       from              [2018-10-25 Thu 14:56]

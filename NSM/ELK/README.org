@@ -131,7 +131,6 @@ if you got some information looks like Bro log that will be good.
 ***** TODO pdns & bro scirpt[100%]
       - [X] count DNS and record first time and last time
 
-
 ** Silk
 *** TODO Analysis logs with R languag
 ** ELK
