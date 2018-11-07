@@ -1,4 +1,4 @@
-# KLEE
+# Note about KLEE on debian
 ## Brief 
 KLEE use the extern SAT/SMT solver to generate the descript of path and constrain( .smt format). Then, KLEE will handle the constrain, generate the testcase for symbol, run the testcase, track the symbolic variable's memory, confirm the relationship between path and constrain. There are also some santize is optional.
 
@@ -88,7 +88,7 @@ clang-3.8 -I ../klee/include -emit-llvm -c -g test.c
 ../klee_build/bin/klee -debug-dump-stp-queries --use-query-log=all:smt2 -write-smt2s -write-paths test.bc --debug
 ```  
 
-### Momery set and tracker  
+### Memory set and tracker  
 KLEE use klee_make_symbolic to set memory as a testcase. After run the foregoing command, you can find a klee-oyt-* directory was created, you can also find several *.smt files with several *.ktest files. Use this command to decode the *.ktest:
 
 ```  
@@ -207,14 +207,19 @@ Replay a testcase.
 
 ```  
 
-### Implement something like KLEE in kernel
+### Implement something like KLEE in Linux kernel
 
 | | SAT/SMT solver | symbolic instrument | coverage | testcase running |  
 |-|----------------|---------------------|----------|------------------|  
 | KLEE | stp | klee_make_symbolic | bcov/icov | user space, fork |  
-| Kernel | to be verifited | kernel hook | kcov/gcov | fixed user space test case, hijack kernel function |  
+| Kernel | WIP | kernel hook | kcov/gcov | fixed user space test case, hijack kernel function |  
 
 1. stp: Is it feasible that use stp as kernel SMT solver? To be verifted. But it seems that stp can hardly handle the heap behave, complex structure and pointer.
 2. symbolic: klee_make_symbolic must be added to source code, kernel hook can be load dynamicly.
 3. testcaes running: Userspace use fork to create testcase, consistency provide by fork. Kernel space test should be divided to two part: fixed userspace testcase and kernel hijack. Consistency provide by kernel process.
 
+### Reference
+[KLEE](https://klee.github.io/docs/)  
+[KLEE tutorials](http://klee.github.io/tutorials/)  
+[stp](https://github.com/stp/stp)  
+[stp code guide](https://github.com/stp/stp/blob/master/docs/code-guide.rst)  
