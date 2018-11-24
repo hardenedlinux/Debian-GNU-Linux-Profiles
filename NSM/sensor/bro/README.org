@@ -32,6 +32,7 @@ what it is this is taken from the website no malicious threat information from m
    - https://github.com/exp0se/bro-intel-generator
 Script for generating Bro intel files from pdf or html reports
 
+* DNS
 * analyzer
 * Fitler
 * Broccoli Python bindings
