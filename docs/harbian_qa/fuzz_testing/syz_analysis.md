@@ -2,8 +2,9 @@
 This documentation will introduce some implement about syzkaller:
 1. Show you how fuzzer sent data to executor and how executor execute a syscall. 
 2. The sequence of syscalls generation.
-3. About corpus.
-4. About KCOV.
+3. User program minimize.
+4. About corpus.
+5. About KCOV.
 
 ### Send progData to executor 
 This section is about syz-fuzzer.
@@ -491,7 +492,8 @@ outer:
 	}
 	......
 }
-```  
+```
+
 ### Corpus  
 
 syz-db usage( from [here](https://groups.google.com/forum/#!topic/syzkaller/VClNsBqXQIg)):
@@ -748,6 +750,78 @@ func (proc *Proc) triageInput(item *WorkTriage) {
 }
 
 ```  
+
+### Prog minimize
+Syzkaller have to pick up those effort effective syscalls from the random generated program. This is program minimize. It called by:
+```go
+func (proc *Proc) triageInput(item *WorkTriage) {
+ ......
+ item.p, item.call = prog.Minimize(item.p, item.call, false,
+                        func(...) bool {...})
+ ......
+}
+```  
+The minimize implement:
+```go
+func Minimize(p0 *Prog, callIndex0 int, crash bool, pred0 func(*Prog, int) bool) (*Prog, int) {
+ ......
+ // Try to remove all calls except the last one one-by-one.
+ /* The pred will run the cut-off prog
+  * if the cut-off prog can't effectivly generate sig, return False 
+  */ 
+ p0, callIndex0 = removeCalls(p0, callIndex0, crash, pred)	
+ ......
+}
+```  
+```go 
+func removeCalls(p0 *Prog, callIndex0 int, crash bool, pred func(*Prog, int) (*Prog, int) {
+for i := len(p0.Calls) - 1; i >= 0; i-- {
+                if i == callIndex0 {
+                        continue
+                }
+                callIndex := callIndex0
+                if i < callIndex {
+                        callIndex--
+                }
+                p := p0.Clone()
+                p.removeCall(i)
+                /* run the cut-of prog to trigge the sig */
+                if !pred(p, callIndex) {
+                	/* It means one of the effective syscall was cut */
+                        continue
+                }
+                /* It means one of the ineffective syscall was remove */
+                p0 = p
+                callIndex0 = callIndex
+        }
+        return p0, callIndex0
+} 
+```  
+Here is the predicate progrom slice from triageInput method:
+```go  
+func(p1 *prog.Prog, call1 int) bool {
+	for i := 0; i < minimizeAttempts; i++ {
+		info := proc.execute(proc.execOptsNoCollide, p1, ProgNormal, StatMinimize)
+                if info == nil || len(info.Calls) == 0 || len(info.Calls[call1].Signal) == 0 {
+                	continue
+                	//The call was not executed.
+                }
+               	inf := info.Calls[call1]
+               	if item.info.Errno == 0 && inf.Errno != 0 {
+                	// Don't minimize calls from successful to unsuccessful.
+                	// Successful calls are much more valuable.
+                	return false
+                }
+                prio := signalPrio(p1.Target, p1.Calls[call1], &inf)
+                thisSignal := signal.FromRaw(inf.Signal, prio)
+                if newSignal.Intersection(thisSignal).Len() == newSignal.Len() {
+                        return true
+                }
+	}
+                           return false
+}
+```  
+
 
 ### KCOV  
 The syzkaller use the KCOV for collecting the kernel coverage triggered by fuzzer. Some information about KCOV：
