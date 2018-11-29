@@ -1,31 +1,32 @@
 
 # Table of Contents
 
-1.  [Deployment](#orgf3182fe)
-    1.  [Basic information](#org5fca9b7)
-    2.  [Snort.conf to Suricata.yaml](#org552d4d6)
-    3.  [Workflows](#orgb274a07)
-    4.  [Extension<code>[2/2]</code>](#org2ef2714)
-    5.  [Lua](#org0ea61c6)
-    6.  [Yaml](#orga0424f3)
-2.  [alert](#org21cf219)
-    1.  [TCP](#org0dfd745)
-    2.  [http](#org059d445)
+1.  [Deployment](#orgc1093a1)
+    1.  [Basic information](#org8a4820a)
+    2.  [Snort.conf to Suricata.yaml](#org31e068d)
+    3.  [Workflows](#orgb77e17e)
+    4.  [Extension<code>[2/2]</code>](#org6f8f2ef)
+    5.  [Lua](#org0bcd511)
+    6.  [Yaml](#orgc5d1d03)
+    7.  [Evebox Installation](#orgd430288)
+2.  [alert](#orgdf8fbf2)
+    1.  [TCP](#orgf0e0ad6)
+    2.  [http](#org6038a35)
 
 
-<a id="orgf3182fe"></a>
+<a id="orgc1093a1"></a>
 
 # Deployment
 
 
-<a id="org5fca9b7"></a>
+<a id="org8a4820a"></a>
 
 ## Basic information
 
 <https://researchspace.auckland.ac.nz/bitstream/handle/2292/31460/whole.pdf>
 
 
-<a id="org552d4d6"></a>
+<a id="org31e068d"></a>
 
 ## Snort.conf to Suricata.yaml
 
@@ -34,7 +35,7 @@
 <https://bricata.com/blog/snort-suricata-bro-ids/> [BLOG]
 
 
-<a id="orgb274a07"></a>
+<a id="orgb77e17e"></a>
 
 ## Workflows
 
@@ -176,7 +177,7 @@ For more information:
     ethtool -K eth3 txvlan off
 
 
-<a id="org2ef2714"></a>
+<a id="org6f8f2ef"></a>
 
 ## Extension<code>[2/2]</code>
 
@@ -186,19 +187,50 @@ For more information:
 -   [X] EVEBOX
 
 
-<a id="org0ea61c6"></a>
+<a id="org0bcd511"></a>
 
 ## TODO Lua
 
 Suricata signatures for network fingerprints
 
 
-<a id="orga0424f3"></a>
+<a id="orgc5d1d03"></a>
 
 ## TODO Yaml
 
 
-<a id="org21cf219"></a>
+<a id="orgd430288"></a>
+
+## Evebox Installation
+
+    
+    
+       Installation
+    
+       sudo -i
+    
+       cat >> /etc/apt/sources.list.d/evebox.list <<EOF
+    deb http://files.evebox.org/evebox/debian unstable main 
+    EOF  
+    
+    Ctrl+D
+    
+    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install evebox 
+    
+    sudo evebox oneshot /var/log/suricata/eve.json 
+    
+    #Generate some data examples in a separate terminal: 
+    
+    cd /tmp  
+    
+    seq 5 | xargs -I -- wget testmyids.com 
+    
+    wget --no-check-certificate https://untrusted-root.badssl.com/ https://expired.badssl.com/ 
+    
+    sudo apt-get update 
+
+
+<a id="orgdf8fbf2"></a>
 
 # alert
 
@@ -490,7 +522,7 @@ Suricata signatures for network fingerprints
 </table>
 
 
-<a id="org0dfd745"></a>
+<a id="orgf0e0ad6"></a>
 
 ## TCP
 
@@ -563,7 +595,7 @@ Suricata signatures for network fingerprints
 </table>
 
 
-<a id="org059d445"></a>
+<a id="org6038a35"></a>
 
 ## http
 

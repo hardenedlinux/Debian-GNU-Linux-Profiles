@@ -17,23 +17,35 @@ echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 sudo systemctl restart logstash.service
 
 ##
-sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev zookeeperd autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl1.0-dev
+sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev zookeeperd autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl-dev
 mkdir src
 cd ~/src
-wget https://www.bro.org/downloads/bro-2.5.4.tar.gz
-tar -xvf bro-2.5.4.tar.gz
-cd bro-2.5.4/
+echo "Bro install..."
+wget https://www.bro.org/downloads/beta/bro-2.6-beta3.tar.gz
+tar -xvf bro-2.6-beta3.tar.gz
+cd bro-2.6-beta3/
 ./configure
 make
 sudo make install
 sudo ln -s /usr/local/bro/bin/bro* /usr/local/bin
 ..
+echo "Broker install..."
+wget https://www.bro.org/downloads/broker-1.1.0.tar.gz
+tar -xvf broker-1.1.0.tar.gz
+cd broker-1.1.0
+./configure
+sudo make -j4 install
+echo "=== Broker Installation finished ==="
+
 #
 su
 curl -sL https://deb.nodesource.com/setup_9.x | bash -
 apt-get install nodejs
 exit
 ### if you git issue for nop, just put this command "sudo npm rebuild"
+
+echo "ELK-Script install..."
+
 sudo npm install vis
 cd /usr/share/kibana/plugins
 git clone https://github.com/JuanCarniglia/area3d_vis

@@ -119,5 +119,6 @@ sudo snort -c /opt/snort/etc/snort/snort.lua --warn-all
 ###check conf files"
 
 
-
-
+#GOlang
+sudo curl -O https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz
+tar -C /usr/local -xzf go1.11.2.linux-amd64.tar.gz

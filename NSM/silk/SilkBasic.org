@@ -16,41 +16,43 @@ Silk has complementary handbook of a full PySilk starter guide for those wanting
 there are have some reasons important for you build own Silk platform, and why are we chose Silk set as characteristic data.
 
 
-
-#+begin_src sh :tangle yes
-cd ~/src
-mkdir silk
-cd silk
-
-wget http://tools.netsa.cert.org/releases/silk-3.16.1.tar.gz
-tar -xvf silk-3.16.1.tar.gz
-cd silk-3.16.1
-./configure \
- --with-libfixbuf=/usr/local/lib/pkgconfig/ \
- --with-python \
- --enable-ipv6
-make && sudo make install
-
-#+end_src
-
 - ~libfixbuf~
 
 #+begin_src sh :tangle yes
-wget http://tools.netsa.cert.org/releases/libfixbuf-1.8.0.tar.gz
-
-tar -zxvf libfixbuf-1.8.0.tar.gz
-cd libfixbuf-1.8.0
+wget http://tools.netsa.cert.org/releases/libfixbuf-2.0.0.tar.gz
+tar -zxvf libfixbuf-2.0.0.tar.gz
+cd libfixbuf-2.0.0
 ./configure && make
 sudo make install
 #+end_src
+
+- ~Silk~
+
+#+begin_src sh :tangle yes
+  cd ~/src
+  mkdir silk
+  cd silk
+
+  wget https://tools.netsa.cert.org/releases/silk-3.17.2.tar.gz
+
+  tar -xvf silk-3.17.2.tar.gz
+  cd silk-3.17.2
+  ./configure \
+   --with-libfixbuf=/usr/local/lib/pkgconfig/ \
+   --with-python \
+   --enable-ipv6
+  make && sudo make install
+
+#+end_src
+
 
 - ~YAF~
 
 YAF (Yet Another Flowmeter) is a flow generation tool that offers IPFIX output  YAF was created by the CERT Network Situation Awareness (NetSA) team, who designed it for generating IPFIX records for use with SiLK.
 #+begin_src sh :tangle yes
-  wget http://tools.netsa.cert.org/releases/yaf-2.9.3.tar.gz
-  tar -zxvf yaf-2.9.3.tar.gz
-  cd yaf-2.9.3
+  wget http://tools.netsa.cert.org/releases/yaf-2.10.0.tar.gz
+  tar -zxvf yaf-2.10.0.tar.gz
+  cd yaf-2.10.0
   export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
   ./configure --enable-applabel
   make
@@ -60,17 +62,20 @@ YAF (Yet Another Flowmeter) is a flow generation tool that offers IPFIX output  
 Use the default silk.conf file
 
 #+begin_src sh :tangle yes
-cd silk-3.16.1/
+cd silk-3.17.0/
+sudo mkdir /data
 sudo cp site/twoway/silk.conf /data
 #+end_src
 
 - Next create the sensors.conf file. Add the following lines.
+~IMPORTANT~: Make sure the ipblocks below match your "internal" network blocks.
+
 #+begin_src sh :tangle yes
 cat <<EOF >sensors.conf
 probe S0 ipfix
  listen-on-port 18001
  protocol tcp
- listen-as-host 127.0.0.1
+ listen-as-host 10.220.170.110
 end probe
 group my-network
  ipblocks 192.168.1.0/24 # address of eth0. CHANGE THIS.
@@ -83,11 +88,12 @@ sensor S0
 end sensor
 EOF
 
-sudo mv sensors.conf /data
+sudo mv sensors.conf /opt/silk/
 
 #+end_src
 
 - ~Configure rwflowpack~
+
 #+begin_src sh :tangle yes
 cat /usr/local/share/silk/etc/rwflowpack.conf | \
 sed 's/ENABLED=/ENABLED=yes/;' | \
@@ -98,7 +104,6 @@ sed 's/LOG_DIR=.*/LOG_DIR=\/var\/log/' | \
 sed 's/CREATE_DIRECTORIES=.*/CREATE_DIRECTORIES=yes/' \
 >> rwflowpack.conf
 sudo mv rwflowpack.conf /usr/local/etc/
-
 #+end_src
 
 Next copy the start up script into /etc/init.d and set it to start on boot. 
@@ -112,23 +117,25 @@ sudo service rwflowpack start
 First, Configure the firewall 
 
 Lets allow YAF to talk to rwflowpack by allowing port 18001 in.
+the rules must be saved in the file /etc/iptables/rules.v4 for IPv4 and /etc/iptables/rules.v6 for IPv6.
 
 #+begin_src sh :tangle yes
-sudo iptables -I INPUT -s 127.0.0.1 -p tcp -m tcp -dport 18001 -j ACCEPT
+sudo iptables -I INPUT -s 127.0.0.1 -p tcp -m tcp --dport 18001 -j ACCEPT
 sudo service iptables save
 #+end_src
 
 
+
 #+begin_src sh :tangle yes
-sudo nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 \
-  --ipfix-port=18001 --in=ens192 --applabel --max-payload=384 &
+sudo nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=ens192 --applabel --max-payload=384 &
 #+end_src
 
 
 
 Run a test query 
 #+begin_src sh :tangle yes
-  /usr/local/l/bin/rwfilter --sensor=S0 --proto=0-255 --pass=stdout --type=all | rwcut | tail
+/usr/local/bin/rwfilter --sensor=S0 --proto=0-255 --pass=stdout --type=all | rwcut | tail
+
 #+end_src
 
 ** the type of Silk output files
@@ -168,7 +175,7 @@ Run a test query
 or 8080.
 - Out: Outbound to a device on an external network using either port 80, 443, or 8080.
 
-
+  
 ** Filtering Flow Data and other sets
 - rwcut
 - rwstats
@@ -178,17 +185,29 @@ In addition, rwfilter can be created as C or pySilk plugin loaded into.
 
 - rwgeoip2ccmap
  - Create a country code prefix map from a GeoIP 
- #+begin_src sh :tangle yes
-## First downloaded geoipdata database
 
 
-##Secondly, commanding Unzip the database and convert it into the rwgeoip
+- The GeoIP2 or GeoLite2 comma-separated value (CSV) files
+- The GeoIP2 or GeoLite2 binary database file when SiLK is built the libmaxminddb support
+- The GeoIP Legacy or GeoLite Legacy CSV file
+- The GeoIP Legacy or GeoLite Legacy binary file
+
+#+begin_src text :tangle yes
+;; First downloaded geoipdata database
+
+wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country-CSV.zip
+unzip GeoLite2-Country-CSV.zip
+rwgeoip2ccmap --input-path=GeoLite2-Country-CSV_20181127 --output-path=country_codes.pmap
+udo cp country_codes.pmap /usr/local/share/silk/country_codes.pmap
+
+;;Secondly, commanding Unzip the database and convert it into the rwgeoip
 gzip -d -c Geoip.dat.gz | rwgeoip2ccmap --encoded -input>country_code.pmap
 cp country_code.pmap /usr/local/share/silk/
-###IPv6 Comma Separated Values File
+
+;;IPv6 Comma Separated Values File
 gzip -d -c GeoIPv6.csv.gz | \
        rwgeoip2ccmap --mode=ipv6 > country_codes.pmap
- #+end_src
+#+end_src
 
 
 
