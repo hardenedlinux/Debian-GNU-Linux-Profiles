@@ -92,6 +92,34 @@ ethtool -K eth3 txvlan off
 ** TODO Lua
 Suricata signatures for network fingerprints
 ** TODO Yaml
+** Evebox Installation
+#+begin_src sh :tangle yes
+
+
+   Installation
+   
+   sudo -i
+
+   cat >> /etc/apt/sources.list.d/evebox.list <<EOF
+deb http://files.evebox.org/evebox/debian unstable main 
+EOF  
+
+Ctrl+D
+
+sudo apt-get update && sudo apt-get -y --allow-unauthenticated install evebox 
+
+sudo evebox oneshot /var/log/suricata/eve.json 
+
+#Generate some data examples in a separate terminal: 
+
+cd /tmp  
+
+seq 5 | xargs -I -- wget testmyids.com 
+
+wget --no-check-certificate https://untrusted-root.badssl.com/ https://expired.badssl.com/ 
+
+sudo apt-get update 
+#+end_src
 * alert
 
 *tls*

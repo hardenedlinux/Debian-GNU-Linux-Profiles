@@ -1,4 +1,14 @@
 
+* Pacage-mamager
+  - [[https://bro-package-manager.readthedocs.io/en/stable/index.html][Bro Package Manager — Bro Package Manager Documentation]]
+** Hardened-Bro [3/6]
++ [X] [hosom/fileextraction] 
++ [X] [hosom/log-filters] 
++ [X] [hosom/bro-oui] 
++ [ ] [] 
++ [ ] [] 
++ [ ] [] 
+
 * Intel
  Indicators like file hashes, IP addresses, and domain names have become the focal point for many network defenders.
   - enabling the intelligence framework
@@ -32,7 +42,17 @@ what it is this is taken from the website no malicious threat information from m
    - https://github.com/exp0se/bro-intel-generator
 Script for generating Bro intel files from pdf or html reports
 
-* DNS
+* Protocol
+** DNS
+** dhcp
+** conn[5/5]
+    + [X] [large_transfer] 
+    + [X] [resp_summary] 
+    + [X] [unique_host] 
+    + [X] [unique-macs] 
+    + [X] [top-metrics] 
+** smtp
+** ssh
 * analyzer
 * Fitler
 * Broccoli Python bindings
@@ -53,3 +73,5 @@ Script for generating Bro intel files from pdf or html reports
 ** DONE [[https://github.com/set-element/bro_memcached_detect][set-element/bro_memcached_detect: Simple policy to detect memcached attacks]]
    CLOSED: [2018-10-25 Thu 14:56]
    - State "DONE"       from              [2018-10-25 Thu 14:56]
+* honeypot
+** STARTED [[https://github.com/UHH-ISS/honeygrove][UHH-ISS/honeygrove: A multi-purpose modular honeypot based on Twisted.]] [Bro2.6]

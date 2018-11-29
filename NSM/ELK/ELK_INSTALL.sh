@@ -33,6 +33,7 @@ echo "Broker install..."
 wget https://www.bro.org/downloads/broker-1.1.0.tar.gz
 tar -xvf broker-1.1.0.tar.gz
 cd broker-1.1.0
+./configure
 sudo make -j4 install
 echo "=== Broker Installation finished ==="
 
