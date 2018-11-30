@@ -1,8 +1,0 @@
-* Environment
-
-** 
-** ATTACK-Python-Client
-~pip install attackcti~
-** Windows
-*** TODO Powershell
-    [[https://github.com/Cyb3rWard0g/Invoke-ATTACKAPI][GitHub - Cyb3rWard0g/Invoke-ATTACKAPI: A PowerShell script to interact with the MITRE ATT&CK Framework via its own API]]
