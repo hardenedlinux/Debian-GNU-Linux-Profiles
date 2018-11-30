@@ -1,0 +1,25 @@
+mysql:
+  address: 127.0.0.1:3306
+  database: kolide
+  username: root
+  password: toor
+redis:
+  address: 127.0.0.1:6379
+server:
+  cert: /tmp/server.cert
+  key: /tmp/server.key
+auth:
+  jwt_key: vd24hJTF9kl5/EhvkMSCgPclRJLxqUq27nO84IrombI=
+  #The bcrypt cost to use when hashing user passwords. Default value is 12
+  bcrypt_cost: 14
+server:
+  cert: /etc/letsencrypt/live/<YourDomain>/fullchain.pem  #if you would like self siged that add mycert.key&cert
+  key: /etc/letsencrypt/live/<YourDomain>/privkey.pem
+  address: 0.0.0.0:443
+osquery:
+  status_log_file: /var/log/osquery/status.log
+osquery:
+  result_log_file: /var/log/osquery/result.log
+logging:
+  json: true
+  debug: true
