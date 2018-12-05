@@ -68,7 +68,7 @@ sudo make install
 cd ~/src/
 git clone https://github.com/apache/metron-bro-plugin-kafka.git
 cd metron-bro-plugin-kafka
-./configure --bro-dist=$HOME/src/bro-2.5.4/
+./configure --bro-dist=$HOME/src/bro-2.6-beta3
 make 
 sudo make install
 

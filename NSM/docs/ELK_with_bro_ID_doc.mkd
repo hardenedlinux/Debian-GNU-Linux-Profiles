@@ -546,15 +546,15 @@ The following will be an example of creating a pattern with the software log.
 -   check Driver class & postgresql-jdbc status:
 
     ls /usr/share/java | grep postgresql-jdbc
-      # postgresql-jdbc3.jar
-      # postgresql-jdbc4.jar
+      <!-- # postgresql-jdbc3.jar -->
+      <!-- # postgresql-jdbc4.jar -->
     jar tf /usr/share/java/postgresql-jdbc4.jar | grep -i driver
     
-    # org/postgresql/Driver$1.class
-    # org/postgresql/Driver$ConnectThread.class
-    # org/postgresql/Driver.class
-    # org/postgresql/util/PSQLDriverVersion.class
-    # META-INF/services/java.sql.Driver
+    <!-- ;# org/postgresql/Driver$1.class -->
+    <!-- # org/postgresql/Driver$ConnectThread.class -->
+    <!-- # org/postgresql/Driver.class -->
+    <!-- # org/postgresql/util/PSQLDriverVersion.class -->
+    <!-- # META-INF/services/java.sql.Driver -->
 
 -   find dns log by dns that made a indexing from bro logs path
 
