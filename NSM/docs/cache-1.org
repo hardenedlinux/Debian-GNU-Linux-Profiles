@@ -109,58 +109,60 @@ git clone https://github.com/0ortmann/broker-application-templates.git
 #+end_src
 * Pdns
 ** Basic configuration
-   - Golang-environment
-   #+begin_src sh :tangle yes
-wget https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz
-tar -xvf  go1.11.2.linux-amd64.tar.gz
-sudo mv go /usr/local
-   #+end_src
-   
-   - export go path & remove pdns repo to gopath/src
-#+begin_src sh :tangle yes
-cd ~/src/
-git clone https://github.com/JustinAzoff/bro-pdns
-cd bro-pdns
-make
-cd ..
-cp -r bro-pdns ~/go/src/.
-cd ~/go/src/bro-pdns
-make
-go build
-#+end_src 
- - Install postgresql & adder user "pdns" & password "pdns@321"
+*** Golang-environment
+    #+begin_src sh :tangle yes
+ wget https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz
+ tar -xvf  go1.11.2.linux-amd64.tar.gz
+ sudo mv go /usr/local
+    #+end_src
+***  export go path & remove pdns repo to gopath/src
+ #+begin_src sh 
+ cd ~/src/
+ git clone https://github.com/JustinAzoff/bro-pdns
+ cd bro-pdns
+ make
+ cd ..
+ cp -r bro-pdns ~/go/src/.
+ cd ~/go/src/bro-pdns
+ make
+ go build
+ #+end_src 
+***  Install postgresql & adder user "pdns" & password "pdns@321"
 
-#+begin_src sh :tangle yes
-sudo apt-get install postgresql
-sudo -u postgres createdb pdns
-sudo -u postgres createuser pdns
-sudo -u postgres psql
-alter user pdns with encrypted password '<pdns@321>';
-#+end_src
+ #+begin_src sh :tangle yes
+ sudo apt-get install postgresql
+ sudo -u postgres createdb pdns
+ sudo -u postgres createuser pdns
+ sudo -u postgres psql
+ alter user pdns with encrypted password '<pdns@321>';
+ #+end_src
+***  Install Java environment for jdbc by apt-get
+ #+begin_src sh :tangle yes
+ sudo apt-get install default-jre default-jdk libpostgresql-jdbc-java
+ #+end_src
+***  check Driver class & postgresql-jdbc status
+ #+begin_src sh :tangle yes
+      ls /usr/share/java | grep postgresql-jdbc
 
-- Install Java environment for jdbc by apt-get:
-#+begin_src sh :tangle yes
-sudo apt-get install default-jre default-jdk libpostgresql-jdbc-java
-#+end_src
+      # postgresql-jdbc3.jar     #
+      #     postgresql-jdbc4.jar #
 
-- check Driver class & postgresql-jdbc status:
-#+begin_src sh :tangle yes
-    ls /usr/share/java | grep postgresql-jdbc
-      # postgresql-jdbc3.jar
-      # postgresql-jdbc4.jar
-    jar tf /usr/share/java/postgresql-jdbc4.jar | grep -i driver
+      jar tf /usr/share/java/postgresql-jdbc4.jar | grep -i driver
 
-    # org/postgresql/Driver$1.class
-    # org/postgresql/Driver$ConnectThread.class
-    # org/postgresql/Driver.class
-    # org/postgresql/util/PSQLDriverVersion.class
-    # META-INF/services/java.sql.Driver
-#+end_src
 
-- find dns log by dns that made a indexing from bro logs path
-#+begin_src sh :tangle yes
-sudo find /usr/local/bro/logs/*/dns* | sort -n | xargs -n 50 bro-pdns index
-#+end_src
+        #################################################
+        # org/postgresql/Driver$1.class   #           # #
+        # org/postgresql/Driver$ConnectThread.class   # #
+        # org/postgresql/Driver.class                 # #
+        # org/postgresql/util/PSQLDriverVersion.class # #
+        # META-INF/services/java.sql.Driver             #
+        #################################################
+
+ #+end_src
+***  find dns log by dns that made a indexing from bro logs path
+ #+begin_src sh :tangle yes
+ sudo find /usr/local/bro/logs/*/dns* | sort -n | xargs -n 50 bro-pdns index
+ #+end_src
 
 ** to ELK
    - install lostash plugin

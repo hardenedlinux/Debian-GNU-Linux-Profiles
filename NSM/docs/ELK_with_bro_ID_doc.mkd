@@ -509,17 +509,23 @@ The following will be an example of creating a pattern with the software log.
 # Pdns
 
 
-<a id="orgc14b80d"></a>
+<a id="org34dcc18"></a>
 
 ## Basic configuration
 
--   Golang-environment
+
+<a id="org976b23c"></a>
+
+### Golang-environment
 
     wget https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz
     tar -xvf  go1.11.2.linux-amd64.tar.gz
     sudo mv go /usr/local
 
--   export go path & remove pdns repo to gopath/src
+
+<a id="org0cf20f9"></a>
+
+### export go path & remove pdns repo to gopath/src
 
     cd ~/src/
     git clone https://github.com/JustinAzoff/bro-pdns
@@ -531,7 +537,10 @@ The following will be an example of creating a pattern with the software log.
     make
     go build
 
--   Install postgresql & adder user "pdns" & password "pdns@321"
+
+<a id="org5771a4f"></a>
+
+### Install postgresql & adder user "pdns" & password "pdns@321"
 
     sudo apt-get install postgresql
     sudo -u postgres createdb pdns
@@ -539,29 +548,43 @@ The following will be an example of creating a pattern with the software log.
     sudo -u postgres psql
     alter user pdns with encrypted password '<pdns@321>';
 
--   Install Java environment for jdbc by apt-get:
+
+<a id="org9e2be7c"></a>
+
+### Install Java environment for jdbc by apt-get
 
     sudo apt-get install default-jre default-jdk libpostgresql-jdbc-java
 
--   check Driver class & postgresql-jdbc status:
+
+<a id="org9cbb2f6"></a>
+
+### check Driver class & postgresql-jdbc status
 
     ls /usr/share/java | grep postgresql-jdbc
-      <!-- # postgresql-jdbc3.jar -->
-      <!-- # postgresql-jdbc4.jar -->
+    
+    # postgresql-jdbc3.jar     #
+    #     postgresql-jdbc4.jar #
+    
     jar tf /usr/share/java/postgresql-jdbc4.jar | grep -i driver
     
-    <!-- ;# org/postgresql/Driver$1.class -->
-    <!-- # org/postgresql/Driver$ConnectThread.class -->
-    <!-- # org/postgresql/Driver.class -->
-    <!-- # org/postgresql/util/PSQLDriverVersion.class -->
-    <!-- # META-INF/services/java.sql.Driver -->
+    
+      #################################################
+      # org/postgresql/Driver$1.class   #           # #
+      # org/postgresql/Driver$ConnectThread.class   # #
+      # org/postgresql/Driver.class                 # #
+      # org/postgresql/util/PSQLDriverVersion.class # #
+      # META-INF/services/java.sql.Driver             #
+      #################################################
 
--   find dns log by dns that made a indexing from bro logs path
+
+<a id="orgd654ed1"></a>
+
+### find dns log by dns that made a indexing from bro logs path
 
     sudo find /usr/local/bro/logs/*/dns* | sort -n | xargs -n 50 bro-pdns index
 
 
-<a id="orga3f4cea"></a>
+<a id="orgc0fd09e"></a>
 
 ## to ELK
 
@@ -600,7 +623,7 @@ ref: <https://www.elastic.co/blog/logstash-jdbc-input-plugin>
         # [INFO ] 2018-12-05 01:45:48.096 [[main]<jdbc] jdbc - (0.002015s) SELECT * from tuples
         # [INFO ] 2018-12-05 01:46:26.784 [[main]>worker11] pipeline - Pipeline has terminated {:pipeline_id=>"main", :thread=>"#<Thread:0x7c052ede run>"}
 
--   Adding pdns index to kibana
+-   Adding pdns index on kibana
     
     ![](./image/pdns_elk.jpg)
 
