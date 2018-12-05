@@ -2,9 +2,9 @@
 sudo apt-get update
 mkdir ~/src
 cd ~/src
-wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.5.1-amd64.deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.1.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.1.deb
 sudo apt-get update
 sudo apt-get install openjdk-8-jre
 sudo dpkg -i *.deb
@@ -46,16 +46,17 @@ exit
 
 echo "ELK-Script install..."
 
-sudo npm install vis
-cd /usr/share/kibana/plugins
-git clone https://github.com/JuanCarniglia/area3d_vis
-cd area3d_vis
-npm install
-cd ..
-sudo git clone https://github.com/dlumbrer/kbn_network.git network_vis -b 6-dev
-cd network_vis
-sudo rm -rf images/
-sudo npm install
+# cd /usr/share/kibana/src/core_plugins
+# sudo git clone https://github.com/JuanCarniglia/area3d_vis
+# cd area3d_vis
+# cd releases/5.5/
+# sudo npm install vis
+# sudo npm install
+# cd ..
+# sudo git clone https://github.com/dlumbrer/kbn_network.git network_vis -b 6-dev
+# cd network_vis
+# sudo rm -rf images/
+# sudo npm install
 
 cd ~/src
 wget https://github.com/edenhill/librdkafka/archive/v0.11.4.tar.gz
@@ -74,7 +75,7 @@ sudo make install
 
 ##
 
-sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec
+sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logstash-input-jdbc
 sudo /usr/share/logstash/bin/logstash-plugin install --no-verify
 sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
 

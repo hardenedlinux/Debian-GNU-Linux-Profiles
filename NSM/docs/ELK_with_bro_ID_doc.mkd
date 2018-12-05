@@ -25,19 +25,18 @@ Because the metron-bro-plugin-kafka plugin will rely on the source code of the b
 
 ### Download bro source and verify 
 ```
-~/src$ wget https://www.bro.org/downloads/bro-2.5.4.tar.gz 
-~/src$ wget https://www.bro.org/downloads/bro-2.5.4.tar.gz.asc 
+~/src$ wget https://www.bro.org/downloads/bro-2.6-beta3.tar.gz.asc
+~/src$ wget https://www.bro.org/downloads/beta/bro-2.6-beta3.tar.gz
 ~/src$ gpg --recv-keys C68B494DF56ACC7E
-~/src$ gpg -v bro-2.5.4.tar.gz.asc
+~/src$ gpg -v bro-2.6-beat3.tar.gz.asc
 ```
 
 ### Install 
 ```
-~/src$ tar -xvf bro-2.5.4.tar.gz 
-~/src$ cd bro-2.5.4/ 
-~/src/bro-2.5.4$ ./configure --enable-debug 
-~/src/bro-2.5.4$ make 
-~/src/bro-2.5.4$ sudo make install 
+tar -xvf bro-2.6-beta3.tar.gz
+cd bro-2.6-beta3/
+./configure
+make
 ``` 
 
 ### Set env value  
@@ -242,6 +241,17 @@ kibana-6.3.0-amd64.deb: OK
 ~/src$ echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 ```
 
+### Geoip plugin & geoip template
+<a id="org628d771"></a>
+
+    sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/conf/test/elasticsearch-template-es7x.json /etc/logstash/conf.d
+
+-   modified http<sub>template</sub> to es7x.json template &#x2014;> geo<sub>point</sub> function
+
+
+<a id="org61454c5"></a>
+
+
 ### Create new logstash configuration 
 
 The conf file will be generated for each type of log. The following is only an example of software: 
@@ -266,8 +276,13 @@ output {
    	}
 }
 
-``` 
+```
+### GEOIP & urldecode 
 
+```
+NSM/ELK/conf/test/bro_http.conf
+
+```
 Other conf files are stored in the [logstash-conf](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/ELK/conf). Put these configuration files in the /etc/logstash/conf.d directory. 
 
 
@@ -360,6 +375,237 @@ The following will be an example of creating a pattern with the software log.
 
 ![Create_software_01](./image/create_visualize-6.png)   
 
+
+# PF<sub>RING</sub>
+
+
+<a id="org26a0cc9"></a>
+
+## Environment
+
+    sudo apt-get install build-essential bison flex linux-headers-$(uname -r)
+
+
+<a id="org7c46833"></a>
+
+## clone Repo to local
+
+     cd src
+     git clone https://github.com/ntop/PF_RING.git
+     cd PF_RING
+    
+     cd kernel
+     sudo make install
+     cd ../userland/lib
+     sudo make install
+     sudo modprobe pf_ring
+     #elevate as *root*
+    ;;then
+     sudo modprobe pf_ring
+    
+     ;;To check if you have everything you need, enter:
+    
+     modinfo pf_ring && cat /proc/net/pf_ring/info
+    
+     ;;;;;;;;;;;; the feedback likes this:
+    
+     filename:       /lib/modules/4.9.0-4-amd64/kernel/net/pf_ring/pf_ring.ko
+     alias:          net-pf-27
+     version:        7.1.0
+     description:    Packet capture acceleration and analysis
+     author:         ntop.org
+     license:        GPL
+     srcversion:     D173304DA43FD84C21E264E
+     depends:
+     vermagic:       4.9.0-4-amd64 SMP mod_unload modversions
+     parm:           min_num_slots:Min number of ring slots (uint)
+     parm:           perfect_rules_hash_size:Perfect rules hash size (uint)
+     parm:           enable_tx_capture:Set to 1 to capture outgoing packets (uint)
+     parm:           enable_frag_coherence:Set to 1 to handle fragments (flow coherence) in clusters (uint)
+     parm:           enable_ip_defrag:Set to 1 to enable IP defragmentation(only rx traffic is defragmentead) (uint)
+     parm:           quick_mode:Set to 1 to run at full speed but with upto one socket per interface (uint)
+     parm:           force_ring_lock:Set to 1 to force ring locking (automatically enable with rss) (uint)
+     parm:           enable_debug:Set to 1 to enable PF_RING debug tracing into the syslog, 2 for more verbosity (uint)
+     parm:           transparent_mode:(deprecated) (uint)
+     PF_RING Version          : 7.1.0 (dev:fcc142db7e2d5586a2923cc20f6a2cc4d7ebded5)
+     Total rings              : 0
+    
+     Standard (non ZC) Options
+     Ring slots               : 4096
+     Slot version             : 17
+     Capture TX               : Yes [RX+TX]
+     IP Defragment            : No
+     Socket Mode              : Standard
+     Cluster Fragment Queue   : 0
+     Cluster Fragment Discard : 0
+
+
+<a id="org5546981"></a>
+
+## Node.cfg config
+
+
+<a id="orgb4a6fae"></a>
+
+# Bro-script
+
+
+<a id="org8163640"></a>
+
+## download bro-script by bro-pkg
+
+    ##Bro-Manager
+    sudo pip install bro-pkg
+    ##Bro installation is owned by "root" user that was stored in /root/.bro-pkg
+    sudo bro-pkg autoconfig
+    
+    sudo bro-pkg config script_dir
+    sudo bro-pkg config plugin_dir
+    
+    sudo bro-pkg install https://github.com/hosom/bro-ja3
+    sudo bro-pkg install https://github.com/hosom/file-extraction
+    sudo bro-pkg install https://github.com/GTrunSec/bro-osquery-test.git
+    #create a bundle file which contains a snapshot of all currently installed packages:
+    sudo bro-pkg bundle bro-packages.bundle
+    
+    sudo bro-pkg unbundle bro-packages.bundle
+    
+    sudo broctl deploy
+
+
+<a id="orgdf58f05"></a>
+
+## modify local.bro to load bro-pkg
+
+    echo echo '@load packages' | sudo tee --append /usr/local/bro/share/bro/site/local.bro
+
+
+<a id="org1015a69"></a>
+
+# Broker
+
+
+<a id="org6825adf"></a>
+
+## Installation
+
+    wget https://www.bro.org/downloads/broker-1.1.1.tar.gz
+    tar -xvf broker-1.1.1.tar.gz
+    cd broker-1.1.1
+    ./configure
+    sudo make -j4 install
+
+
+<a id="orgb479a3a"></a>
+
+## Test
+
+    mkdir ~/src/bro-test/
+    git clone https://github.com/0ortmann/broker-application-templates.git
+
+
+<a id="org327e937"></a>
+
+# Pdns
+
+
+<a id="orgc14b80d"></a>
+
+## Basic configuration
+
+-   Golang-environment
+
+    wget https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz
+    tar -xvf  go1.11.2.linux-amd64.tar.gz
+    sudo mv go /usr/local
+
+-   export go path & remove pdns repo to gopath/src
+
+    cd ~/src/
+    git clone https://github.com/JustinAzoff/bro-pdns
+    cd bro-pdns
+    make
+    cd ..
+    cp -r bro-pdns ~/go/src/.
+    cd ~/go/src/bro-pdns
+    make
+    go build
+
+-   Install postgresql & adder user "pdns" & password "pdns@321"
+
+    sudo apt-get install postgresql
+    sudo -u postgres createdb pdns
+    sudo -u postgres createuser pdns
+    sudo -u postgres psql
+    alter user pdns with encrypted password '<pdns@321>';
+
+-   Install Java environment for jdbc by apt-get:
+
+    sudo apt-get install default-jre default-jdk libpostgresql-jdbc-java
+
+-   check Driver class & postgresql-jdbc status:
+
+    ls /usr/share/java | grep postgresql-jdbc
+      # postgresql-jdbc3.jar
+      # postgresql-jdbc4.jar
+    jar tf /usr/share/java/postgresql-jdbc4.jar | grep -i driver
+    
+    # org/postgresql/Driver$1.class
+    # org/postgresql/Driver$ConnectThread.class
+    # org/postgresql/Driver.class
+    # org/postgresql/util/PSQLDriverVersion.class
+    # META-INF/services/java.sql.Driver
+
+-   find dns log by dns that made a indexing from bro logs path
+
+    sudo find /usr/local/bro/logs/*/dns* | sort -n | xargs -n 50 bro-pdns index
+
+
+<a id="orga3f4cea"></a>
+
+## to ELK
+
+-   install lostash plugin
+    
+        sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logstash-input-jdbc
+-   Logstash configuration by jdbc connect to pg database:
+
+ref: <https://www.elastic.co/blog/logstash-jdbc-input-plugin>
+
+    input {
+        jdbc {
+            jdbc_connection_string => "jdbc:postgresql://localhost:5432/pdns"
+             jdbc_user => "postgres"
+             jdbc_password => "pdns@321"
+             jdbc_validate_connection => true
+             jdbc_driver_library => "/usr/share/java/postgresql-jdbc4.jar"
+             statement => "SELECT * from tuples"
+             jdbc_driver_class => "org.postgresql.Driver"
+        }
+    }
+    output {
+        elasticsearch {
+            hosts => ["localhost:9200"]
+            index => "contacts"
+            document_type => "bro-pdns"
+            document_id => "%{uid}"
+        }
+    }
+
+-   debugging Logstash confin file
+    
+        sudo /usr/share/logstash/bin/logstash -f pdns.conf
+        #finally output should be looks like that:
+        # [INFO ] 2018-12-05 01:45:29.221 [Api Webserver] agent - Successfully started Logstash API endpoint {:port=>9601}
+        # [INFO ] 2018-12-05 01:45:48.096 [[main]<jdbc] jdbc - (0.002015s) SELECT * from tuples
+        # [INFO ] 2018-12-05 01:46:26.784 [[main]>worker11] pipeline - Pipeline has terminated {:pipeline_id=>"main", :thread=>"#<Thread:0x7c052ede run>"}
+
+-   Adding pdns index to kibana
+    
+    ![](./image/pdns_elk.jpg)
+
+
+
 ## Reference  
 
 https://www.bro.org   
@@ -370,7 +616,9 @@ https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_SSL.events.bif.bro.html
 https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html   
 https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html   
 https://www.elastic.co/    
-https://github.com/apache/metron-bro-plugin-kafka  
+https://github.com/apache/metron-bro-plugin-kafka
+https://bro-package-manager.readthedocs.io/en/stable/source.html
+https://www.elastic.co/blog/logstash-jdbc-input-plugin
 
 
 
