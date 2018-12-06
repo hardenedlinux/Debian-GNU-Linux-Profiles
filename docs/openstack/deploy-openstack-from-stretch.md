@@ -1183,6 +1183,13 @@ Create the OVS provider bridge `br-provider`
 ```
 ovs-vsctl add-br br-provider
 ```
+Add the physical port to br-provider
+
+```
+ovs-vsctl add-port br-provider eno2
+```
+
+Enable both br-provider and eno2
 
 edit the `/etc/neutron/plugins/ml2/openvswitch_agent.ini` file, configure the layer-2 agent.
 
@@ -1216,10 +1223,22 @@ Restart the Open vSwitch agent & Layer-3 agent
 
 ###### Compute nodes
 
+Create the OVS provider bridge `br-provider`
+```
+ovs-vsctl add-br br-provider
+```
+Add the physical port to br-provider
+
+```
+ovs-vsctl add-port br-provider eno2
+```
+Enable both br-provider and eno2
+
 In the openvswitch_agent.ini file, enable VXLAN support including layer-2 population.
 
 ```
 [ovs]
+bridge_mappings = provider:br-provider
 local_ip = OVERLAY_INTERFACE_IP_ADDRESS
 local_ip = 172.16.50.21
 
