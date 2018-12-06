@@ -1251,7 +1251,123 @@ Replace OVERLAY_INTERFACE_IP_ADDRESS with the IP address of the interface that h
 Restart Open vSwitch agent
 
 
+#### Use Case (Launch an instance)
 
-#### Use case
+##### Create virtual networks (flat)
 
-To be done
+Create the network:
+
+```
+openstack network create  --share --external \
+  --provider-physical-network provider \
+  --provider-network-type flat public01
+```
+
+Create a subnet on the network:
+```
+openstack subnet create --network public01   --allocation-pool start=192.168.200.200,end=192.168.200.220   --dns-nameserver 8.8.8.8 --gateway 192.168.200.1   --subnet-range 192.168.200.0/24 public01
+```
+
+Verify the netwrok
+```
+$ openstack network list
++--------------------------------------+----------+--------------------------------------+
+| ID                                   | Name     | Subnets                              |
++--------------------------------------+----------+--------------------------------------+
+| 664e6a30-2b12-4eec-a9da-45210e4cb5e6 | public01 | 948a058c-de2f-4fac-988f-aa09cbb52232 |
++--------------------------------------+----------+--------------------------------------+
+
+```
+##### Create flavor
+
+
+```
+openstack flavor create --id 0 --vcpus 1 --ram 64 --disk 1 m1.nano
+```
+
+```
+$ openstack flavor list
+
++----+---------+-----+------+-----------+-------+-----------+
+| ID | Name    | RAM | Disk | Ephemeral | VCPUs | Is Public |
++----+---------+-----+------+-----------+-------+-----------+
+| 0  | m1.nano |  64 |    1 |         0 |     1 | True      |
++----+---------+-----+------+-----------+-------+-----------+
+```
+
+##### Create Image
+
+We using cirros for test purpose
+
+Download the image
+```
+wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+```
+
+Upload the image to Glance(image service)
+```
+openstack image create "cirros" \
+  --file cirros-0.4.0-x86_64-disk.img \
+  --disk-format qcow2 --container-format bare \
+  --public
+```
+
+Verify
+
+```
+$ openstack image list
+
++--------------------------------------+--------+--------+
+| ID                                   | Name   | Status |
++--------------------------------------+--------+--------+
+| 38047887-61a7-41ea-9b49-27987d5e8bb9 | cirros | active |
++--------------------------------------+--------+--------+
+```
+
+###### Launch a instance
+
+Replace PROVIDER_NET_ID with the ID of the `public01` provider network.
+```
+openstack server create --flavor m1.nano --image cirros \
+  --nic net-id=PROVIDER_NET_ID --security-group default \
+  --key-name mykey provider-instance
+```
+
+Check the status of your instance:
+
+```
+$ openstack server list
+
++--------------------------------------+-------------------+--------+-------------------------+------------+
+| ID                                   | Name              | Status | Networks                | Image Name |
++--------------------------------------+-------------------+--------+-------------------------+------------+
+| 181c52ba-aebc-4c32-a97d-2e8e82e4eaaf | provider-instance | ACTIVE | provider=192.168.200.217| cirros     |
++--------------------------------------+-------------------+--------+-------------------------+------------+
+```
+
+Access the instance using the virtual console
+```
+openstack console url show provider-instance
++-------+---------------------------------------------------------------------------------+
+| Field | Value                                                                           |
++-------+---------------------------------------------------------------------------------+
+| type  | novnc                                                                           |
+| url   | http://controller:6080/vnc_auto.html?token=5eeccb47-525c-4918-ac2a-3ad1e9f1f493 |
++-------+---------------------------------------------------------------------------------+
+```
+Or we could just using `SSH`
+
+```
+ssh cirros@192.168.200.217
+```
+
+
+We can login and check the connectivity between gateway and internet using `ping`
+
+
+
+
+Reference:
+
+https://opensource.com/article/17/4/openstack-neutron-networks   
+https://docs.openstack.org/install-guide/launch-instance-networks-provider.html   
