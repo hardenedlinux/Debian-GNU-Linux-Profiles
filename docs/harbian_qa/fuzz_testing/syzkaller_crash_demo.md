@@ -38,10 +38,12 @@ cd into source tree $(SYZKALLER_SOURCE), run:
 ```
 make clean
 make bin/syz-extract
-bin/syz-extract -arch amd64 -linux /PATH/TO/LINUX/SOURCE sys/YourRule.txt
+bin/syz-extract -os linux -arch amd64 -sourcedir /PATH/TO/LINUX/SOURCE sys/YOUR_SYSCALL.txt
 make all
 ```
-"syz-extract":-arch is the Architecture of you test machine, -linux is the kernel build tree will be test.  
+"syz-extract":-arch is the Architecture of you test machine, -sourcedir is the kernel build tree will be test.
+About rebuild with your self syscalls scription, you can also read [this](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/fuzz_testing/syz_debug.md#extern-the-syscall).
+
 ### Copy the binary to test machine  
 run your virtual machine, then cd into your syzkaller build dirtory run：
 `scp -P $(YOUR_PORT) -i ~/.ssh/rsa -r syzkaller/bin root@127.0.0.1:$(YOUR_PATH)`  
