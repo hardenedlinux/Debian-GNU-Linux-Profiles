@@ -18,6 +18,7 @@ cd binpac-0.48/
 make
 sudo make install
 cd ..
+sudo pip install docopt jinji2
 git clone https://github.com/grigorescu/binpac_quickstart.git
 #Suricata
 ##Updating rules

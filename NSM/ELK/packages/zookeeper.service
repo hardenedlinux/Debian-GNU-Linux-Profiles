@@ -1,0 +1,16 @@
+[Unit]
+Description=Zookeeper.Service
+Wants=network.target
+After=network.target
+
+[Service]
+ExecStart=/opt/zookeeper/bin/zkServer.sh start
+ExecReload=on-failure
+Restart=always
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

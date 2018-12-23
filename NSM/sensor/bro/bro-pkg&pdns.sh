@@ -5,7 +5,7 @@ sudo bro-pkg autoconfig
 
 sudo bro-pkg config script_dir
 sudo bro-pkg config plugin_dir
-
+sudo bro-pkg install https://github.com/0xxon/zeek-sumstats-counttable.git
 sudo bro-pkg install https://github.com/hosom/bro-ja3
 sudo bro-pkg install https://github.com/hosom/file-extraction
 sudo bro-pkg install https://github.com/GTrunSec/bro-osquery-test.git

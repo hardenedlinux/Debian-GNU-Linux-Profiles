@@ -2,9 +2,9 @@
 sudo apt-get update
 mkdir ~/src
 cd ~/src
-wget https://artifacts.elastic.co/downloads/kibana/kibana-6.5.1-amd64.deb
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.1.deb
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.1.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.5.4-amd64.deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.4.deb
 sudo apt-get update
 sudo apt-get install openjdk-8-jre
 sudo dpkg -i *.deb
@@ -21,18 +21,18 @@ sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zl
 mkdir src
 cd ~/src
 echo "Bro install..."
-wget https://www.bro.org/downloads/beta/bro-2.6-beta3.tar.gz
-tar -xvf bro-2.6-beta3.tar.gz
-cd bro-2.6-beta3/
+wget https://www.bro.org/downloads/bro-2.6.1.tar.gz
+tar -xvf bro-2.6.1.tar.gz
+cd bro-2.6.1/
 ./configure
-make
+make -j 4
 sudo make install
 sudo ln -s /usr/local/bro/bin/bro* /usr/local/bin
 ..
 echo "Broker install..."
-wget https://www.bro.org/downloads/broker-1.1.1.tar.gz
-tar -xvf broker-1.1.1.tar.gz
-cd broker-1.1.1
+wget https://www.bro.org/downloads/broker-1.1.2.tar.gz
+tar -xvf broker-1.1.2.tar.gz
+cd broker-1.1.2
 ./configure
 sudo make -j4 install
 echo "=== Broker Installation finished ==="
@@ -59,18 +59,17 @@ echo "ELK-Script install..."
 # sudo npm install
 
 cd ~/src
-wget https://github.com/edenhill/librdkafka/archive/v0.11.4.tar.gz
-sudo tar -xvf v0.11.4.tar.gz
-cd librdkafka-0.11.4/
+wget https://github.com/edenhill/librdkafka/archive/v0.11.6.tar.gz
+sudo tar -xvf v0.11.6.tar.gz
+cd librdkafka-0.11.6/
 sudo ./configure --enable-sasl
 sudo make
 sudo make install
 cd ~/src/
 git clone https://github.com/apache/metron-bro-plugin-kafka.git
 cd metron-bro-plugin-kafka
-./configure --bro-dist=$HOME/src/bro-2.6-beta3
-make 
-sudo make install
+./configure --bro-dist=$HOME/src/bro-2.6.1
+sudo make -j4 install
 
 
 ##
@@ -79,17 +78,26 @@ sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logsta
 sudo /usr/share/logstash/bin/logstash-plugin install --no-verify
 sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
 
-sudo apt-get install zookeeperd
+
+cd ~/src
+wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.4-beta/zookeeper-3.5.4-beta.tar.gz
+tar -xvf zookeeper-3.5.4-beta.tar.gz
+sudo mv zookeeper-3.5.4-beta /opt/zookeeper
+sudo cp ~/project/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/config/
+sudo cp ~/project/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl enable zookeeper
 sudo systemctl start zookeeper
 
 ##
-sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.tgz ~/src
-sudo tar -xvf kafka_2.12-1.0.0.tgz
-sudo mv kafka_2.12-1.0.0 /opt/kafka
+#sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.tgz ~/src
+wget https://www-us.apache.org/dist/kafka/2.1.0/kafka_2.12-2.1.0.tgz
+sudo tar -xvf kafka_2.12-2.1.0.tgz
+sudo mv kafka_2.12-2.1.0 /opt/kafka
 sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
 sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
 sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka.service /etc/systemd/system/
+
 sudo systemctl daemon-reload
 sudo systemctl enable kafka
 sudo systemctl start kafka
