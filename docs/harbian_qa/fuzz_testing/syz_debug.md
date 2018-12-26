@@ -1,5 +1,5 @@
 # Kernel debug tool with syzkaller  
-In this docutmentation, we will introduce some tools or cmdline to help you to debug with the syzkaller.
+In this document, we will introduce some tools or cmdline to help you to debug with the syzkaller.
 1. Check the booting and running of QEMU and extend the syscall. 
 2. Then, you may need to check the syscall ran by syzkaller or the kernel reaction triggered by syzkaller. I use systemtap to detect the syscall running and KGDB to analyse the code path of kernel triggered by syscall. 
 3. In some case you may be interested in the coverage of fuzzer. syzkaller use the KCOV interface to record coverage information. 
@@ -38,7 +38,7 @@ ssh -p $(PORT) root@127.0.0.1
 The systemtap depend on the right running of ssh( syzkaller also).
 
 ## Extern the syscall
-In my cause, I only use syzkaller on Linux/X86_64.After writing you syscall discription to $(SYZKALLER)/sys/linux/*.txt, you can run:
+In my cause, I only use syzkaller on Linux/X86_64. After writing your syscall discription to $(SYZKALLER)/sys/linux/*.txt, you can run:
 ```  
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) extract
 make HOSTOS=linux HOSTARCH=amd64 TARGETOS=linux TARGETARCH=amd64 SOURCEDIR=$(YOUR_KERNEL_SOURCE_DIR) generate
@@ -88,6 +88,6 @@ The KCOV will show the covered branch with different color. The coverage of kern
 Syzkaller use memory manage fail-injection at run time. Another useful fail-inject is injecting error return on specific kernel functions( any function).
  It uses kprobe + sysfs, expose a interfaces '/sys/kernel/debug/fail_function' to userspace. The fail-injection used by syzkaller is located in $SYZ_SRC/pkg/host/host_linux.go
  
-## Syzkaller and snadbox
+## Syzkaller and sandbox
 Syzkaller with sandbox enable may block syscalls which is not mentioned in configure file, but syzkaller's repro may depend on it.
 The implement of sandbox is in xecutor/executor_linux.cc. Setuid mode use unshare and namespace mode use clone.
