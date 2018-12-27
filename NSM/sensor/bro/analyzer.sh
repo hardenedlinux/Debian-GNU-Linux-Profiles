@@ -39,7 +39,7 @@ cd ..
 ###
 git clone https://github.com/CommunityBro/mqtt_analyzer.git
 cd mqtt_analyzer
-./configure --bro-dist=../../bro-2.6.1
+./configure --bro-dist=$HOME/src/bro-2.6.1
 make
 sudo make install
 
@@ -49,12 +49,15 @@ sudo apt-get install libnghttp2-dev
 git clone https://github.com/MITRECND/bro-http2.git
 git clone https://github.com/bagder/libbrotli.git
 cd libbrotli
+./autogen.sh
 ./configure.ac
 ./configure
 make
 sudo make install
 cd ..
 cd bro-http2/
+./configure --bro-dist=$HOME/src/bro-2.6.1
+make
 sudo make install
 
 
