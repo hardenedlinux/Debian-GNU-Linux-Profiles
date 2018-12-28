@@ -1,0 +1,16 @@
+[Unit]
+Description=osqueryd.Service
+Wants=network.target
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/osqueryd --config_path=/etc/osquery/osquery.conf --pidfile=/var/run/osqueryd.pidfile
+ExecReload=on-failure
+Restart=always
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

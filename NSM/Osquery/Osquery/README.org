@@ -1,0 +1,193 @@
+
+
+* Debian Installation
+   #+BEGIN_SRC sh
+cd ~/src
+wget https://pkg.osquery.io/deb/osquery_3.3.0_1.linux.amd64.deb
+#check SHA Num
+shasum -a 256 osquery_3.3.0_1.linux.amd64.deb
+sudo dpkg -i osquery_3.3.0_1.linux.amd64.deb
+   #+END_SRC
+** What is Osqueryi and Osqueryd
+* Easy ways to read
+** Shell commands
+   #+BEGIN_SRC sh
+osquery> select * from <key>
+
+osquery> .mode line #
+osquery> .mode pretty
+   #+END_SRC
+~json format~
+
+#+begin_src sh :tangle yes
+sudo osqueryi select * from <key>;' --json 
+#+end_src
+** Filter
+[[https://medium.com/@clong/osquery-for-security-b66fffdf2daf][osquery For Security – Chris Long – Medium]]
+  if you want to get more information about basic control ways, Plz flollwing this link. 
+   Plus, I only show some operators to filter data via osqueryi
+   | +-------+-------+ |                       |
+   | <>                | NOt equal             |
+   | <                 | less than             |
+   | <=                | less than equal       |
+   | >                 | greater than          |
+   | >=                | greater than or equal |
+
+Example command:
+#+begin_src sh :tangle yes
+SELECT username,shell FROM users WHERE shell <> ' /usr/bin/false';
+#+end_src
+** OSquery clinet
+*** [[https://github.com/AustinC/os-browser][AustinC/os-browser: Look around your operating system]]
+** Syslog collection for OS X & Linux.
+***  Apple System Log
+ These ASL files contain a variety of information that can be of use to ASL of schema from osquery such as the following:
+- Firewall
+- Login Information
+- Program Errors
+- Graphics Errors
+- Network Data
+- Installation Data
+- System Boot, Reboot & Shutdown
+- Privilege Escalation
+
+*Levels of Logging*
+
+That can be found https://opensource.apple.com/source/Libc/Libc-583/include/asl.h
+
+/*! @defineblock Log Message Priority Levels
+ * Log levels of the message.
+ */
+#define ASL_LEVEL_EMERG   0
+#define ASL_LEVEL_ALERT   1
+#define ASL_LEVEL_CRIT    2
+#define ASL_LEVEL_ERR     3
+#define ASL_LEVEL_WARNING 4
+#define ASL_LEVEL_NOTICE  5
+#define ASL_LEVEL_INFO    6
+#define ASL_LEVEL_DEBUG   7
+/*! @/defineblock */
+
+
+~Log data structure for Message Attributes~ As defined by asl.h that can be found /asl.h/. But in this section, we only focus one part of keywords which are published Osquery Doc. ([[https://www.osquery.io/schema/3.3.0#asl][osquery | Schema]])
+
+*ASL in High seria * Majav*
+
+thoes logs was sotored in /private/var/log/asl that are written in plaintext format.
+The filenames follow the format YYYY.MM.DD.[UID].[GID].asl where UID and GID are optional. The date in the filename reflects the date of the contents of the log. The files with the specified User and Group IDs are access controlled to those IDs
+To view the file, use the syslog command:
+
+~syslog –f /private/var/log/asl/<logs name>~
+*** TODO linux System log
+    
+* Extendibility
+** fleet
+*** installation & configuration
+#+begin_src sh :tangle yes
+wget https://github.com/kolide/fleet/releases/download/2.0.0/fleet_2.0.0.zip
+sudo cp fleet/linux/fleet /usr/bin/fleet
+sudo cp fleet/linux/fleetctl /usr/bin/fleetctl
+sudo apt-get install mysql-server -y && mysql_secure_installation -y
+sudo apt-get install python3-mysqldb python3-pip -y
+sudo apt-get install redis-server -y
+#+end_src
+when finishing the Mysql-server that you need put ~ps aux | grep mysqld~ & ~ps aux | grep redis~  in command line, and ensure mysqld server should be running.
+~set password for root mysql~
+sudo mysql_secure_installation
+service mysqld restart
+#+begin_src sh :tangle yes
+mysql    32538  0.2  0.6 686092 74248 ?        Ssl  00:06   0:00 /usr/sbin/mysqld
+##databse
+mysql -p
+'CREATE DATABASE kolide;
+grant all privileges on kolide.* to 'kolideuser'@'localhost' identified by "hardenedlinux!"’;
+#+end_src
+
+if you first time installing mysql that you should be change password for user by ~SU~ root 
+
+- Enable certbot
+#+begin_src sh :tangle yes
+      sudo apt-get install certbot -y
+      # cert config
+      sudo certbot certonly
+      # typically chose 1 option 
+      # How would you like to authenticate with the ACME CA?
+      # -------------------------------------------------------------------------------
+      # 1: Place files in webroot directory (webroot)
+      # 2: Spin up a temporary webserver (standalone)
+      # -------------------------------------------------------------------------------
+      # Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 1
+      # -------------------------------------------------------------------------------
+      # Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 1
+      # Please enter in your domain name(s) (comma and/or space separated)  (Enter 'c'
+      # to cancel):nsm-feel.hardenedlinux.com
+
+##other way Self-Signed -
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key
+
+#+end_src
+
+- Loaded database config file.
+~sudo fleet serve  --config kolid/database.yml~
+
+- add a value for --auth_jwt_key
+#+begin_src sh :tangle yes
+openssl rand -base64 32
+## Example Output
+vd24hJTF9kl5/EhvkMSCgPclRJLxqUq27nO84IrombI=
+#+end_src
+
+- Running fleet with systemd /modify database.yaml options which are you wannt change/
+#+begin_src sh :tangle yes
+sudo mv fleet.service /etc/systemd/system/fleet.service
+sudo systemctl start fleet.service
+sudo systemctl status fleet.service
+
+sudo journalctl -u fleet.service -f
+
+##Then, run
+
+sudo systemctl daemon-reload
+sudo systemctl restart fleet.service
+#+end_src
+
+#+CAPTION: demo
+#+ATTR_HTML: :width 800
+#+ATTR_LATEX: :width 6in
+file:koild/img/demo.jpg
+*** Deployment - Building and Deploying Osquery
+**** windows
+     #+begin_src sh :tangle yes
+#Open up PowerShell session - 
+git clone https://github.com/facebook/osquery.git
+Prep dev env - 
+.\tools\make-win64-dev-env.bat
+
+
+Open up new PowerShell session - 
+
+Prep build env - 
+.\tools\make-win64-binaries.bat
+
+Prep Config files -
+Get deployment secret from Fleet UI
+PS: notepad osquery.secret (past deployment secret)
+PS: notepad osquery.flags (paste flags, edit hostname)
+     #+end_src
+*** TODO installation lanuacher
+    #+begin_src sh :tangle yes
+mkdir -p $GOPATH/src/github.com/kolide
+cd $GOPATH/src/github.com/kolide
+git clone git@github.com:kolide/launcher.git
+cd launcher
+    #+end_src
+** Bro-Osquery
+   run ~bro-osquery.sh~
+* configuration
+** TODO Put suitable conf files to OSquery
+* reference
+  - [[https://www.fbcinc.com/e/nlit/presentations/Maerz-Bro_and_Osquery-Enterprise_Visibility.pdf][Maerz-Bro_and_Osquery-Enterprise_Visibility.pdf]]
+  - [[https://www.bro.org/development/projects/osquery.html][osquery Integration]]
+  - [[https://svs.informatik.uni-hamburg.de/publications/2018/2018-05-31-Haas-QueryCon-Bro-Osquery.pdf][Bro-Osquery]]
+  - [[http://www.prajalkulkarni.com/2016/05/attack-monitoring-using-elk-outofband.html][Prajal Kulkarni | Web Security: Attack Monitoring Using ELK #outofband #ELK #osquery #filebeat #ElasticSearch]]
+   
