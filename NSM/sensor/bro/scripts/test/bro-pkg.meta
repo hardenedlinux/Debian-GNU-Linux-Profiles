@@ -1,3 +1,0 @@
-[package]
-description = example BroControl Plugin that make sure clone by using bkg
-plugin_dir = .

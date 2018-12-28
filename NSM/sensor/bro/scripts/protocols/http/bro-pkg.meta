@@ -1,8 +1,0 @@
-[package]
-description = Detect Applications which are popular in Chinese user
-tags = Applcaiton
-version = 1.0.0
-script_dir = scripts
-config_files = scripts/__load__.bro
-depends =
-    bro >=2.5.0
