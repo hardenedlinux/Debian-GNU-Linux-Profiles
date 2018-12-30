@@ -6,7 +6,7 @@ cd ssdeep
 ./configure
 make
 sudo make install
-sudo apt-get install libtlsh-dev libfuzzy-dev
+
 cd ~/src/fuzzy-hash
 git clone https://github.com/trendmicro/tlsh.git
 cd tlsh
@@ -15,6 +15,13 @@ cd build
 cd release
 make
 sudo make install
+sudo cp lib/lib* /usr/local/lib
+cd /usr/local/lib
+##https://github.com/J-Gras/bro-fuzzy-hashing/issues/2 
+sudo rm -rd libtlsh.so.0
+sudo ln -s libtlsh.so libtlsh.so.0
+sudo ldconfig
+
 cd ~/src/fuzzy-hash
 git clone https://github.com/J-Gras/bro-fuzzy-hashing.git
 cd bro-fuzzy-hashing
