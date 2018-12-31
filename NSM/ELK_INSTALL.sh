@@ -38,13 +38,10 @@ sudo make -j4 install
 echo "=== Broker Installation finished ==="
 
 #
-su
-curl -sL https://deb.nodesource.com/setup_9.x | bash -
-apt-get install nodejs
-exit
+
 ### if you git issue for nop, just put this command "sudo npm rebuild"
 
-echo "ELK-Script install..."
+#echo "ELK-Script install..."
 
 # cd /usr/share/kibana/src/core_plugins
 # sudo git clone https://github.com/JuanCarniglia/area3d_vis
@@ -83,8 +80,8 @@ cd ~/src
 wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.4-beta/zookeeper-3.5.4-beta.tar.gz
 tar -xvf zookeeper-3.5.4-beta.tar.gz
 sudo mv zookeeper-3.5.4-beta /opt/zookeeper
-sudo cp ~/project/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/config/
-sudo cp ~/project/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
+sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/conf/
+sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable zookeeper
 sudo systemctl start zookeeper
