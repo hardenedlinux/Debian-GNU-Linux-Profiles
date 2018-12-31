@@ -16,10 +16,12 @@ sudo gem install fpm
 git clone --recursive https://github.com/iBigQ/osquery
 cd osquery
 make deps
-SKIP_BRO=False
-make && sudo make install
+SKIP_BRO=False make && sudo make install
 
+sudo cp osqueryd.service /etc/systemd/system/
 
+sudo mkdir /var/osquery/
+sudo mkdir /etc/osquery/
 ## copy configuration files and send bro_ip to init file
 sudo cp ./tools/deployment/osquery.bro.example.conf /etc/osquery/osquery.conf
 sudo sed -i -e '/"bro_ip":/s/.*/"bro_ip": "'"${bro_ip}"'",/' /etc/osquery/osquery.conf

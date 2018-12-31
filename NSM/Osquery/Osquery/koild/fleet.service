@@ -1,8 +1,0 @@
-[Unit]
-Description=Kolide Fleet
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/fleet serve --config kolid/database.yaml
-[Install]
-WantedBy=multi-user.target
