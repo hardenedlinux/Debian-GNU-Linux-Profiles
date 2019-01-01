@@ -5,9 +5,9 @@ echo"#if got this isuee with pip
  run hash -d pip "
 
 
+
+#hash -d pip
 sudo pip install --user --upgrade pip
-hash -d pip
-pip install --user --upgrade pip
 sudo apt-get install ruby-dev build-essential doxygen
 #acquire the fpm package itself by typing:
 # ensure you have installed broker, if not then run ELK_INSTALL.sh

@@ -13,10 +13,6 @@ wget https://github.com/trendmicro/tlsh/archive/v3.4.5.tar.gz
 tar xvf v3.4.5.tar.gz
 cd tlsh-3.4.5
 ./make.sh
-cd build
-cd release
-make
-sudo make install
 cd ~/src/fuzzy-hash/tlsh-3.4.5
 sudo cp lib/lib* /usr/local/lib
 cd /usr/local/lib
@@ -30,7 +26,7 @@ git clone https://github.com/J-Gras/bro-fuzzy-hashing.git
 cd bro-fuzzy-hashing
 mkdir tlsh
 cp -r ~/src/fuzzy-hash/tlsh-3.4.5/include/* tlsh/.
-./configure
+./configure --with-tlsh=../tlsh/include
 make
 sudo make install
 bro -NN JGras::FuzzyHashing
