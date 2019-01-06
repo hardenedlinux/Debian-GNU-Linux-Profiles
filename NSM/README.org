@@ -1,0 +1,29 @@
+* ELK materials
+** Basic ELK_System installation
+*** [Doc] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/ELK_with_bro_ID_doc.mkd][Debian-GNU-Linux-Profiles/ELK_with_bro_ID_doc.mkd at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/ELK_INSTALL.sh][Debian-GNU-Linux-Profiles/ELK_INSTALL.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** [Conf] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/ELK/conf][Debian-GNU-Linux-Profiles/NSM/ELK/conf at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** [plugin] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/ELK/plugin][Debian-GNU-Linux-Profiles/NSM/ELK/plugin at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+** Bro-script Repo
+*** [[https://github.com/hardenedlinux/hardenedlinux-bro-script][hardenedlinux/hardenedlinux-bro-script]]
+** Bro-Components
+*** Bro-osquery
+**** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh][Debian-GNU-Linux-Profiles/bro-osquery.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** Pdns
+**** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/bro/bro-pkg%2526pdns.sh][Debian-GNU-Linux-Profiles/bro-pkg&pdns.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** Debugging-bro-script
+**** [Doc] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/bro/bro-debug.org][Debian-GNU-Linux-Profiles/bro-debug.org at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** Quickly bro-script-test-environment
+**** [Doc] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/bro/bro_script.md][Debian-GNU-Linux-Profiles/bro_script.md at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+** Osquery-koild
+*** [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/Osquery][Debian-GNU-Linux-Profiles/NSM/Osquery at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+** Snort & suricata & Clamav
+*** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/Sensor_INSTALL.sh][Debian-GNU-Linux-Profiles/Sensor_INSTALL.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** [Doc] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/suricata/check_list.org][ Debian-GNU-Linux-Profiles/check_list.org at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** [Demo-rules] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/sensor/suricata/rules][Debian-GNU-Linux-Profiles/NSM/sensor/suricata/rules at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+** Silk
+*** [Doc] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/silk/SilkBasic.org][Debian-GNU-Linux-Profiles/SilkBasic.org at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+*** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/silk/Silk_INSTALL.sh][Debian-GNU-Linux-Profiles/Silk_INSTALL.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
+** Vast
+*** [Ref] [[http://vast.io/][VAST - Home]]
+*** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/bro/vast.sh][Debian-GNU-Linux-Profiles/vast.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]

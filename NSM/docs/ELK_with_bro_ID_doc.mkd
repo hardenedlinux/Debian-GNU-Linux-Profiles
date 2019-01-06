@@ -1,6 +1,8 @@
 # ELK with Bro-based Application Layer Packet Classifier
 ## Topology introduction 
 
+`if you would like get to list command in a brief`
+
 The application identification system will identify the application and generate logs by bro. The ELK is deployed at the remote end for all logs to be collected, analyzed, stored, and identifiable. The BRO is installed on a machine with an IP of 192.168.1.147 and the ELK is installed on a machine with an IP of 192.168.1.142. 
 
 ## Deployed system release   
@@ -20,21 +22,21 @@ Because the metron-bro-plugin-kafka plugin will rely on the source code of the b
 
 ### Pre-install package  
 ```
-~/src$ sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl1.0-dev dirmngr curl openjdk-8-jre zookeeperd 
+~/src$ sudo apt-get install -y tcpdump git vim cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libssl-dev dirmngr curl openjdk-8-jre 
 ```
 
 ### Download bro source and verify 
 ```
-~/src$ wget https://www.bro.org/downloads/bro-2.6-beta3.tar.gz.asc
-~/src$ wget https://www.bro.org/downloads/beta/bro-2.6-beta3.tar.gz
+~/src$ wget https://www.bro.org/downloads/bro-2.6.1.tar.gz.asc
+~/src$ wget https://www.bro.org/downloads/beta/bro-2.6.1.tar.gz
 ~/src$ gpg --recv-keys C68B494DF56ACC7E
-~/src$ gpg -v bro-2.6-beat3.tar.gz.asc
+~/src$ gpg -v bro-2.6.1.tar.gz.asc
 ```
 
 ### Install 
 ```
-tar -xvf bro-2.6-beta3.tar.gz
-cd bro-2.6-beta3/
+tar -xvf bro-2.6.1.tar.gz
+cd bro-2.6.1/
 ./configure
 make
 ``` 
@@ -78,45 +80,27 @@ EOL
 ~# systemctl start bro   
 ```
 
-For detailed installation and use of bro, please refer to the [how-to-deploy-bro-app-identification-env.mkd](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/how-to-deploy-bro-app-identification-env.mkd) documentation.
 
-### Add a local parse configuration file to BRO 
-
-The following will use an example to explain, local bro parse configuration is [bro_parse_jd.bro](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/sensor/bro/scripts/frameworks/software/own-software/bro_parse_jd.bro).  
-
-Create a directory called harbian under the directory /usr/local/bro/share/bro/site and place the bro_parse_jd.bro file in this directory. Then create a file named \_\_load\_\_.bro in the harbian directory, enter the following line in the \_\_load\_\_.bro file:  
-```
-@load ./bro_parse_jd.bro.
-``` 
-
-The \_\_load\_\_.bro file is only used to automatically load the bro configuration file in the current directory when the bro is started. Also need to add the following line to the file /usr/local/bro/share/bro/site/local.bro: 
-```
-@load ./harbian 
-```
-
-Then use the following command to restart the bro service:
-```
-~# systemctl restart bro 
-```
 
 ### Install Kafka 
 
 #### Download kafka source 
 ```
-~/src$ wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz 
-~/src$ wget https://archive.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz.asc 
+wget https://www-us.apache.org/dist/kafka/2.1.0/kafka_2.12-2.1.0.tgz
+wget https://www-us.apache.org/dist/kafka/2.1.0/kafka_2.12-2.1.0.tgz.asc
+
 ```
 
 #### Verify 
 ```
 ~/src$ gpg --recv-keys  3B417B9B 
-~/src$ gpg -v kafka_2.12-1.0.0.tgz.asc 
+~/src$ gpg -v kafka_2.12-2.1.0.tgz.asc 
 ```
 
 #### Install kafka and start service 
 ```
-~/src$ tar -xvf kafka_2.12-1.0.0.tgz
-~/src$ sudo mv kafka_2.12-1.0.0 /opt/kafka
+~/src$ tar -xvf kafka_2.12-2.1.0.tgz
+~/src$ sudo mv kafka_2.12-2.1.0 /opt/kafka
 ~/src$ sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
 ~/src$ sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
 ~/src$ sudo sed -i '$alisteners=bro://192.168.1.147:9092' /opt/kafka/config/server.properties 
@@ -142,13 +126,25 @@ EOF
 
 ```
 
+### Intall zookeeper
+
+```
+wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.4-beta/zookeeper-3.5.4-beta.tar.gz
+tar -xvf zookeeper-3.5.4-beta.tar.gz
+sudo mv zookeeper-3.5.4-beta /opt/zookeeper
+sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/conf/
+sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
+
+```
+
 #### Enable kafka service and start 
 
 When the kafka service is started, the zookeeper service must have been started. 
 ``` 
-~/src$ sudo systemctl enable zookeeper 
-~/src$ sudo systemctl start zookeeper
-~/src$ sudo systemctl daemon-reload
+sudo systemctl daemon-reload
+sudo systemctl enable zookeeper
+sudo systemctl start zookeeper
+
 ~/src$ sudo systemctl enable kafka 
 ~/src$ sudo systemctl start kafka
 ```
@@ -157,18 +153,19 @@ When the kafka service is started, the zookeeper service must have been started.
 
 #### Install librdkafka 
 ```
-~/src$ curl -L https://github.com/edenhill/librdkafka/archive/v0.9.4.tar.gz | tar xvz 
-~/src$ cd librdkafka-0.9.4/ 
-~/src/librdkafka-0.9.4$ ./configure --enable-sasl 
-~/src/librdkafka-0.9.4$ make 
-~/src/librdkafka-0.9.4$ sudo make install 
+wget https://github.com/edenhill/librdkafka/archive/v0.11.6.tar.gz
+sudo tar -xvf v0.11.6.tar.gz
+cd librdkafka-0.11.6/
+sudo ./configure --enable-sasl
+sudo make
+
 ```
 
 #### Build the plugin 
 ```
 ~/src$ git clone https://github.com/apache/metron-bro-plugin-kafka.git
 ~/src$ cd metron-bro-plugin-kafka
-~/src/metron-bro-plugin-kafka$ ./configure --bro-dist=$HOME/src/bro-2.5.4/
+~/src/metron-bro-plugin-kafka$ ./configure --bro-dist=$HOME/src/bro-2.6.1/
 ~/src/metron-bro-plugin-kafka$ make 
 ~/src/metron-bro-plugin-kafka$ sudo make install
 ```
@@ -180,12 +177,10 @@ When the kafka service is started, the zookeeper service must have been started.
 
 ### How to set bro logs to kafka 
 
-Set following lines to /usr/local/bro/share/bro/site/local.bro: 
-```
-@load /usr/local/bro/lib/bro/plugins/APACHE_KAFKA/scripts/Apache/Kafka/logs-to-kafka.bro
-redef Kafka::topic_name = "";
-redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, SMTP::LOG, SSL::LOG, Software::LOG, DHCP::LOG, FTP::LOG, IRC::LOG, Notice::LOG, X509::LOG, SSH::LOG, SNMP::LOG);
-redef Kafka::kafka_conf = table(["metadata.broker.list"] = "192.168.1.147:9092");
+please see this url. 
+
+`https://github.com/hardenedlinux/hardenedlinux-bro-script/blob/master/scripts/bro-kafka.bro`
+
 ```
 
 ### Ensure bro logs to kafka 
@@ -212,22 +207,22 @@ tcp6       0      0 192.168.1.147:9092      :::*                    LISTEN      
 ### Download ELK deb package and SHA512 (512-bit) checksums file 
 ```
 ~$ mkdir src; cd src 
-~/src$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb 
-~/src$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.0.deb.sha512 
-~/src$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb 
-~/src$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.0.deb.sha512 
-~/src$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb 
-~/src$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.0-amd64.deb.sha512 
+~/src$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.4.deb 
+~/src$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.4.deb.sha512 
+~/src$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb 
+~/src$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb.sha512 
+~/src$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.5.4-amd64.deb 
+~/src$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.5.4-amd64.deb.sha512 
 ```
 
 ### Verify ELK deb package 
 ```
-~/src$ sha512sum -c elasticsearch-6.3.0.deb.sha512  
-elasticsearch-6.3.0.deb: OK
-~/src$ sha512sum -c logstash-6.3.0.deb.sha512 
+~/src$ sha512sum -c elasticsearch-6.5.4.deb.sha512  
+elasticsearch-6.5.4.deb: OK
+~/src$ sha512sum -c logstash-6.5.4.deb.sha512 
 logstash-6.3.0.deb: OK
-~/src$ sha512sum -c kibana-6.3.0-amd64.deb.sha512 
-kibana-6.3.0-amd64.deb: OK
+~/src$ sha512sum -c kibana-6.5.4-amd64.deb.sha512 
+kibana-6.5.4-amd64.deb: OK
 ```
 
 ### Install ELK deb package 
@@ -244,7 +239,10 @@ kibana-6.3.0-amd64.deb: OK
 ### Geoip plugin & geoip template
 <a id="org628d771"></a>
 
+    
     sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/conf/test/elasticsearch-template-es7x.json /etc/logstash/conf.d
+    sudo /usr/share/logstash/bin/logstash-plugin install --no-verify
+    sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
 
 -   modified http<sub>template</sub> to es7x.json template &#x2014;> geo<sub>point</sub> function
 
@@ -395,6 +393,8 @@ The following will be an example of creating a pattern with the software log.
      cd PF_RING
     
      cd kernel
+     ./configure
+     make
      sudo make install
      cd ../userland/lib
      sudo make install
@@ -442,8 +442,28 @@ The following will be an example of creating a pattern with the software log.
 
 <a id="org5546981"></a>
 
-## Node.cfg config
+### Bro plugin to PF_RING
 
+```
+git clone https://github.com/ntop/bro-pf_ring.git
+cd bro-pf_ring/
+./configure --with-pfring=$HOME/src/PF_RING --bro-dist=$HOME/src/bro-2.6.1
+make && sudo make install
+bro -N Bro::PF_RING
+```
+
+## Node.cfg config
+modify /usr/local/bro/etc/node.cfg, the example likes that:
+
+```
+[worker-1]
+type=worker
+host=localhost
+interface=pf_ring::zc:eth1
+lb_method=pf_ring
+lb_procs=8
+pin_cpus=0,1,2,3,4,5,6,7
+```
 
 <a id="orgb4a6fae"></a>
 
@@ -454,33 +474,10 @@ The following will be an example of creating a pattern with the software log.
 
 ## download bro-script by bro-pkg
 
-    ##Bro-Manager
-    sudo pip install bro-pkg
-    ##Bro installation is owned by "root" user that was stored in /root/.bro-pkg
-    sudo bro-pkg autoconfig
-    
-    sudo bro-pkg config script_dir
-    sudo bro-pkg config plugin_dir
-    
-    sudo bro-pkg install https://github.com/hosom/bro-ja3
-    sudo bro-pkg install https://github.com/hosom/file-extraction
-    sudo bro-pkg install https://github.com/GTrunSec/bro-osquery-test.git
-    #create a bundle file which contains a snapshot of all currently installed packages:
-    sudo bro-pkg bundle bro-packages.bundle
-    
-    sudo bro-pkg unbundle bro-packages.bundle
-    
-    sudo broctl deploy
+
+get more information `https://github.com/hardenedlinux/hardenedlinux-bro-script`
 
 
-<a id="orgdf58f05"></a>
-
-## modify local.bro to load bro-pkg
-
-    echo echo '@load packages' | sudo tee --append /usr/local/bro/share/bro/site/local.bro
-
-
-<a id="org1015a69"></a>
 
 # Broker
 
@@ -627,6 +624,12 @@ ref: <https://www.elastic.co/blog/logstash-jdbc-input-plugin>
     
     ![](./image/pdns_elk.jpg)
 
+
+## Bro-osquery
+
+please see this url get more information:
+
+https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh
 
 
 ## Reference  
