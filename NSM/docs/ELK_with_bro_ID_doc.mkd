@@ -27,18 +27,19 @@ Because the metron-bro-plugin-kafka plugin will rely on the source code of the b
 
 ### Download bro source and verify 
 ```
-~/src$ wget https://www.bro.org/downloads/bro-2.6.1.tar.gz.asc
-~/src$ wget https://www.bro.org/downloads/beta/bro-2.6.1.tar.gz
-~/src$ gpg --recv-keys C68B494DF56ACC7E
+~/src$ wget https://www.zeek.org/downloads/bro-2.6.1.tar.gz.asc
+~/src$ wget https://www.zeek.org/downloads/bro-2.6.1.tar.gz
+~/src$ gpg --keyserver  pgp.mit.edu --recv-keys C68B494DF56ACC7E 
 ~/src$ gpg -v bro-2.6.1.tar.gz.asc
 ```
 
 ### Install 
 ```
-tar -xvf bro-2.6.1.tar.gz
-cd bro-2.6.1/
-./configure
-make
+~/src$ tar -xvf bro-2.6.1.tar.gz
+~/src$ cd bro-2.6.1/
+~/src$ ./configure
+~/src$ make
+~/src$ sudo make install 
 ``` 
 
 ### Set env value  
@@ -93,7 +94,7 @@ wget https://www-us.apache.org/dist/kafka/2.1.0/kafka_2.12-2.1.0.tgz.asc
 
 #### Verify 
 ```
-~/src$ gpg --recv-keys  3B417B9B 
+~/src$ gpg --recv-keys  BEED4F6CB9F77D0E  
 ~/src$ gpg -v kafka_2.12-2.1.0.tgz.asc 
 ```
 
