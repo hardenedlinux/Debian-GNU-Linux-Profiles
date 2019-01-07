@@ -124,7 +124,6 @@ StandardError=syslog
 [Install]
 WantedBy=multi-user.target
 EOF
-
 ```
 
 ### Intall zookeeper
@@ -135,7 +134,6 @@ tar -xvf zookeeper-3.5.4-beta.tar.gz
 sudo mv zookeeper-3.5.4-beta /opt/zookeeper
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/conf/
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
-
 ```
 
 #### Enable kafka service and start 
@@ -159,7 +157,6 @@ sudo tar -xvf v0.11.6.tar.gz
 cd librdkafka-0.11.6/
 sudo ./configure --enable-sasl
 sudo make
-
 ```
 
 #### Build the plugin 
@@ -180,9 +177,8 @@ sudo make
 
 please see this url. 
 
-`https://github.com/hardenedlinux/hardenedlinux-bro-script/blob/master/scripts/bro-kafka.bro`
+[https://github.com/hardenedlinux/hardenedlinux-bro-script/blob/master/scripts/bro-kafka.bro](https://github.com/hardenedlinux/hardenedlinux-bro-script/blob/master/scripts/bro-kafka.bro)   
 
-```
 
 ### Ensure bro logs to kafka 
 
@@ -237,7 +233,8 @@ kibana-6.5.4-amd64.deb: OK
 ~/src$ echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 ```
 
-### Geoip plugin & geoip template
+### Geoip plugin & geoip template 
+```
 <a id="org628d771"></a>
 
     
@@ -249,7 +246,7 @@ kibana-6.5.4-amd64.deb: OK
 
 
 <a id="org61454c5"></a>
-
+```
 
 ### Create new logstash configuration 
 
@@ -274,13 +271,12 @@ output {
 		document_type => "software"
    	}
 }
-
 ```
+
 ### GEOIP & urldecode 
 
 ```
 NSM/ELK/conf/test/bro_http.conf
-
 ```
 Other conf files are stored in the [logstash-conf](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/tree/master/NSM/ELK/conf). Put these configuration files in the /etc/logstash/conf.d directory. 
 
@@ -452,10 +448,8 @@ cd bro-pf_ring/
 make && sudo make install
 bro -N Bro::PF_RING
 ```
-
 ## Node.cfg config
 modify /usr/local/bro/etc/node.cfg, the example likes that:
-
 ```
 [worker-1]
 type=worker
@@ -630,25 +624,17 @@ ref: <https://www.elastic.co/blog/logstash-jdbc-input-plugin>
 
 please see this url get more information:
 
-https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh
-
+[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh)  
 
 ## Reference  
-
-https://www.bro.org   
-http://try.bro.org/   
-https://www.bro.org/sphinx/scripts/base/frameworks/software/main.bro.html   
-https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_HTTP.events.bif.bro.html   
-https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_SSL.events.bif.bro.html   
-https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html   
-https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html   
-https://www.elastic.co/    
-https://github.com/apache/metron-bro-plugin-kafka
-https://bro-package-manager.readthedocs.io/en/stable/source.html
-https://www.elastic.co/blog/logstash-jdbc-input-plugin
-
-
-
-
-
-
+[https://www.zeek.org](https://www.zeek.org)  
+[http://try.bro.org](http://try.bro.org)   
+[https://www.bro.org/sphinx/scripts/base/frameworks/software/main.bro.html](https://www.bro.org/sphinx/scripts/base/frameworks/software/main.bro.html)   
+[https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_HTTP.events.bif.bro.html](https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_HTTP.events.bif.bro.html)  
+[https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_SSL.events.bif.bro.html](https://www.bro.org/sphinx/scripts/base/bif/plugins/Bro_SSL.events.bif.bro.html)  
+[https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html)   
+[https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html](https://www.elastic.co/guide/en/logstash/6.3/plugins-outputs-elasticsearch.html)  
+[https://www.elastic.co](https://www.elastic.co)   
+[https://github.com/apache/metron-bro-plugin-kafka](https://github.com/apache/metron-bro-plugin-kafka)  
+[https://bro-package-manager.readthedocs.io/en/stable/source.html](https://bro-package-manager.readthedocs.io/en/stable/source.html)  
+[https://www.elastic.co/blog/logstash-jdbc-input-plugin](https://www.elastic.co/blog/logstash-jdbc-input-plugin)  
