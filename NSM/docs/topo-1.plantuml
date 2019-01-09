@@ -1,0 +1,81 @@
+
+[*] --> Vast
+
+state Bro {
+ Bro_Logs : /usr/local/bro/logs
+ hardened_bro_script -->  Bro_Logs : custom bro_script
+ hardened_bro_script --> Plugin
+ plublic_script --> Bro_Logs
+ Plugin --> plublic_script : BinPac
+ plublic_script : bro_http2
+ plublic_script : mqtt_analyzer
+ plublic_script : bro-fuzzy-hashing
+ plublic_script : etc
+ hardened_bro_script --> kafka : bro_kafka.bro
+ Bro_Logs --> Broker
+ Broker --> Vast : Bro_Vast
+
+}
+
+state kafka {
+
+ Node_1 --> zoopeepr : sasl.kerberos
+ Bro_Logs  --> kafka
+}
+
+state Elastic {
+ Broker --> kafka : metro_bro_plugin
+ kafka_topic : kafka plugin
+ Elastic --> Vast : import data
+ kafka --> kafka_topic
+ postgresql --> jdbc : jdbc kafka plugin
+}
+
+state Vast {
+ Vast : high-performance message-passing
+ Bro_Logs --> Vast : Broker_vast
+ Vast_Bro_Los_database : parse Bro_logs and generate Indexing
+ Vast --> Elastic : export data
+
+}
+
+state Other_framework {
+
+ Other_framework --> Vast
+ Vast --> Other_framework
+
+}
+
+state Osquery_OS {
+  osquery_src : Support Broker
+  osquery_src --> bro_osquery_test
+  bro_osquery_test --> Broker
+  bro_osquery_test : a set of bro-osquery logs
+  bro_osquery_test --> kafka : Bro_osuqery.bro
+
+}
+
+
+state pdns {
+
+ Bro__Logs --> Indexing_pdns
+ Indexing_pdns --> Bro_DNS_Logs
+ Bro_DNS_Logs --> postgresql
+
+}
+
+state koild {
+
+note "Web manage Osquery_OS client" as N1
+ Osquery_OS --> koild : ip_addr:port
+
+}
+
+
+state honeygrove {
+
+ Broker --> honeygrove
+ honeygrove --> Broker
+ Vast --> honeygrove
+ honeygrove --> Vast
+}

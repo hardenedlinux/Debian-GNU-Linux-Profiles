@@ -1,4 +1,14 @@
+* Topology
+ #+ATTR_ORG: :width 700
+ #+ATTR_LATEX: :width 7in
+ #+ATTR_HTML: :width 700
+file:docs/image/topo.png
+
 * ELK materials
+#+BEGIN_UML
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+#+END_UML
 ** Basic ELK_System installation
 *** [Doc] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/ELK_with_bro_ID_doc.mkd][Debian-GNU-Linux-Profiles/ELK_with_bro_ID_doc.mkd at master · hardenedlinux/Debian-GNU-Linux-Profiles]]
 *** [Install] [[https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/ELK_INSTALL.sh][Debian-GNU-Linux-Profiles/ELK_INSTALL.sh at master · hardenedlinux/Debian-GNU-Linux-Profiles]]

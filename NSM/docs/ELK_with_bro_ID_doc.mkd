@@ -624,7 +624,13 @@ ref: <https://www.elastic.co/blog/logstash-jdbc-input-plugin>
 
 please see this url get more information:
 
+<<<<<<< HEAD
 [https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh)  
+=======
+
+https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/Osquery/bro-osquery.sh
+
+>>>>>>> add topology for NSM
 
 ## Reference  
 [https://www.zeek.org](https://www.zeek.org)  

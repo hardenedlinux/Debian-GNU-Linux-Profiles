@@ -206,6 +206,5 @@ sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logsta
  #+ATTR_ORG: :width 700
  #+ATTR_LATEX: :width 7in
  #+ATTR_HTML: :width 700
-  [[file:image/pdns_elk.jpg][pdns-elk]]
 
-
+ [[file:image/pdns_elk.jpg][pdns-elk]]
