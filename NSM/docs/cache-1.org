@@ -208,3 +208,42 @@ sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logsta
  #+ATTR_HTML: :width 700
 
  [[file:image/pdns_elk.jpg][pdns-elk]]
+
+* kafak Security protocl
+** SASL_PLAINTEXT
+This kafka is using SASL_PLAINTEXT as the security protocol
+#+begin_src sh :tangle yes
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_zoo_jaas.conf"
+
+
+#kafka-console-consumer.sh& kafka-console-producer.sh
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_client_jaas.conf"
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
+#+end_src
+** Kerberos
+- kbd server config files:
+
+
+#+begin_src sh :tangle yes
+/etc/krb5.conf
+/var/kerberos/krb5kdc/kdc.conf
+/etc/krb5kdc/kadm5.acl
+#+end_src
+
+
+- The service principal for metron is metron@EXAMPLE.COM
+#+begin_src sh :tangle
+
+kadmin.local -q "addprinc metron"
+#+end_src
+
+
+- The keytab used is the metron keytab
+#+begin_src sh :tangle yes
+
+## kadmin.local -q 'ktadd -k /etc/security/keytabs/${CLIENT_NAME}.keytab ${CLIENT_NAME}/${CLIENT_HOST}@{REALM}'
+
+kadmin.local ktadd -kt /etc/krb5kdc/metron.headless.keytab sensor1/metron@EXAMPLE.COM
+#+end_src
+
+
