@@ -52,7 +52,7 @@ if [ -d /usr/local/bro/bin ];then
 fi
 ``` 
 
-### Set bro to systemd and satrt bro service 
+### Set bro to systemd and start bro service 
 
 ```
 ~# cat > /etc/systemd/system/bro.service << EOL
