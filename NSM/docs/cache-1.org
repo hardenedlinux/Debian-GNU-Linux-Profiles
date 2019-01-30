@@ -209,20 +209,154 @@ sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logsta
 
  [[file:image/pdns_elk.jpg][pdns-elk]]
 
-* kafak Security protocl
+* kafak configuation &  Security protocl
+
+** Running Replicated ZooKeeper
+
+- [[https://zookeeper.apache.org/doc/r3.1.2/zookeeperStarted.html][ZooKeeper Getting Started Guide]]
+
+Copy ~zoo.cfg~ to each zooKeeper path, and modify or add
+- following link: https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/conf/zoo.cfg
+   #+begin_src sh :tangle yes
+autopurge.snapRetainCount=15
+autopurge.purgeInterval=1
+tickTime=2000
+clientPort=2181
+dataDir=/data/zookeeper/data
+initLimit=5
+syncLimit=5
+server.1=10.220.170.123:2888:3888
+server.2=10.220.170.120:2888:3888
+   #+end_src
+
+then,Restart Zookeeper service
+~sudo systemctl restart kafka.service~
+
+** Running Replicated Kafka
+Edit /opt/kafka/config/server.properties add thoes link
+   #+begin_src sh :tangle yes
+host.name=10.220.170.123
+zookeeper.connect=10.220.170.120:2181,10.220.170.123:2181
+num.partitions=3
+broker.id=1
+   #+end_src
+** SSL
+
+For easy example, we are going to use [[https://github.com/edenhill/librdkafka/blob/master/tests/gen-ssl-certs.sh][librdkafka/gen-ssl-certs.sh at master · edenhill/librdkafka]] script to make a test.
+
+- All key and keystore passwords are abcdefgh. See gen-ssl.certs.sh for how to change this.
+
+Generate SSL key and certificate for each Kafka broker
+*** CA-server
+ - setup your own CA with OpenSSL
+mkdir myca // CA directorya
+cd myca
+ #+begin_src sh :tangle yes
+ openssl
+ openssl>req -new -x509 -keyout ca-key -out ca-cert -days 365
+ #+end_src
+
+ - search the path where the java was installed
+~find / -name jre >>1.txt~
+
+ more 1.txt to view path
+  - usually, can be found in:
+~/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/keytool~
+
+ /symbolink to local/bin/
+~sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/keytool /usr/local/bin~
+ - adding ~ca-cert~ to truststore stated this client was trusted
+ #+begin_src sh :tangle yes
+/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/keytool -keystore client.truststore.jks -alias myca -import -file myca.cer
+ #+end_src
+
+sdsd
+#+begin_src sh :tangle yes
+ssl.keystore.location=/home/gtrun/ca/server.keystore.jks
+ssl.keystore.password=bro@123
+ssl.key.password=bro@123
+ssl.truststore.location=/home/gtrun/ca/server.truststore.jks
+ssl.truststore.password=bro@123
+ssl.client.auth=required
+ssl.enabled.protocols=TLSv1.2,TLSv1.1,TLSv1
+listeners=PLAINTEXT://:9092,SSL://10.220.170.120:9093
+zookeeper.connect=10.220.170.123:2181,10.220.170.120:2181
+num.partitions=2
+
+#+end_src
+
+
+zoopkeer
+#+begin_src sh :tangle yes
+echo 1 > /data/zookeeper/data/myid  ##echo to manage
+echo 2 > /data/zookeeper/data/myid  ##echo to test
+#+end_src
+*** CA-client
+    #+begin_src sh :tangle yes
+export CLIENT_PASS=zeekclient@123
+# Generate  Certificate
+
+keytool -genkeypair -keystore zeek-client.keystore.jks -storepass ${CLIENT_PASS} -alias zeek-client -keypass ${CLIENT_PASS} -validity 365 -dname CN=ZeekKafka,C=cn
+
+
+# Generate a CSR:
+
+keytool -certreq -keystore zeek-client.keystore.jks -storepass ${CLIENT_PASS} -alias zeek-client -keypass ${CLIENT_PASS} -file zeek-client.csr
+
+
+# Generate a self signed certificate for the CA:
+keytool -gencert -keystore mycastore.jks -storepass ${KSPASS} -alias myca -keypass ${KSPASS} -validity 365 -infile zeek-client.csr -outfile zeek-client.cer
+
+
+# check Cer
+keytool -printcert -file zeek-client.cer
+
+
+# import ca to truststore
+
+keytool -importcert -keystore zeek-client.truststore.jks -storepass ${CLIENT_PASS} -alias myca -keypass ${CLIENT_PASS} -file myca.cer
+
+
+
+# import CA  to keystore
+keytool -importcert -keystore zeek-client.keystore.jks -storepass ${CLIENT_PASS} -alias zeek-client -keypass ${CLIENT_PASS} -file zeek-client.cer
+
+    #+end_src
+
+
+    #+begin_src sh :tangle yes
+bootstrap.servers=10.220.170.123:9093
+security.protocol=SSL
+ssl.keystore.location=/home/gtrun/ca/zeek-client.keystore.jks
+ssl.keystore.password=broclient@123
+ssl.key.password=broclient@123
+ssl.truststore.location=/home/gtrun/ca/zeek-client.truststore.jks
+ssl.truststore.password=broclient@123
+producer.type=async
+    #+end_src
+[[https://gist.github.com/lk-fuyun/945997c3647c640c97daf33e451cd7ae][kafka集群安全认证配置.md]]
 ** SASL_PLAINTEXT
-This kafka is using SASL_PLAINTEXT as the security protocol
+   This kafka is using SASL_PLAINTEXT as the security protocol
 #+begin_src sh :tangle yes
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_zoo_jaas.conf"
-
-
 #kafka-console-consumer.sh& kafka-console-producer.sh
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_client_jaas.conf"
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
 #+end_src
 ** Kerberos
-- kbd server config files:
 
+
+suggest reading Ubuntu's Kerberos guide.[[https://help.ubuntu.com/community/Kerberos][Kerberos - Community Help Wiki]]
+
+- KDC Setup
+
+#+begin_src sh :tangle yes
+ sudo apt-get install krb5-kdc krb5-admin-server
+ sudo dpkg-reconfigure krb5-kdc
+#+end_src
+
+
+- kbd server config files:
 
 #+begin_src sh :tangle yes
 /etc/krb5.conf
@@ -232,6 +366,8 @@ export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_ser
 
 
 - The service principal for metron is metron@EXAMPLE.COM
+
+/Enter Su user/
 #+begin_src sh :tangle
 
 kadmin.local -q "addprinc metron"
@@ -245,5 +381,12 @@ kadmin.local -q "addprinc metron"
 
 kadmin.local ktadd -kt /etc/krb5kdc/metron.headless.keytab sensor1/metron@EXAMPLE.COM
 #+end_src
+** Authorized echo topics for metron user
 
+- https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/conf/auth-topics.sh
+   #+begin_src sh :tangle yes
+# login using the metron user
+kinit -kt /etc/security/keytabs/metron.headless.keytab metron@EXAMPLE.COM
+/opt/kafka/bin/kafka-acls.sh --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=node1:2181 --add --allow-principal User:metron --topic dns..
 
+   #+end_src

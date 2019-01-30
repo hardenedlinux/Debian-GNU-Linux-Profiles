@@ -17,7 +17,7 @@ echo config.reload.interval: 3s |sudo tee -a /etc/logstash/logstash.yml
 sudo systemctl restart logstash.service
 
 ##
-sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev zookeeperd autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl-dev
+sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev  autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl-dev
 mkdir src
 cd ~/src
 echo "Bro install..."
@@ -77,9 +77,9 @@ sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
 
 
 cd ~/src
-wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.4-beta/zookeeper-3.5.4-beta.tar.gz
-tar -xvf zookeeper-3.5.4-beta.tar.gz
-sudo mv zookeeper-3.5.4-beta /opt/zookeeper
+wget https://archive.apache.org/dist/zookeeper/zookeeper-3.4.13/zookeeper-3.4.13.tar.gz
+tar -xvf zookeeper-3.4.13.tar.gz
+sudo mv zookeeper-3.4.13 /opt/zookeeper
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/conf/
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
 sudo systemctl daemon-reload

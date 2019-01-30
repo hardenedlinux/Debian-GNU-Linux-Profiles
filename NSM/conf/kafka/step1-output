@@ -1,0 +1,58 @@
+Kafka
+###########################################################################################################################
+# ##test bro-0                                                                                                            #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,201] INFO [Partition ssl-0 broker=0] ssl-0 start #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,201] WARN [LeaderEpochCache ssl-0] New epoch ent #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,203] INFO [Partition conn-0 broker=0] conn-0 sta #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,203] WARN [LeaderEpochCache conn-0] New epoch en #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,204] INFO [Partition ssh-0 broker=0] ssh-0 start #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,204] WARN [LeaderEpochCache ssh-0] New epoch ent #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,204] INFO [Partition dns-0 broker=0] dns-0 start #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,205] WARN [LeaderEpochCache dns-0] New epoch ent #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,205] INFO [Partition x509-0 broker=0] x509-0 sta #
+# Jan 30 03:57:49 test kafka-server-start.sh[9461]: [2019-01-30 03:57:49,205] WARN [LeaderEpochCache x509-0] New epoch en #
+#                                                                                                                         #
+#                                                                                                                         #
+# #manage bro:1                                                                                                           #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,757] INFO [GroupMetadataManager brokerId=1]  #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,764] INFO [ProducerId Manager 1]: Acquired n #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,774] INFO [TransactionCoordinator id=1] Star #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,775] INFO [Transaction Marker Channel Manage #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,775] INFO [TransactionCoordinator id=1] Star #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,794] INFO [/config/changes-event-process-thr #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,804] INFO [SocketServer brokerId=1] Started  #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,807] INFO Kafka version : 2.1.0 (org.apache. #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,807] INFO Kafka commitId : 809be928f1ae004e  #
+# Jan 30 03:58:11 manager kafka-server-start.sh[23106]: [2019-01-30 03:58:11,808] INFO [KafkaServer id=1] started (kafka  #
+###########################################################################################################################
+
+
+Zookeeper
+
+###########################################################################################################################
+# an 30 03:53:08 test zkServer.sh[648]: 2019-01-30 03:53:08,352 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2  #
+# Jan 30 03:53:08 test zkServer.sh[648]: 2019-01-30 03:53:08,356 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2 #
+# Jan 30 03:53:08 test zkServer.sh[648]: 2019-01-30 03:53:08,357 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@694] #
+# Jan 30 03:57:44 test zkServer.sh[648]: 2019-01-30 03:57:44,772 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2 #
+# Jan 30 03:57:48 test zkServer.sh[648]: 2019-01-30 03:57:48,510 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2 #
+# Jan 30 03:57:48 test zkServer.sh[648]: 2019-01-30 03:57:48,511 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2 #
+# Jan 30 03:57:48 test zkServer.sh[648]: 2019-01-30 03:57:48,514 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@694] #
+# Jan 30 03:58:11 test zkServer.sh[648]: 2019-01-30 03:58:11,266 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2 #
+# Jan 30 03:58:11 test zkServer.sh[648]: 2019-01-30 03:58:11,268 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2 #
+# Jan 30 03:58:11 test zkServer.sh[648]: 2019-01-30 03:58:11,269 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@694  #
+###########################################################################################################################
+
+
+
+###########################################################################################################################
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,302 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,303 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,304 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,305 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,306 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,307 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,308 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,309 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,309 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+# Jan 30 03:58:11 manager zkServer.sh[774]: 2019-01-30 03:58:11,310 [myid:2] - INFO  [ProcessThread(sid:2 cport:-1)::Prep #
+###########################################################################################################################

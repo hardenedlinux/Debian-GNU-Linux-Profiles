@@ -1,0 +1,21 @@
+state Zookeeper {
+
+ Zookeeper_test1 --> Broker_ID1
+Zookeeper_test2 --> Broker_ID2
+}
+
+[*] --> Bro-topics
+state kafka {
+ Broker_ID1 --> Zookeeper_test1
+ Broker_ID2 --> Zookeeper_test2
+
+produce --> Bro_topics : sasl :metron_user
+}
+
+
+
+state SASL {
+
+Authentication --> Client
+Authorization --> Bro-topics
+}
