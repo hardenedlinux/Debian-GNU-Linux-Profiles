@@ -1,4 +1,5 @@
 
+
 state Kafka {
 Zookpeeper_server1 --> Zookpeeper_server_N : autopurge_Logs
 Kafka_broker_ID_1 --> Kafka_produce_meta_brokerlist_1
