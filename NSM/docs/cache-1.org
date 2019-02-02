@@ -346,7 +346,7 @@ export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_ser
 ** Kerberos
 
 
-suggest reading Ubuntu's Kerberos guide.[[https://help.ubuntu.com/community/Kerberos][Kerberos - Community Help Wiki]]
+   suggest reading Ubuntu's Kerberos guide.[[https://help.ubuntu.com/community/Kerberos][Kerberos - Community Help Wiki]]
 
 - KDC Setup
 

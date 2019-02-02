@@ -1,0 +1,18 @@
+
+state Kafka {
+Zookpeeper_server1 --> Zookpeeper_server_N : autopurge_Logs
+Kafka_broker_ID_1 --> Kafka_produce_meta_brokerlist_1
+Kafka_broker_ID_N --> Kafka_produce_meta_brokerlist_N
+
+}
+
+state Zeek {
+ Zeek_Logs --> Kafka_broker_ID_1 : SASL
+}
+
+state Logstash
+
+{
+ Kafka_plugin --> Kafak_broker_ID_1 :SASL : SSL
+ Kafka_plugin --> Kafak_broker_ID_N :SASL : SSL
+}

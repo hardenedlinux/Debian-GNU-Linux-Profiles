@@ -1,0 +1,22 @@
+
+
+
+state Zeek {
+
+Zeek_Server --> Zeek_Client : SSHD :Logs
+Zeek_Client --> Zeek_Server : SSHD :Logs
+ SSHD --> Zeek_Broker
+
+}
+
+
+state Kafka {
+
+ Zeek_Server --> produce : Broker :SSL
+}
+
+state Logstash {
+
+kafka_plugin --> ssl_protocol : Meta_brokerlist
+
+}

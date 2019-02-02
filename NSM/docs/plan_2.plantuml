@@ -1,0 +1,21 @@
+state Kafka {
+ Zookpeeper_server1 --> Zookpeeper_server_N : autopurge_Logs
+  Kafka_broker_ID_1 --> Kafka_broker_ID_N : SSL :SASL
+ Kafka_produce : async_logs
+
+}
+
+
+state Zeek {
+Zeek_Client_1 --> Kafka_broker_ID_1 : Broker :SASL :Inner_protocol
+Zeek_Client_1 --> Kafka_broker_ID_N : Broker :SASL :Inner_protocol
+
+}
+
+
+state Logstash {
+
+kafka_plugin --> kafka_broker_ID_1 : SSL :SASL
+kafka_plugin --> kafka_broker_ID_N : SSL :SASL
+
+}
