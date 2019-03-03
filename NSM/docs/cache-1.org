@@ -209,44 +209,75 @@ sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-exec logsta
 
  [[file:image/pdns_elk.jpg][pdns-elk]]
 
-* kafak configuation &  Security protocl
 
-** Running Replicated ZooKeeper
 
-- [[https://zookeeper.apache.org/doc/r3.1.2/zookeeperStarted.html][ZooKeeper Getting Started Guide]]
+* Kafka PLant-1
+file:://imgae/plant-1.svg
+** Kerberos
 
-Copy ~zoo.cfg~ to each zooKeeper path, and modify or add
-- following link: https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/conf/zoo.cfg
+   suggest reading Ubuntu's Kerberos guide.[[https://help.ubuntu.com/community/Kerberos][Kerberos - Community Help Wiki]]
+
+- KDC Setup
+
+#+begin_src sh :tangle yes
+ sudo apt-get install krb5-kdc krb5-admin-server
+ sudo dpkg-reconfigure krb5-kdc
+#+end_src
+
+1. Default Kerberos version 5 realm: insert your REALM.
+2. Kerberos servers for your realm: insert your KDC_HOST
+3. Administrative server for your Kerberos realm: insert your KDC_HOST
+
+
+- kbd server config files:
+
+#+begin_src sh :tangle yes
+/etc/krb5.conf
+/var/kerberos/krb5kdc/kdc.conf
+/etc/krb5kdc/kadm5.acl
+#+end_src
+
+
+-  Create client principal and keytab on Kerberos server, and  service principal for metron is metron@EXAMPLE.COM:
+
+/Enter Su user/
+#+begin_src sh :tangle
+
+kadmin.local -q "addprinc metron"
+#+end_src
+
+
+- The keytab used is the metron keytab
+#+begin_src sh :tangle yes
+
+## kadmin.local -q 'ktadd -k /etc/security/keytabs/${CLIENT_NAME}.keytab ${CLIENT_NAME}/${CLIENT_HOST}@{REALM}'
+
+kadmin.local ktadd -kt /etc/krb5kdc/metron.headless.keytab sensor1/metron@EXAMPLE.COM
+#+end_src
+** Using SASL with librdkafka
+
+   This kafka is using SASL_PLAINTEXT and SASL_SSL (if you have configured SSL, otherwise set up to SASL_PLAINTEXT ) as the security protocol.
+
+add JAAS configuration file into the JVM using the java.security.auth.login.config as following:
+#+begin_src sh :tangle yes
+export KAFKA_OPTS="-Djava.security.auth.logi n.config=/opt/kafka/config/kafka_zoo_jaas.conf"
+#kafka-console-consumer.sh& kafka-console-producer.sh
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_client_jaas.conf"
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
+#+end_src
+** Authorized echo topics for metron user
+
+- https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/conf/auth-topics.sh
    #+begin_src sh :tangle yes
-autopurge.snapRetainCount=15
-autopurge.purgeInterval=1
-tickTime=2000
-clientPort=2181
-dataDir=/data/zookeeper/data
-initLimit=5
-syncLimit=5
-server.1=10.220.170.123:2888:3888
-server.2=10.220.170.120:2888:3888
+# login using the metron user
+kinit -kt /etc/security/keytabs/metron.headless.keytab metron@EXAMPLE.COM
+/opt/kafka/bin/kafka-acls.sh --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=node1:2181 --add --allow-principal User:metron --topic dns..
+
    #+end_src
-
-then,Restart Zookeeper service
-~sudo systemctl restart kafka.service~
-
-** Running Replicated Kafka
-Edit /opt/kafka/config/server.properties add thoes link
-   #+begin_src sh :tangle yes
-host.name=10.220.170.123
-zookeeper.connect=10.220.170.120:2181,10.220.170.123:2181
-num.partitions=3
-broker.id=1
-   #+end_src
-** SSL
-
-For easy example, we are going to use [[https://github.com/edenhill/librdkafka/blob/master/tests/gen-ssl-certs.sh][librdkafka/gen-ssl-certs.sh at master · edenhill/librdkafka]] script to make a test.
-
-- All key and keystore passwords are abcdefgh. See gen-ssl.certs.sh for how to change this.
-
-Generate SSL key and certificate for each Kafka broker
+** ✘ CANCELED SSL
+   CLOSED: [2019-02-21 Thu 00:10]
+   - State "✘ CANCELED" from              [2019-02-21 Thu 00:10] \\
+     replaced
 *** CA-server
  - setup your own CA with OpenSSL
 mkdir myca // CA directorya
@@ -335,58 +366,37 @@ ssl.truststore.password=broclient@123
 producer.type=async
     #+end_src
 [[https://gist.github.com/lk-fuyun/945997c3647c640c97daf33e451cd7ae][kafka集群安全认证配置.md]]
-** SASL_PLAINTEXT
-   This kafka is using SASL_PLAINTEXT as the security protocol
-#+begin_src sh :tangle yes
-export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_zoo_jaas.conf"
-#kafka-console-consumer.sh& kafka-console-producer.sh
-export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_client_jaas.conf"
-export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
-#+end_src
-** Kerberos
+** ✘ CANCELED Running Replicated ZooKeeper
+   CLOSED: [2019-02-21 Thu 00:10]
 
+   - State "✘ CANCELED" from              [2019-02-21 Thu 00:10] \\
+     replaced
+- [[https://zookeeper.apache.org/doc/r3.1.2/zookeeperStarted.html][ZooKeeper Getting Started Guide]]
 
-   suggest reading Ubuntu's Kerberos guide.[[https://help.ubuntu.com/community/Kerberos][Kerberos - Community Help Wiki]]
-
-- KDC Setup
-
-#+begin_src sh :tangle yes
- sudo apt-get install krb5-kdc krb5-admin-server
- sudo dpkg-reconfigure krb5-kdc
-#+end_src
-
-
-- kbd server config files:
-
-#+begin_src sh :tangle yes
-/etc/krb5.conf
-/var/kerberos/krb5kdc/kdc.conf
-/etc/krb5kdc/kadm5.acl
-#+end_src
-
-
-- The service principal for metron is metron@EXAMPLE.COM
-
-/Enter Su user/
-#+begin_src sh :tangle
-
-kadmin.local -q "addprinc metron"
-#+end_src
-
-
-- The keytab used is the metron keytab
-#+begin_src sh :tangle yes
-
-## kadmin.local -q 'ktadd -k /etc/security/keytabs/${CLIENT_NAME}.keytab ${CLIENT_NAME}/${CLIENT_HOST}@{REALM}'
-
-kadmin.local ktadd -kt /etc/krb5kdc/metron.headless.keytab sensor1/metron@EXAMPLE.COM
-#+end_src
-** Authorized echo topics for metron user
-
-- https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/conf/auth-topics.sh
+Copy ~zoo.cfg~ to each zooKeeper path, and modify or add
+- following link: https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/conf/zoo.cfg
    #+begin_src sh :tangle yes
-# login using the metron user
-kinit -kt /etc/security/keytabs/metron.headless.keytab metron@EXAMPLE.COM
-/opt/kafka/bin/kafka-acls.sh --authorizer kafka.security.auth.SimpleAclAuthorizer --authorizer-properties zookeeper.connect=node1:2181 --add --allow-principal User:metron --topic dns..
+autopurge.snapRetainCount=15
+autopurge.purgeInterval=1
+tickTime=2000
+clientPort=2181
+dataDir=/data/zookeeper/data
+initLimit=5
+syncLimit=5
+server.1=10.220.170.123:2888:3888
+server.2=10.220.170.120:2888:3888
+   #+end_src
 
+then,Restart Zookeeper service
+~sudo systemctl restart kafka.service~
+** ✘ CANCELED Running Replicated Kafka
+   CLOSED: [2019-02-21 Thu 00:10]
+   - State "✘ CANCELED" from              [2019-02-21 Thu 00:10] \\
+     replaced
+Edit /opt/kafka/config/server.properties add thoes link
+   #+begin_src sh :tangle yes
+host.name=10.220.170.123
+zookeeper.connect=10.220.170.120:2181,10.220.170.123:2181
+num.partitions=3
+broker.id=1
    #+end_src
