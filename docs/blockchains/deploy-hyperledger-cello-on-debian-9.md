@@ -138,15 +138,15 @@ net.ipv4.ip_forward=1
 On some old version of Cello, the official doc will told you to init your worker node with following command. 
 
 ```
-MASTER_NODE_IP=x.x.x.x make setup-worker
+MASTER_NODE=x.x.x.x make setup-worker
 ```
 
-But In newer version, they empty the value of `MASTER_NODE_IP` before the initiation process in
-`cello/scripts/worker_node/setup_worker_node_docker.sh` on line 55
+But In newer version, they empty the value of `MASTER_NODE` before the initiation process in
+`cello/scripts/worker_node/setup_worker_node_docker.sh` on line 28
 
 So you should set this value manually. otherwise, the worker node don't know they have to connect the master node's NFS service.
 
-After setting the `MASTER_NODE_IP` in the script, now you can deploy the worker node.
+After setting the `MASTER_NODE` in the script, now you can deploy the worker node.
 
 ```
 make setup-worker
