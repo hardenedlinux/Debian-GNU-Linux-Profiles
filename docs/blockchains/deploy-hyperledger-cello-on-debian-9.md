@@ -145,6 +145,11 @@ But In newer version, they empty the value of `MASTER_NODE` before the initiatio
 
 So you should set this value manually. otherwise, the worker node don't know they have to connect the master node's NFS service.
 
+Install nfs utility 
+```
+apt install nfs-common
+```
+
 After setting the `MASTER_NODE` in the script, now you can deploy the worker node.
 
 ```
