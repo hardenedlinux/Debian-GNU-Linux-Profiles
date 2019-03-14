@@ -9,13 +9,13 @@ OS: Debian 9
 ### Prerequisites
 
 ```
-apt install git make sudo dirmngr  -y
+sudo apt install git make sudo dirmngr python-pip tox curl -y
 ```
 
 Install Docker
 
 ```
-apt install apt-transport-https ca-certificates curl software-properties-common gnupg2 -y
+sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg2 -y
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 sudo apt update
@@ -26,8 +26,8 @@ Install Docker compose (Because the Cello using the docker compose v3 syntax, We
 
 ```
 sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
-apt update
-apt install -t stretch-backports docker-compose -y
+sudo apt update
+sudo apt install -t stretch-backports docker-compose -y
 ```
 
 ```
@@ -41,9 +41,8 @@ We checkout this commmit because we test all function in this version of source 
 
 #### Deploy Master Node
 
-
 ```
-SERVER_PUBLIC_IP=x.x.x.x make setup-master
+sudo SERVER_PUBLIC_IP=x.x.x.x make setup-master
 ```
 
 If you encouter timeout error on keyclock service like below
@@ -80,7 +79,7 @@ You can check `https://access.redhat.com/solutions/1190323` for more details
 After finish the master node deployment, we can start  the service with
 
 ```
-SERVER_PUBLIC_IP=x.x.x.x  make start
+sudo SERVER_PUBLIC_IP=x.x.x.x  make start
 ```
 
 #### Deploy worker node
@@ -93,7 +92,7 @@ We using docker for our worker node deployment, first we have to install the doc
 Install Docker
 
 ```
-apt install apt-transport-https ca-certificates curl software-properties-common gnupg2 git make sudo dirmngr -y
+sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg2 git make sudo dirmngr -y
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 sudo apt update
@@ -124,8 +123,8 @@ ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_OPTS
 ```
 
 ```
-systemctl daemon-reload
-systemctl restart docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
 ```
 
 edit `/etc/sysctl.conf`
@@ -138,7 +137,7 @@ net.ipv4.ip_forward=1
 On some old version of Cello, the official doc will told you to init your worker node with following command. 
 
 ```
-MASTER_NODE=x.x.x.x make setup-worker
+sudo MASTER_NODE=x.x.x.x make setup-worker
 ```
 
 But In newer version, they empty the value of `MASTER_NODE` before the initiation process in
@@ -149,7 +148,7 @@ So you should set this value manually. otherwise, the worker node don't know the
 After setting the `MASTER_NODE` in the script, now you can deploy the worker node.
 
 ```
-make setup-worker
+sudo make setup-worker
 ```
 
 After finish the initiation, you can add the host on the `http://MASTER_IP:8080/` and create the new chain.
