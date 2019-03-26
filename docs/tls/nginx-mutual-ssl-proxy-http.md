@@ -7,23 +7,24 @@ We are using ElasticSearch as our example
 ### Install ElasticSearch
 
 ```
-apt install openjdk-8-jdk -y
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
-echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-6.x.list
-apt update
-apt-get install elasticsearch -y
+apt install sudo -y
+sudo apt install openjdk-8-jdk -y
+sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+sudo apt update
+sudo apt-get install elasticsearch -y
 ```
 changing the binding address as 127.0.0.1
 
 Starting the service
 ```
-systemctl start elasticsearch
+sudo systemctl start elasticsearch
 ```
 
 Using the curl to check if it's working
 
 ```
-apt install curl libcurl4-gnutls-dev -y
+sudo apt install curl libcurl4-gnutls-dev -y
 curl http://127.0.0.1:9200
 ```
 
@@ -54,15 +55,15 @@ And return
 Install backports repo
 
 ```
-sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
-apt update
-apt install -t stretch-backports nginx -y
+sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
+sudo apt update
+sudo apt install -t stretch-backports nginx -y
 ```
 
 #### Create CA and sign certificate
 
 ```
-apt install gnutls-bin -y
+sudo apt install gnutls-bin -y
 ```
 
 save following command as gen-root-ca.sh
@@ -167,7 +168,7 @@ server {
 ```
 Restart the nginx
 ```
-systemctl restart nginx
+sudo systemctl restart nginx
 ```
 
 Check it with curl
@@ -308,16 +309,17 @@ certtool --generate-certificate \
 Install backports repo
 
 ```
-sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
-apt update
-apt install -t stretch-backports nginx -y
+apt install sudo -y
+sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
+sudo apt update
+sudo apt install -t stretch-backports nginx -y
 ```
 and copy `root-ca-ecdsa-cert.pem`, `client-rsa-key.pem` and `client-rsa-cert.pem` to client's server /etc/ssl/
 
 Install curl
 
 ```
-apt install curl libcurl4-gnutls-dev -y
+sudo apt install curl libcurl4-gnutls-dev -y
 ```
 
 Configure the nginx as reserve proxy
@@ -343,7 +345,7 @@ server {
 
 Restart the service
 ```
-systemctl restart nginx
+sudo systemctl restart nginx
 ```
 Using the Curl to check the Service
 ```
@@ -368,3 +370,78 @@ curl http://127.0.0.1:9200
   "tagline" : "You Know, for Search"
 }
 ```
+
+Until now, we finish the client authentication. Means the server can verify the client is authentic.
+
+After that, We need to configurate the client to verify the server.
+
+
+#### Verify the Server
+
+edit the  `/etc/nginx/sites-enabled/default`
+
+```server {
+        listen 127.0.0.1:9200 default_server;
+        server_name rsclient;
+
+        location / {
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_ssl_certificate /etc/ssl/client-rsa-cert.pem;
+                proxy_ssl_certificate_key /etc/ssl/client-rsa-key.pem;
+
+                proxy_ssl_trusted_certificate /etc/ssl/root-ca-ecdsa-cert.pem;
+                proxy_ssl_verify       on;
+                proxy_ssl_verify_depth 2;
+
+                proxy_pass https://esserver/;
+                proxy_redirect http:// https://;
+        }
+
+}
+```
+Right now we using `esserver` as domain name ( common name )
+
+When we verify the server, we need to verify their `cn` (common name).
+We sign the server's certificate with `cn` `esserver` so we need to use it, in our nginx config, otherwise 
+Nginx will encounter error
+
+```
+upstream SSL certificate does not match "192.168.200.131" while SSL handshaking to upstream, client: 127.0.0.1, server: 127.0.0.1:9200, upstream: "192.168.200.131:443", bytes from/to client:0/0, bytes from/to upstream:0/0
+```
+
+And add the `esserver` to `/etc/hosts`
+```
+sudo echo "192.168.200.131 esserver" >> /etc/hosts
+```
+
+And then restart the nginx service
+
+```
+sudo systemctl restart nginx
+```
+
+testing
+
+```
+curl http://127.0.0.1:9210 -k
+{
+  "name" : "ktiZiXR",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "H5PnL1q1SSGxcASCfx2c5g",
+  "version" : {
+    "number" : "6.6.1",
+    "build_flavor" : "default",
+    "build_type" : "deb",
+    "build_hash" : "1fd8f69",
+    "build_date" : "2019-02-13T17:10:04.160291Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.6.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+Right now, we finish SSL Mutual Authentication
