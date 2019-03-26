@@ -357,9 +357,9 @@ curl http://127.0.0.1:9210 -k
 
 Reference: 
 
-https://docs.nginx.com/nginx/admin-guide/security-controls/securing-http-traffic-upstream/
-http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html
-https://docs.nginx.com/nginx/admin-guide/load-balancer/using-proxy-protocol/
-http://nginx.org/en/docs/stream/ngx_stream_ssl_module.html
-https://docs.nginx.com/nginx/admin-guide/load-balancer/tcp-udp-load-balancer/
-https://www.nginx.com/blog/tcp-load-balancing-udp-load-balancing-nginx-tips-tricks/
+https://docs.nginx.com/nginx/admin-guide/security-controls/securing-http-traffic-upstream/  
+http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html  
+https://docs.nginx.com/nginx/admin-guide/load-balancer/using-proxy-protocol/  
+http://nginx.org/en/docs/stream/ngx_stream_ssl_module.html  
+https://docs.nginx.com/nginx/admin-guide/load-balancer/tcp-udp-load-balancer/  
+https://www.nginx.com/blog/tcp-load-balancing-udp-load-balancing-nginx-tips-tricks/  
