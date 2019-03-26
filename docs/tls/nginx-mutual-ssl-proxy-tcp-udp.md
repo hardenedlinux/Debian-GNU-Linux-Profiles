@@ -7,6 +7,7 @@ We are using ElasticSearch as our example
 ### For server side  
 #### Pre-Install packages  
 ```
+# apt install  sudo -y
 sudo apt-get install apt-transport-https curl libcurl4-gnutls-dev -y
 ```
 
@@ -288,7 +289,7 @@ certtool --generate-certificate \
 
 ### For client side
 
-#### Pro-Install packages 
+#### Pre-Install packages 
 ```
 apt install curl libcurl4-gnutls-dev -y
 ```
@@ -296,6 +297,7 @@ apt install curl libcurl4-gnutls-dev -y
 #### Install nginx of backports repo 
 
 ```
+# apt install sudo -y
 sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
 sudo apt update
 sudo apt install -t stretch-backports nginx -y 
@@ -324,7 +326,7 @@ stream {
 
 Restart the service
 ```
-systemctl restart nginx
+sudo ystemctl restart nginx
 ```
 Using the Curl to check the Service
 ```
@@ -349,6 +351,76 @@ curl http://127.0.0.1:9210 -k
   "tagline" : "You Know, for Search"
 }
 ```
+
+#### Verify the Server
+
+edit the  `/etc/nginx/nginx.conf`
+
+```
+stream {
+  upstream esserver {
+    server esserver:9243;
+  }
+  server {
+    listen 127.0.0.1:9210;
+    proxy_ssl on;
+    proxy_ssl_certificate /etc/ssl/client-rsa-cert.pem;
+    proxy_ssl_certificate_key /etc/ssl/client-rsa-key.pem;
+
+    proxy_ssl_trusted_certificate /etc/ssl/root-ca-ecdsa-cert.pem;
+    proxy_ssl_verify       on;
+    proxy_ssl_verify_depth 2;
+
+    proxy_pass esserver;
+  }
+}
+```
+Right now we using `esserver` as domain name ( common name )
+
+When we verify the server, we need to verify their `cn` (common name).
+We sign the server's certificate with `cn` `esserver` so we need to use it, in our nginx config, otherwise 
+Nginx will encounter error
+
+```
+upstream SSL certificate does not match "es_tls_backends" while SSL handshaking to upstream, client: 127.0.0.1, server: 127.0.0.1:9210, upstream: "192.168.200.131:9243", bytes from/to client:0/0, bytes from/to upstream:0/0
+```
+
+And add the `esserver` to `/etc/hosts`
+```
+sudo echo "192.168.200.131 esserver" >> /etc/hosts
+```
+
+And then restart the nginx service
+
+```
+sudo systemctl restart nginx
+```
+
+testing
+
+```
+curl http://127.0.0.1:9210 -k
+{
+  "name" : "ktiZiXR",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "H5PnL1q1SSGxcASCfx2c5g",
+  "version" : {
+    "number" : "6.6.1",
+    "build_flavor" : "default",
+    "build_type" : "deb",
+    "build_hash" : "1fd8f69",
+    "build_date" : "2019-02-13T17:10:04.160291Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.6.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+Right now, we finish SSL Mutual Authentication
+
 
 Reference: 
 
