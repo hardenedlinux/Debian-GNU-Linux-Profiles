@@ -6,8 +6,9 @@ We are using ElasticSearch as our example
 
 ### For server side  
 #### Pre-Install packages  
+Install sudo and set capabilities for usual user, example(user name is test):
 ```
-# apt install  sudo -y
+# apt install  sudo -y && USER="test"; chmod 640 /etc/sudoers && sed -i "/^root/a\\${USER}   ALL=(ALL:ALL) ALL" /etc/sudoers && chmod 440 /etc/sudoers
 sudo apt-get install apt-transport-https curl libcurl4-gnutls-dev -y
 ```
 
@@ -24,7 +25,7 @@ changing the binding address as 127.0.0.1
 
 Starting the service
 ```
-systemctl start elasticsearch
+sudo systemctl start elasticsearch
 ```
 
 Using the curl to check if it's working
@@ -141,6 +142,9 @@ certtool --generate-certificate \
 ```
 
 move the certificate and private key to /etc/ssl/
+```
+sudo mv *.pem /etc/ssl/ 
+```
 
 #### Configurate the Nginx
 
@@ -217,14 +221,19 @@ stream {
   }
 }
 ```
-And using curl to check again
 
+Restart the nginx
+```
+sudo systemctl restart nginx
+```
+
+And using curl to check again 
 ```
 curl https://192.168.200.131:9243 -k 
 curl: (52) Empty reply from server
 
 ```
-Because we don't provide the certificate signed by our CA, so we can't access this service
+Because we don't provide the certificate signed by our CA, so we can't access this service.
 
 We could using the Server's nginx certificate for testing purpose. Because this certificate signed by our CA.
 ```
