@@ -122,7 +122,7 @@ country = CN
 organization = "x"
 unit = "ES"
 cn = "esserver"
-tls_www_client
+tls_www_server
 signing_key
 EOF
 ```
