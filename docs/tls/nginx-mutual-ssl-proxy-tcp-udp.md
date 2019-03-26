@@ -235,9 +235,9 @@ curl: (52) Empty reply from server
 ```
 Because we don't provide the certificate signed by our CA, so we can't access this service.
 
-We could using the Server's nginx certificate for testing purpose. Because this certificate signed by our CA.
+We could using the client's nginx certificate on client for testing purpose. Need client certificate signed by our CA. An example is as follows:
 ```
-curl --key /etc/ssl/server-rsa-key.pem --cert /etc/ssl/server-rsa-cert.pem https://192.168.200.131:9243 -k
+curl --key /etc/ssl/client-rsa-key.pem --cert /etc/ssl/client-rsa-cert.pem https://192.168.200.131:9243 -k
 
 {
   "name" : "ktiZiXR",
@@ -258,7 +258,6 @@ curl --key /etc/ssl/server-rsa-key.pem --cert /etc/ssl/server-rsa-cert.pem https
 }
 ```
 So the Client authentication is working.
-
 
 #### Sign the client's certificate
 
