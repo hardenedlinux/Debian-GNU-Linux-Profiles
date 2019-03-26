@@ -4,14 +4,20 @@ System: Debian 9
 
 We are using ElasticSearch as our example
 
-### Install ElasticSearch
+### For server side  
+#### Pre-Install packages  
+```
+sudo apt-get install apt-transport-https curl libcurl4-gnutls-dev -y
+```
+
+#### Install ElasticSearch
 
 ```
-apt install openjdk-8-jdk -y
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
-echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-6.x.list
-apt update
-apt-get install elasticsearch -y
+sudo apt install openjdk-8-jdk -y
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+sudo apt update
+sudo apt-get install elasticsearch -y
 ```
 changing the binding address as 127.0.0.1
 
@@ -23,7 +29,6 @@ systemctl start elasticsearch
 Using the curl to check if it's working
 
 ```
-apt install curl libcurl4-gnutls-dev -y
 curl http://127.0.0.1:9200
 ```
 
@@ -49,20 +54,17 @@ And return
 }
 ```
 
-### For server side
-
-Install backports repo
-
+#### Install nginx of backports repo
 ```
-sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
-apt update
-apt install -t stretch-backports nginx -y
+sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
+sudo apt update
+sudo apt install -t stretch-backports nginx -y
 ```
 
 #### Create CA and sign certificate
 
 ```
-apt install gnutls-bin -y
+sudo apt install gnutls-bin -y
 ```
 
 save following command as gen-root-ca.sh
@@ -163,13 +165,13 @@ stream {
 ```
 Restart the nginx
 ```
-systemctl restart nginx
+sudo systemctl restart nginx
 ```
 
 Check it with curl
 
 ```
-curl https://192.168.200.131:9343 -k
+curl https://192.168.200.131:9243 -k
 
 {
   "name" : "ktiZiXR",
@@ -217,7 +219,6 @@ stream {
 And using curl to check again
 
 ```
-
 curl https://192.168.200.131:9243 -k 
 curl: (52) Empty reply from server
 
@@ -225,7 +226,6 @@ curl: (52) Empty reply from server
 Because we don't provide the certificate signed by our CA, so we can't access this service
 
 We could using the Server's nginx certificate for testing purpose. Because this certificate signed by our CA.
-
 ```
 curl --key /etc/ssl/server-rsa-key.pem --cert /etc/ssl/server-rsa-cert.pem https://192.168.200.131:9243 -k
 
@@ -288,20 +288,19 @@ certtool --generate-certificate \
 
 ### For client side
 
-Install backports repo
-
-```
-sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
-apt update
-apt install -t stretch-backports nginx -y
-```
-and copy `root-ca-ecdsa-cert.pem`, `client-rsa-key.pem` and `client-rsa-cert.pem` to client's server /etc/ssl/
-
-Install curl
-
+#### Pro-Install packages 
 ```
 apt install curl libcurl4-gnutls-dev -y
 ```
+
+#### Install nginx of backports repo 
+
+```
+sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
+sudo apt update
+sudo apt install -t stretch-backports nginx -y 
+```
+and copy `root-ca-ecdsa-cert.pem`, `client-rsa-key.pem` and `client-rsa-cert.pem` to client's server /etc/ssl/
 
 Configure the nginx as reserve proxy
 
@@ -350,10 +349,6 @@ curl http://127.0.0.1:9210 -k
   "tagline" : "You Know, for Search"
 }
 ```
-
-
-
-
 
 Reference: 
 
