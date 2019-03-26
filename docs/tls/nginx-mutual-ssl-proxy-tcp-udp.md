@@ -299,13 +299,13 @@ certtool --generate-certificate \
 
 #### Pre-Install packages 
 ```
-apt install curl libcurl4-gnutls-dev -y
+# apt install  sudo -y && USER="test"; chmod 640 /etc/sudoers && sed -i "/^root/a\\${USER}   ALL=(ALL:ALL) ALL" /etc/sudoers && chmod 440 /etc/sudoers
+sudo apt install curl libcurl4-gnutls-dev -y
 ```
 
 #### Install nginx of backports repo 
 
 ```
-# apt install sudo -y
 sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
 sudo apt update
 sudo apt install -t stretch-backports nginx -y 
@@ -334,7 +334,7 @@ stream {
 
 Restart the service
 ```
-sudo ystemctl restart nginx
+sudo systemctl restart nginx
 ```
 Using the Curl to check the Service
 ```
@@ -399,7 +399,7 @@ upstream SSL certificate does not match "es_tls_backends" while SSL handshaking 
 
 And add the `esserver` to `/etc/hosts`
 ```
-sudo echo "192.168.200.131 esserver" >> /etc/hosts
+sudo sed -i '$a192.168.200.131 esserver' /etc/hosts
 ```
 
 And then restart the nginx service
