@@ -352,6 +352,10 @@ curl http://127.0.0.1:9210 -k
 }
 ```
 
+Until now, we finish the client authentication. Means the server can verify the client is authentic.
+
+After that, We need to configurate the client to verify the server.
+
 #### Verify the Server
 
 edit the  `/etc/nginx/nginx.conf`
