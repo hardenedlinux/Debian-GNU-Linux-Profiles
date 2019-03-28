@@ -298,6 +298,7 @@ certtool --generate-certificate \
 ### For client side
 
 #### Pre-Install packages 
+Install sudo and set capabilities for usual user, example(user name is test):
 ```
 # apt install  sudo -y && USER="test"; chmod 640 /etc/sudoers && sed -i "/^root/a\\${USER}   ALL=(ALL:ALL) ALL" /etc/sudoers && chmod 440 /etc/sudoers
 sudo apt install curl libcurl4-gnutls-dev -y
