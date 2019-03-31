@@ -1,13 +1,20 @@
-## Using Nginx as SSL tunnel for http service (SSL Mutual Authencitation for normal service)
+# Using Nginx as SSL tunnel for http service (SSL Mutual Authencitation for normal service)
 
 System: Debian 9
 
 We are using ElasticSearch as our example
 
+## For server side 
+### Pre-install packages 
+Install sudo and set capabilities for usual user, example(user name is test): 
+```
+# apt install sudo -y && USER="test"; chmod 640 /etc/sudoers && sed -i "/^root/a\\${USER}   ALL=(ALL:ALL) ALL" /etc/sudoers && chmod 440 /etc/sudoers 
+sudo apt install curl libcurl4-gnutls-dev -y 
+```
+
 ### Install ElasticSearch
 
 ```
-apt install sudo -y
 sudo apt install openjdk-8-jdk -y
 sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 sudo echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
@@ -22,9 +29,7 @@ sudo systemctl start elasticsearch
 ```
 
 Using the curl to check if it's working
-
 ```
-sudo apt install curl libcurl4-gnutls-dev -y
 curl http://127.0.0.1:9200
 ```
 
@@ -50,17 +55,14 @@ And return
 }
 ```
 
-### For server side
-
-Install backports repo
-
+### Install nginx of backports repo
 ```
 sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
 sudo apt update
 sudo apt install -t stretch-backports nginx -y
 ```
 
-#### Create CA and sign certificate
+### Create CA and sign certificate
 
 ```
 sudo apt install gnutls-bin -y
@@ -140,7 +142,7 @@ certtool --generate-certificate \
 
 move the certificate and private key to /etc/ssl/
 
-#### Configurate the Nginx
+### Configurate the Nginx
 
 To be a reverse proxy with ssl on
 
@@ -148,16 +150,13 @@ edit the  `/etc/nginx/sites-enabled/default`
 ```
 server {
         listen 443 default_server;
-#       listen [::]:80;
-#
         server_name rsserver;
         ssl on;
         ssl_certificate /etc/ssl/server-rsa-cert.pem;
         ssl_certificate_key /etc/ssl/server-rsa-key.pem;
         ssl_session_cache shared:SSL:10m;
-#       root /var/www/example.com;
         index index.html;
-#
+        
         location / {
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
@@ -204,8 +203,7 @@ now the `/etc/nginx/sites-enabled/default` should look like below
 ```
 server {
         listen 443 default_server;
-#       listen [::]:80;
-#
+
         server_name rsserver;
         ssl on;
         ssl_certificate /etc/ssl/server-rsa-cert.pem;
@@ -215,9 +213,8 @@ server {
         ssl_client_certificate /etc/ssl/root-ca-ecdsa-cert.pem;
         ssl_verify_client on;
 
-#       root /var/www/example.com;
         index index.html;
-#
+
         location / {
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
@@ -226,8 +223,13 @@ server {
         }
 }
 ```
-And using curl to check again
 
+Restart the nginx
+```
+sudo systemctl restart nginx
+```
+
+And using curl to check again
 ```
 curl https://127.0.0.1 -k
 
@@ -242,10 +244,10 @@ curl https://127.0.0.1 -k
 ```
 Because we don't provide the certificate signed by our CA, so we can't access this service
 
-We could using the Server's nginx certificate for testing purpose. Because this certificate signed by our CA.
+We could using the client's nginx certificate on client for testing purpose. Need client certificate signed by our CA. An example is as follows:
 
 ```
-curl  --key /etc/ssl/server-rsa-key.pem --cert /etc/ssl/server-rsa-cert.pem https://127.0.0.1 -k
+curl  --key /etc/ssl/client-rsa-key.pem --cert /etc/ssl/client-rsa-cert.pem https://127.0.0.1 -k
 
 {
   "name" : "ktiZiXR",
@@ -267,8 +269,7 @@ curl  --key /etc/ssl/server-rsa-key.pem --cert /etc/ssl/server-rsa-cert.pem http
 ```
 So the Client authentication is working.
 
-
-#### Sign the client's certificate
+### Sign the client's certificate
 
 Additional, we have to sign the client's cert
 
@@ -303,24 +304,22 @@ certtool --generate-certificate \
      --hash=SHA384
 ```
 
+## For client side
 
-### For client side
-
-Install backports repo
-
+### Pre-Install packages 
+Install sudo and set capabilities for usual user, example(user name is test): 
 ```
-apt install sudo -y
+# apt install  sudo -y && USER="test"; chmod 640 /etc/sudoers && sed -i "/^root/a\\${USER}   ALL=(ALL:ALL) ALL" /etc/sudoers && chmod 440 /etc/sudoers 
+sudo apt install curl libcurl4-gnutls-dev -y 
+```
+
+### Install nginx of backports repo 
+```
 sudo sh -c 'printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list'
 sudo apt update
 sudo apt install -t stretch-backports nginx -y
 ```
 and copy `root-ca-ecdsa-cert.pem`, `client-rsa-key.pem` and `client-rsa-cert.pem` to client's server /etc/ssl/
-
-Install curl
-
-```
-sudo apt install curl libcurl4-gnutls-dev -y
-```
 
 Configure the nginx as reserve proxy
 
@@ -329,17 +328,16 @@ Configure the nginx as reserve proxy
 ```
 server {
         listen 127.0.0.1:9200 default_server;
-	server_name rsclient;
+	    server_name rsclient;
 
         location / {
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
-		proxy_ssl_certificate /etc/ssl/client-rsa-cert.pem;
-		proxy_ssl_certificate_key /etc/ssl/client-rsa-key.pem;
+		        proxy_ssl_certificate /etc/ssl/client-rsa-cert.pem;
+		        proxy_ssl_certificate_key /etc/ssl/client-rsa-key.pem;
                 proxy_pass https://192.168.200.131/;
                 proxy_redirect http:// https://;
         }
-
 }
 ```
 
@@ -376,7 +374,7 @@ Until now, we finish the client authentication. Means the server can verify the 
 After that, We need to configurate the client to verify the server.
 
 
-#### Verify the Server
+### Verify the Server
 
 edit the  `/etc/nginx/sites-enabled/default`
 
@@ -424,7 +422,7 @@ sudo systemctl restart nginx
 testing
 
 ```
-curl http://127.0.0.1:9210 -k
+curl http://127.0.0.1:9200 -k
 {
   "name" : "ktiZiXR",
   "cluster_name" : "elasticsearch",
