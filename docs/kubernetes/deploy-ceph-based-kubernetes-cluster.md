@@ -1011,12 +1011,20 @@ tar -xvf containerd-1.2.6.linux-amd64.tar.gz -C /
 
 #### CNI Networking
 
-on worker-0
+on every worker node, run following setup
+
+for example:
+
+worker-0 POD_CIDR=10.200.0.0/24
+worker-1 POD_CIDR=10.200.1.0/24
+worker-2 POD_CIDR=10.200.2.0/24
 
 create the CNI bridge network config file
 
+on worker-0
+
 ```
-POD_CIDR=10.200.2.0/24
+POD_CIDR=10.200.0.0/24
 
 cat <<EOF | tee /etc/cni/net.d/10-bridge.conf
 {
@@ -1046,6 +1054,18 @@ cat <<EOF | tee /etc/cni/net.d/99-loopback.conf
     "type": "loopback"
 }
 EOF
+```
+
+Setting forward
+
+comment out the ipv4 forward=1 option in `/etc/sysctl.conf`
+```
+net.ipv4.ip_forward=1
+```
+and perform change.
+
+```
+sysctl -p
 ```
 
 #### Containerd setup
@@ -1093,6 +1113,35 @@ LimitCORE=infinity
 WantedBy=multi-user.target
 EOF
 ```
+
+Note: if your server have some connective problem with google releated server, you should add a proxy on service file
+
+for example:
+
+```
+[Unit]
+Description=containerd container runtime
+Documentation=https://containerd.io
+After=network.target
+[Service]
+ExecStartPre=/sbin/modprobe overlay
+ExecStart=/bin/containerd
+Restart=always
+Environment="HTTP_PROXY=http://192.168.200.185:8123/"
+Environment="HTTPS_PROXY=http://192.168.200.185:8123/"
+RestartSec=5
+Delegate=yes
+KillMode=process
+OOMScoreAdjust=-999
+LimitNOFILE=1048576
+LimitNPROC=infinity
+LimitCORE=infinity
+[Install]
+WantedBy=multi-user.target
+```
+
+So when you pull images from k8s.gcr.io will be no problem.
+
 #### Configure kubelet
 
 Copy/Move files
