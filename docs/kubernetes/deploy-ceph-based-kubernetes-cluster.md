@@ -157,17 +157,22 @@ k8s-worker-1: 192.168.200.186
 k8s-worker-2: 192.168.200.187
 ```
 
-
-you should edit the `/etc/hosts`
+you should edit the `/etc/hosts` on all your controller node and worker node
 
 ```
-controllers-0 192.168.200.180
-controllers-1 192.168.200.181
-controllers-2 192.168.200.182
-worker-0: 192.168.200.185
-worker-1: 192.168.200.186
-worker-2: 192.168.200.187
+192.168.200.180	controllers-0
+192.168.200.181	controllers-1
+192.168.200.182	controllers-2 
+192.168.200.185	worker-0
+192.168.200.186	worker-1
+192.168.200.187	worker-2
 ```
+and install package for all node
+
+```
+apt install conntrack socat -y
+```
+
 ### Setting up cfssl & generating configs
 
 We using CloudFlare's PKI toolkit generation of the certificate authority and for generating the TLS certs that the cluster services and users will use to interact with the cluster. 
@@ -1058,9 +1063,16 @@ EOF
 
 Setting forward
 
-comment out the ipv4 forward=1 option in `/etc/sysctl.conf`
+```
+modprobe br_netfilter
+echo "br_netfilter" > /etc/modules-load.d/br_netfilter.conf
+```
+
+
+add ipv4 forward=1 option and add `net.bridge.bridge-nf-call-iptables = 1` in `/etc/sysctl.conf`
 ```
 net.ipv4.ip_forward=1
+net.bridge.bridge-nf-call-iptables = 1
 ```
 and perform change.
 
@@ -1243,14 +1255,14 @@ and comment out the swap section in  /etc/fstab
 
 ```
 systemctl daemon-reload
-systemctl enable containerd kubelet kube-proxy
-systemctl start containerd kubelet kube-proxy
+systemctl enable containerd kubelet kube-proxy systemd-resolved
+systemctl start containerd kubelet kube-proxy systemd-resolved
 ```
 
 
 
 
-reference: 
+Reference: 
 
 http://www.opus1.com/www/whitepapers/pki-whatisacert.pdf   
 https://medium.com/@DrewViles/kubernetes-the-hard-way-on-bare-metal-vms-fdb32bc4fed0   
