@@ -1446,6 +1446,32 @@ Install Flannel
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
 
+### Test the cluster
+
+For testing DNS
+
+```
+kubectl run busybox --image=busybox:1.28 --command -- sleep 3600
+kubectl get pods -l run=busybox
+
+NAME                       READY   STATUS    RESTARTS   AGE
+busybox-68f7d47fc6-8dz6n   1/1     Running   0          51m
+
+POD_NAME=$(kubectl get pods -l run=busybox -o jsonpath="{.items[0].metadata.name}")
+kubectl exec -ti $POD_NAME -- nslookup kubernetes
+
+##Results
+Server:    10.32.0.10
+Address 1: 10.32.0.10 kube-dns.kube-system.svc.cluster.local
+Name:      kubernetes
+Address 1: 10.32.0.1 kubernetes.default.svc.cluster.local
+```
+
+Clean up
+
+```
+kubectl delete deployment busybox
+```
 
 
 Reference: 
