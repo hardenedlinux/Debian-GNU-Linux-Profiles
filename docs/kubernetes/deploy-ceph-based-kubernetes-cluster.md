@@ -1,4 +1,4 @@
-# Deploy ceph Based Kubernetes Cluster
+# Deploy Ceph RBD Based Kubernetes Cluster
 
 ## Pre-requirement
 
@@ -1473,9 +1473,294 @@ Clean up
 kubectl delete deployment busybox
 ```
 
+### Using Ceph RBD as external storage
 
-Reference: 
+
+#### Install Ceph-common
+
+On every worker node
+
+```
+wget -q -O- 'https://download.ceph.com/keys/release.asc' | apt-key add -
+apt install apt-transport-https
+```
+
+add ceph package repo to `/etc/apt/sources.list`
+
+```
+deb https://download.ceph.com/debian-nautilus bionic main
+deb-src https://download.ceph.com/debian-nautilus bionic main
+
+deb http://mirrors.163.com/debian/ buster main
+deb-src http://mirrors.163.com/debian/ buster main
+```
+
+update apt cache
+
+```
+apt update
+```
+
+Install ceph-common
+
+```
+apt install ceph-common
+```
+
+#### Create kubernetes rbd pool
+
+On ceph admin node
+
+```
+ceph osd pool create kube 128 128
+ceph auth get-or-create client.kube mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=kube'
+ceph auth get-key client.kube | tee client.kube.key
+ceph osd pool application enable kube rbd
+rbd pool init kube
+```
+
+#### Deploy rbd-provisioner
+
+On controller node
+
+```
+git clone https://github.com/kubernetes-incubator/external-storage.git
+cd external-storage/ceph/rbd/deploy
+NAMESPACE=kube-system
+sed -r -i "s/namespace: [^ ]+/namespace: $NAMESPACE/g" ./rbac/clusterrolebinding.yaml ./rbac/rolebinding.yaml
+kubectl -n $NAMESPACE apply -f ./rbac
+```
+
+Verify deployment
+
+```
+kubectl describe deployments.apps -n kube-system rbd-provisioner
+```
+
+#### Create storageclass
+
+Create secrets
+
+```
+cd external-storage/ceph/rbd/
+vim secrets.yaml
+
+####
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-admin-secret
+  namespace: kube-system
+type: "kubernetes.io/rbd"
+data:
+  # ceph auth get-key client.admin | base64
+  key: QVFCdng4QmJKQkFsSFJBQWl1c1o0TGdOV250NlpKQ1BSMHFCa1E9PQ==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+  namespace: kube-system
+type: "kubernetes.io/rbd"
+data:
+  # ceph auth add client.kube mon 'allow r' osd 'allow rwx pool=kube'
+  # ceph auth get-key client.kube | base64
+  key: QVFCTHdNRmJueFZ4TUJBQTZjd1MybEJ2Q0JUcmZhRk4yL2tJQVE9PQ==
+
+####
+
+kubectl create -f secrets.yaml
+
+
+vim secrets-default.yaml
+
+
+####
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+type: "kubernetes.io/rbd"
+data:
+  # ceph auth add client.kube mon 'allow r' osd 'allow rwx pool=kube'
+  # ceph auth get-key client.kube | base64
+  key: QVFCTHdNRmJueFZ4TUJBQTZjd1MybEJ2Q0JUcmZhRk4yL2tJQVE9PQ==
+####
+
+kubectl create -f secrets-default.yaml -n default
+```
+
+Create StorageClass
+
+```
+cat > ceph-rbd-sc.yaml <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: rbd
+  annotations:
+    storageclass.beta.kubernetes.io/is-default-class: "true"
+provisioner: ceph.com/rbd
+parameters:
+  monitors: 192.168.200.120:6789,192.168.200.121:6789,192.168.200.122:6789
+  pool: kube
+  adminId: admin
+  adminSecretNamespace: kube-system
+  adminSecretName: ceph-admin-secret
+  userId: kube
+  userSecretNamespace: kube-system
+  userSecretName: ceph-secret
+  imageFormat: "2"
+  imageFeatures: layering
+EOF
+
+kubectl create -f  ceph-rbd-sc.yaml
+```
+
+#### Test RBD Storage class
+
+```
+cat > test-pod.yaml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ceph-pod1
+spec:
+  containers:
+  - name: ceph-busybox
+    image: busybox
+    command: ["sleep", "60000"]
+    volumeMounts:
+    - name: ceph-vol1
+      mountPath: /usr/share/busybox
+      readOnly: false
+  volumes:
+  - name: ceph-vol1
+    persistentVolumeClaim:
+      claimName: ceph-claim
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ceph-claim
+spec:
+  accessModes:  
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+EOF
+
+kubectl create -f test-pod.yaml -n kube-system
+
+#pod/ceph-pod1 created
+#persistentvolumeclaim/ceph-claim created
+
+kubectl create -f test-pod.yaml -n default
+
+#pod/ceph-pod1 created
+#persistentvolumeclaim/ceph-claim created
+
+```
+##### check pv and pvc status
+
+check pvc
+default namespace
+```
+kubectl get pvc
+
+NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ceph-claim   Bound    pvc-6dd5ddcb-725e-11e9-aedc-525400a892be   2Gi        RWO            rbd            8s
+```
+
+kube-system namespace
+```
+kubectl get pvc -n kube-system
+NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ceph-claim   Bound    pvc-5a35272f-725e-11e9-aedc-525400a892be   2Gi        RWO            rbd            49s
+```
+
+check pv
+```
+kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                    STORAGECLASS   REASON   AGE
+pvc-5a35272f-725e-11e9-aedc-525400a892be   2Gi        RWO            Delete           Bound    kube-system/ceph-claim   rbd                     56s
+pvc-6dd5ddcb-725e-11e9-aedc-525400a892be   2Gi        RWO            Delete           Bound    default/ceph-claim       rbd                     25s
+```
+
+check on ceph cluster
+
+```
+rbd ls --pool kube
+
+kubernetes-dynamic-pvc-5a44ccfe-725e-11e9-aa06-063088d16b3c
+kubernetes-dynamic-pvc-6de474c7-725e-11e9-aa06-063088d16b3c
+```
+check infomation
+
+```
+rbd info kube/kubernetes-dynamic-pvc-5a44ccfe-725e-11e9-aa06-063088d16b3c
+
+rbd image 'kubernetes-dynamic-pvc-5a44ccfe-725e-11e9-aa06-063088d16b3c':
+	size 2 GiB in 512 objects
+	order 22 (4 MiB objects)
+	snapshot_count: 0
+	id: bfc646b8b4567
+	block_name_prefix: rbd_data.bfc646b8b4567
+	format: 2
+	features: layering
+	op_features: 
+	flags: 
+	create_timestamp: Thu May  9 21:28:39 2019
+	access_timestamp: Thu May  9 21:28:39 2019
+	modify_timestamp: Thu May  9 21:28:39 2019
+```
+
+check mounting filesystem is ok
+
+```
+kubectl exec -it ceph-pod1 mount |grep rbd
+/dev/rbd1 on /usr/share/busybox type ext4 (rw,relatime,stripe=1024,data=ordered)
+
+kubectl exec -it -n kube-system ceph-pod1 mount |grep rbd
+/dev/rbd0 on /usr/share/busybox type ext4 (rw,relatime,stripe=1024,data=ordered)
+
+kubectl exec -it -n kube-system ceph-pod1 df |grep rbd
+/dev/rbd0              1998672      6144   1976144   0% /usr/share/busybox
+
+kubectl exec -it ceph-pod1 df |grep rbd
+/dev/rbd1              1998672      6144   1976144   0% /usr/share/busybox
+```
+
+check provisioning
+
+auto delete pv and pvc
+
+```
+kubectl delete -f test-pod.yaml
+pod "ceph-pod1" deleted
+persistentvolumeclaim "ceph-claim" deleted
+
+kubectl delete -f test-pod.yaml -n kube-system
+pod "ceph-pod1" deleted
+persistentvolumeclaim "ceph-claim" deleted
+```
+
+```
+kubectl get pv
+No resources found.
+
+kubectl get pvc
+No resources found.
+
+kubectl get pvc -n kube-system
+No resources found.
+```
+
+### Reference: 
 
 http://www.opus1.com/www/whitepapers/pki-whatisacert.pdf   
 https://medium.com/@DrewViles/kubernetes-the-hard-way-on-bare-metal-vms-fdb32bc4fed0   
 https://containerd.io/   
+https://jimmysong.io/kubernetes-handbook/practice/rbd-provisioner.html
+https://github.com/kubernetes-incubator/external-storage
