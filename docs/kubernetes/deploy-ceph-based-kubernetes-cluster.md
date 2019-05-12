@@ -1,5 +1,20 @@
 # Deploy Ceph RBD Based Kubernetes Cluster
 
+#### Environment:
+
+OS: Debian 9   
+Ceph: v14.2.1 Nautilus   
+Libvirtd: 4.6   
+Kubernetes: 1.14   
+
+#### Overview
+
+<p align="center">
+<img src="architecture_overview.png">
+<b>Architecture Overview</b><br>
+</p>
+   
+
 ## Pre-requirement
 
 ### Install libvirt
