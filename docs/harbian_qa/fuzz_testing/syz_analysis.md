@@ -828,3 +828,53 @@ The syzkaller use the KCOV for collecting the kernel coverage triggered by fuzze
 1. gcc insert the calls to get information of kernel. [This is some information about trace_pc/trace_cmp](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html). Note that KCOV doesn't show all the code triggered by userspace process. For example, a base-block may be recorded as a line coverage.
 2. Implementing handle functions which are called to get information at runtime. Implementinf share memory of per process( in struct task_struc). Implementing proc interface, fops/mmap/ioctl... Kernel implement local in 'kernel/kcov.c'.
 4. Using the proc/ interface in every userspace prog. Enable KCOV by ioctl and read information from mmap region. The syzkaller's implement is in 'executor/executor_linux.cc'.
+
+#### KCOV_COMPARISON
+KCOV_COMPARISON collect comparision operands of a branch. If you build kernel with this flag on, __sanitizer_cov_trace_cmp* will be insert to kernel before a comparison. And __sanitizer_cov_trace_cmp* will encode operands to two 64-bit args. Syzkalls use these information to do mutation with hint.
+```  
+void write_call_output(thread_t* th, bool finished)
+{
+...
+        if (flag_collect_comps) {
+                // Collect only the comparisons                               
+                uint32 ncomps = th->cov.size;
+                kcov_comparison_t* start = (kcov_comparison_t*)(th->cov.data + sizeof(uint64));
+                kcov_comparison_t* end = start + ncomps;
+                ...
+                uint32 comps_size = 0;
+                for (uint32 i = 0; i < ncomps; ++i) {
+                        if (start[i].ignore())
+                                continue;
+                        comps_size++;
+                        start[i].write();
+                }
+        }
+...
+}
+
+void kcov_comparison_t::write()
+{
+...
+        /* write_output will send a 32-bit arg to fuzz */
+        write_output((uint32)(arg1 & 0xFFFFFFFF));
+        write_output((uint32)(arg1 >> 32));
+        write_output((uint32)(arg2 & 0xFFFFFFFF));
+        write_output((uint32)(arg2 >> 32));
+}
+```  
+These code finish collecting comparison information from kernel kcov interface. Then, fuzzer will handle the information, and do a correspond mutation of the prog. In the fuzzer side, you can found readcomps() read the comparison information from executor output. And executeHintSeed() will be called by smashInput(). 
+```go  
+func (p *Prog) MutateWithHints(callIndex int, comps CompMap, exec func(p *Prog)) {
+        p = p.Clone()
+        c := p.Calls[callIndex]
+        execValidate := func() {
+                p.Target.SanitizeCall(c)
+                p.debugValidate()
+	        exec(p)
+        }
+        ForeachArg(c, func(arg Arg, _ *ArgCtx) {
+                generateHints(comps, arg, execValidate)
+        })
+}
+```  
+generateHints() will generate input base on comparison operands.
