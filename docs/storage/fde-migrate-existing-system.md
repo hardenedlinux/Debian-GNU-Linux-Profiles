@@ -100,7 +100,7 @@ Update /etc/fstab with new mapped block devices:
 UUID=<some uuid> /boot ext2    default 0 2
 ...
 ```
-/etc/crypttab:
+Update /etc/crypttab. An absent /etc/crypttab indicates an absent package cryptsetup-initramfs. If so, please update /etc/crypttab after you have installed cryptsetup-initramfs in the target system via chroot (see below).
 ```
 luks-system UUID=<uuid> none luks
 luks-data PARTUUID=<partuuid> /etc/keys/luks-data.key luks,header=/etc/keys/luks-data.hdr
@@ -108,14 +108,22 @@ luks-data PARTUUID=<partuuid> /etc/keys/luks-data.key luks,header=/etc/keys/luks
 (since the header of luks-data get erased, it has no UUID, only PARTUUID of GPT is usable.)
 You must map the lukses (on the live system) with names exactly corresponding to what is written into the crypttab, otherwise update-initramfs(8) may get confused.
 
-If /etc/fstab is modified properly, you can chroot into the target system and finalize the configuration.
+If /etc/fstab is modified properly, you can chroot into the target system now, and finalize the configuration.
 ```
-# mount -o bind /dev /mnt/root//dev
-# mount -o bind /proc /mnt/root//proc
-# mount -o bind /sys /mnt/root//sys
-# mount -o bind /run /mnt/root//run
+# mount -o bind /dev /mnt/root/dev
+# mount -o bind /proc /mnt/root/proc
+# mount -o bind /sys /mnt/root/sys
+# mount -o bind /run /mnt/root/run
 # chroot /mnt/root/
 (chrooted)# mount -a
+```
+Confirm all block device in /etc/fstab is mounted. Double check whether lvm2 and cryptsetup-initramfs are installed in the target system. If not, install them now, provided that the host live system has network connection.
+```
+(chrooted)# apt-get update
+(chrooted)# apt-get install lvm2 cryptsetup-initramfs
+```
+The best practice is to install them BEFORE you start the migration procedure, though.
+```
 (chrooted)# update-initramfs -ck <kernel version you want to use>
 (chrooted)# update-grub
 ```
