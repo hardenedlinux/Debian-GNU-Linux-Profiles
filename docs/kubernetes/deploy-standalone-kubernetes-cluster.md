@@ -483,7 +483,7 @@ Download etcd file
 ```
 wget -q --show-progress --https-only --timestamping "https://github.com/coreos/etcd/releases/download/v3.3.13/etcd-v3.3.13-linux-amd64.tar.gz"
 tar -xvf etcd-v3.3.13-linux-amd64.tar.gz
-mv etcd-v3.3.13-linux-amd64/etcd* /usr/local/bin/
+sudo mv etcd-v3.3.13-linux-amd64/etcd* /usr/local/bin/
 ```
 
 #### Configuring the ETCD server
@@ -492,9 +492,9 @@ Change enp1s0 to your interface name.
 Following setup should perform every controller node
 
 ```
-mkdir -p /etc/etcd /var/lib/etcd
+sudo mkdir -p /etc/etcd /var/lib/etcd
 mv * ~/
-cp ~/ca.pem ~/kubernetes-key.pem ~/kubernetes.pem /etc/etcd/
+sudo cp ~/ca.pem ~/kubernetes-key.pem ~/kubernetes.pem /etc/etcd/
 ```
 
 ```
@@ -505,7 +505,7 @@ ETCD_NAME=kubesa
 Create the service file
 
 ```
-cat <<EOF | tee /etc/systemd/system/etcd.service
+cat <<EOF | sudo tee /etc/systemd/system/etcd.service
 [Unit]
 Description=etcd
 Documentation=https://github.com/coreos
@@ -525,7 +525,7 @@ ExecStart=/usr/local/bin/etcd \\
   --listen-client-urls https://${INTERNAL_IP}:2379,https://127.0.0.1:2379 \\
   --advertise-client-urls https://${INTERNAL_IP}:2379 \\
   --initial-cluster-token etcd-cluster-0 \\
-  --initial-cluster kubesa=https://192.168.1.11:2380 \\
+  --initial-cluster kubesa=https://${INTERNAL_IP}:2380 \\
   --initial-cluster-state new \\
   --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -538,9 +538,9 @@ EOF
 #### Start the service
 
 ```
-systemctl daemon-reload
-systemctl enable etcd
-systemctl start etcd
+sudo systemctl daemon-reload
+sudo systemctl enable etcd
+sudo systemctl start etcd
 ```
 
 #### Test etcd
