@@ -103,10 +103,12 @@ UUID=<some uuid> /boot ext2    default 0 2
 Update /etc/crypttab. An absent /etc/crypttab indicates an absent package cryptsetup-initramfs. If so, please update /etc/crypttab after you have installed cryptsetup-initramfs in the target system via chroot (see below).
 ```
 luks-system UUID=<uuid> none luks
-luks-data PARTUUID=<partuuid> /etc/keys/luks-data.key luks,header=/etc/keys/luks-data.hdr
+luks-data PARTUUID=<partuuid> /etc/keys/luks-data.key luks,noearly,header=/etc/keys/luks-data.hdr
 ```
 (since the header of luks-data get erased, it has no UUID, only PARTUUID of GPT is usable.)
 You must map the lukses (on the live system) with names exactly corresponding to what is written into the crypttab, otherwise update-initramfs(8) may get confused.
+
+Note: Currently debian scripts can only convert the keyfile path for initramfs (replace root with /FIXME-initramfs-rootmnt/, and convert to the real mount point of permanent root within initramfs) before pivoting to the permanent root, but not other paths (e.g. header path), so lukses using detached header (like the luks-data above) cannot be unlocked during initramfs phase (they will be unlocked after pivoting to the permanent root). Swap in it can not be used for resuming, so in such case, the RESUME variable in initramfs.conf (and conf.d) should be set to none to prevent the noearly flag above is ignored. Otherwise, initramfs will try to unlock luks-data several times without the correct header path, delaying the boot process.
 
 If /etc/fstab is modified properly, you can chroot into the target system now, and finalize the configuration.
 ```
@@ -128,4 +130,4 @@ The best practice is to install them BEFORE you start the migration procedure, t
 (chrooted)# update-grub
 ```
 
-Now, the migrated system is very likely to boot properly (it may complain unable to find the header of luks-data, but this actually occurs within initramfs, after pivoted to the permanent root, the header and key of luks-data will be found and the rest LVs will be mounted.)
+Now, the migrated system is very likely to boot properly.
