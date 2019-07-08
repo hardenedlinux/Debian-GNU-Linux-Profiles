@@ -546,7 +546,7 @@ sudo systemctl start etcd
 #### Test etcd
 
 ```
-ETCDCTL_API=3 etcdctl member list \
+sudo ETCDCTL_API=3 etcdctl member list \
   --endpoints=https://127.0.0.1:2379 \
   --cacert=/etc/etcd/ca.pem \
   --cert=/etc/etcd/kubernetes.pem \
@@ -564,8 +564,8 @@ ETCDCTL_API=3 etcdctl member list \
 Download binaries
 
 ```
-mkdir -p /etc/kubernetes/config
-apt install curl -y
+sudo mkdir -p /etc/kubernetes/config
+sudo apt install curl -y
 
 wget -q --show-progress --https-only --timestamping \
   "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kube-apiserver" \
@@ -573,15 +573,15 @@ wget -q --show-progress --https-only --timestamping \
   "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kube-scheduler" \
   "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kubectl"
 chmod +x kube-apiserver kube-controller-manager kube-scheduler kubectl
-mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/local/bin/
+sudo mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/local/bin/
 ```
 
 #### Configure the api server
 
 ```
-mkdir -p /var/lib/kubernetes/
+sudo mkdir -p /var/lib/kubernetes/
 cd ~/
-cp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
+sudo cp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem \
     encryption-config.yaml /var/lib/kubernetes/
 ```
@@ -589,7 +589,7 @@ cp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
 Create the service
 
 ```
-cat <<EOF | tee /etc/systemd/system/kube-apiserver.service
+cat <<EOF | sudo tee /etc/systemd/system/kube-apiserver.service
 [Unit]
 Description=Kubernetes API Server
 Documentation=https://github.com/kubernetes/kubernetes
@@ -634,13 +634,13 @@ EOF
 #### Configure the controller manager
 
 ```
-cp ~/kube-controller-manager.kubeconfig /var/lib/kubernetes/
+sudo cp ~/kube-controller-manager.kubeconfig /var/lib/kubernetes/
 ```
 
 Create the service
 
 ```
-cat <<EOF | tee /etc/systemd/system/kube-controller-manager.service
+cat <<EOF | sudo tee /etc/systemd/system/kube-controller-manager.service
 [Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/kubernetes/kubernetes
@@ -671,13 +671,13 @@ EOF
 #### Configure the scheduler
 
 ```
-cp ~/kube-scheduler.kubeconfig /var/lib/kubernetes/
+sudo cp ~/kube-scheduler.kubeconfig /var/lib/kubernetes/
 ```
 
 Create the yaml config files
 
 ```
-cat <<EOF | tee /etc/kubernetes/config/kube-scheduler.yaml
+cat <<EOF | sudo tee /etc/kubernetes/config/kube-scheduler.yaml
 apiVersion: kubescheduler.config.k8s.io/v1alpha1
 kind: KubeSchedulerConfiguration
 clientConnection:
@@ -690,7 +690,7 @@ EOF
 configure the service
 
 ```
-cat <<EOF | tee /etc/systemd/system/kube-scheduler.service
+cat <<EOF | sudo tee /etc/systemd/system/kube-scheduler.service
 [Unit]
 Description=Kubernetes Scheduler
 Documentation=https://github.com/kubernetes/kubernetes
@@ -708,9 +708,9 @@ EOF
 #### Start the services 
 
 ```
-systemctl daemon-reload
-systemctl enable kube-apiserver kube-controller-manager kube-scheduler
-systemctl start kube-apiserver kube-controller-manager kube-scheduler
+sudo systemctl daemon-reload
+sudo systemctl enable kube-apiserver kube-controller-manager kube-scheduler
+sudo systemctl start kube-apiserver kube-controller-manager kube-scheduler
 ```
 
 #### Setup the HTTP health checks
@@ -718,7 +718,7 @@ systemctl start kube-apiserver kube-controller-manager kube-scheduler
 Since the /healthz check sits on port 6443, and you’re not exposing that, you need to to nginx installed as a proxy (or any other proxy service you wish of course).
 
 ```
-apt install -y nginx
+sudo apt install -y nginx
 
 cat > kubernetes.default.svc.cluster.local <<EOF
 server {
@@ -731,10 +731,10 @@ location /healthz {
 }
 EOF
 
-rm /etc/nginx/sites-enabled/default
-mv kubernetes.default.svc.cluster.local /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
-ln -s /etc/nginx/sites-available/kubernetes.default.svc.cluster.local /etc/nginx/sites-enabled/
-systemctl restart nginx
+sudo rm /etc/nginx/sites-enabled/default
+sudo mv kubernetes.default.svc.cluster.local /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
+sudo ln -s /etc/nginx/sites-available/kubernetes.default.svc.cluster.local /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
 ```
 #### Verify all is healthy
 
