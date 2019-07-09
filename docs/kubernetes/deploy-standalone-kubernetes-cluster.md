@@ -20,7 +20,7 @@ you should edit the `/etc/hosts` on all your controller node and worker node
 and install package for all node
 
 ```
-apt install conntrack socat -y
+sudo apt install conntrack socat -y
 ```
 
 ### Setting up cfssl & generating configs
@@ -33,8 +33,8 @@ Install cfssl
 ```
 wget -q --show-progress --https-only --timestamping https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
 chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
-mv cfssl_linux-amd64 /usr/local/bin/cfssl
-mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+sudo mv cfssl_linux-amd64 /usr/local/bin/cfssl
+sudo mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 ```
 
 Create directories for TLS certs
@@ -610,7 +610,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/var/lib/kubernetes/ca.pem \\
   --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
   --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
-  --etcd-servers=https://192.168.1.11:2379 \\
+  --etcd-servers=https://${INTERNAL_IP}:2379 \\
   --event-ttl=1h \\
   --experimental-encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
