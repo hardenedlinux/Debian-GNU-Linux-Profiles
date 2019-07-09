@@ -820,7 +820,7 @@ wget -q --show-progress --https-only --timestamping \
 Create directories
 
 ```
-mkdir -p \
+sudo mkdir -p \
  /etc/cni/net.d \
  /opt/cni/bin \
  /var/lib/kubelet \
@@ -835,10 +835,10 @@ Install all
 mv runsc-50c283b9f56bb7200938d9e207355f05f79f0d17 runsc
 mv runc.amd64 runc
 chmod +x kubectl kube-proxy kubelet runc runsc
-mv kubectl kube-proxy kubelet runc runsc /usr/local/bin/
-tar -xvf crictl-v1.14.0-linux-amd64.tar.gz -C /usr/local/bin/
-tar -xvf cni-plugins-linux-amd64-v0.8.1.tgz  -C /opt/cni/bin/
-tar -xvf containerd-1.2.7.linux-amd64.tar.gz -C /
+sudo mv kubectl kube-proxy kubelet runc runsc /usr/local/bin/
+sudo tar -xvf crictl-v1.14.0-linux-amd64.tar.gz -C /usr/local/bin/
+sudo tar -xvf cni-plugins-linux-amd64-v0.8.1.tgz  -C /opt/cni/bin/
+sudo tar -xvf containerd-1.2.7.linux-amd64.tar.gz -C /
 ```
 
 #### CNI Networking
@@ -889,8 +889,10 @@ EOF
 Setting forward
 
 ```
-modprobe br_netfilter
+sudo modprobe br_netfilter
+sudo -s
 echo "br_netfilter" > /etc/modules-load.d/br_netfilter.conf
+exit
 ```
 
 
@@ -902,15 +904,15 @@ net.bridge.bridge-nf-call-iptables = 1
 and perform change.
 
 ```
-sysctl -p
+sudo sysctl -p
 ```
 
 
 #### Containerd setup
 
 ```
-mkdir -p /etc/containerd/
-cat << EOF | tee /etc/containerd/config.toml
+sudo mkdir -p /etc/containerd/
+cat << EOF | sudo tee /etc/containerd/config.toml
 [plugins]
   [plugins.cri.containerd]
     snapshotter = "overlayfs"
@@ -931,7 +933,7 @@ EOF
 create containerd service
 
 ```
-cat <<EOF | tee /etc/systemd/system/containerd.service
+cat <<EOF | sudo tee /etc/systemd/system/containerd.service
 [Unit]
 Description=containerd container runtime
 Documentation=https://containerd.io
@@ -985,15 +987,15 @@ So when you pull images from k8s.gcr.io will be no problem.
 Copy/Move files
 
 ```
-cp ~/kubesa-key.pem ~/kubesa.pem /var/lib/kubelet/
-cp ~/kubesa.kubeconfig /var/lib/kubelet/kubeconfig
-cp ~/ca.pem /var/lib/kubernetes/
+sudo cp ~/kubesa-key.pem ~/kubesa.pem /var/lib/kubelet/
+sudo cp ~/kubesa.kubeconfig /var/lib/kubelet/kubeconfig
+sudo cp ~/ca.pem /var/lib/kubernetes/
 ```
 
 Generate configs
 
 ```
-cat <<EOF | tee /var/lib/kubelet/kubelet-config.yaml
+cat <<EOF | sudo tee /var/lib/kubelet/kubelet-config.yaml
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
 authentication:
@@ -1019,7 +1021,7 @@ EOF
 Create service
 
 ```
-cat <<EOF | tee /etc/systemd/system/kubelet.service
+cat <<EOF | sudo tee /etc/systemd/system/kubelet.service
 [Unit]
 Description=Kubernetes Kubelet
 Documentation=https://github.com/kubernetes/kubernetes
@@ -1045,9 +1047,9 @@ EOF
 kube-proxy configs and service
 
 ```
-cp kube-proxy.kubeconfig /var/lib/kube-proxy/kubeconfig
+sudo cp kube-proxy.kubeconfig /var/lib/kube-proxy/kubeconfig
 
-cat <<EOF | tee /var/lib/kube-proxy/kube-proxy-config.yaml
+cat <<EOF | sudo tee /var/lib/kube-proxy/kube-proxy-config.yaml
 kind: KubeProxyConfiguration
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 clientConnection:
@@ -1055,7 +1057,7 @@ clientConnection:
 mode: "iptables"
 clusterCIDR: "10.200.0.0/16"
 EOF
-cat <<EOF | tee /etc/systemd/system/kube-proxy.service
+cat <<EOF | sudo tee /etc/systemd/system/kube-proxy.service
 [Unit]
 Description=Kubernetes Kube Proxy
 Documentation=https://github.com/kubernetes/kubernetes
@@ -1080,9 +1082,9 @@ and comment out the swap section in  /etc/fstab
 #### Start the service
 
 ```
-systemctl daemon-reload
-systemctl enable containerd kubelet kube-proxy systemd-resolved
-systemctl start containerd kubelet kube-proxy systemd-resolved
+sudo systemctl daemon-reload
+sudo systemctl enable containerd kubelet kube-proxy systemd-resolved
+sudo systemctl start containerd kubelet kube-proxy systemd-resolved
 ```
 
 ### Configure DNS
