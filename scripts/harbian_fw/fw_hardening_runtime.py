@@ -27,11 +27,13 @@ def BIOS_WP_set():
 	regval = cs.read_register( 'BC')
 	ble = cs.get_control( 'BiosLockEnable')
         bioswe = cs.get_control( 'BiosWriteEnable')
+        smm_bwp = cs.get_control( 'SmmBiosWriteProtection')
 
-	if ble != 1 or bioswe != 0:
+	if ble != 1 or bioswe != 0 or smm_bwp!= 1:
 		bioswe = cs.set_control( 'BiosWriteEnable', 0)
 		ble = cs.set_control( 'BiosLockEnable', 1)
-		print "BLE & BIOSWE are looking good!"
+                smm_bwp = cs.set_control( 'SmmBiosWriteProtection', 1)
+		print "BLE | BIOSWE | SMM_BWP are looking good!"
 	else:
 		print "BLE is set already!"
 
@@ -98,7 +100,7 @@ def rtclock_set():
 if __name__ == '__main__':
     	# hardening init...
     	cs = chipsec.chipset.cs()
-    	cs.init(None, True)
+    	cs.init(None, None, True)
 
     	# common.smm
     	D_LCK_set()
