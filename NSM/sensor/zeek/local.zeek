@@ -1,7 +1,7 @@
 # local intel frameworks
 @load policy/framworkds/intel/seen
 ## hardendlinux Bro scripts PATH
-@load ./scripts
+@load packages
 #
 # local NOTICE on an intelligence match
 @load policy/frameworks/intel/do_notic
@@ -13,7 +13,6 @@
 ##! Local site policy. Customize as appropriate.
 ##!
 ##! This file will not be overwritten when upgrading or reinstalling!
-@load /home/gtrun/src/test
 
 # This script logs which scripts were loaded during each run.
 @load misc/loaded-scripts
@@ -65,7 +64,7 @@
 @load protocols/ftp/detect
 
 # Scripts that do asset tracking.
-@load protocols/conn/known-hosts
+# @load protocols/conn/known-hosts
 @load protocols/conn/known-services
 @load protocols/ssl/known-certs
 

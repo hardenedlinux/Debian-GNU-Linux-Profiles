@@ -8,7 +8,7 @@ wget https://www.zeek.org/downloads/zeek-3.0.0-rc2.tar.gz
 tar -xvf zeek-3.0.0-rc2.tar.gz
 cd zeek-3.0.0-rc2
 echo "install libmaxminddb"
-sudo apt-get install libmaxminddb-dev
+sudo apt-get install libmaxminddb-dev -y
 
 #download City database
 wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz
@@ -31,9 +31,9 @@ sudo mv ${ctfile}/GeoLite2-Country.mmdb /usr/share/GeoIP
 ./configure --with-geoip=/usr/share/GeoIP
 make -j 4
 sudo make install
-sudo ln -s /usr/local/bro/bin/bro* /usr/local/bin
+sudo ln -s /usr/local/zeek/bin/zeek* /usr/local/bin
 #Test Bro GeoIp
-bro -e "print lookup_location(8.8.8.8);"
+sudo zeek -e "print lookup_location(8.8.8.8);"
 ..
 echo "Broker install..."
 wget https://www.zeek.org/downloads/broker-1.2.0.tar.gz

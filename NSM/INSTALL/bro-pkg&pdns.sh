@@ -18,8 +18,8 @@ sudo broctl deploy
 
 
 ##pdns installing
-wget https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz
-tar -xvf  go1.11.2.linux-amd64.tar.gz
+wegt https://dl.google.com/go/go1.12.9.linux-amd64.tar.gz
+tar -xvf  go1.12.9.linux-amd64.tar.gz
 sudo mv go /usr/local
 echo "
 export GOPATH="/home/gtrun/go"
@@ -55,5 +55,5 @@ export PDNS_STORE_URI="/path/to/passivedns.sqlite"
 ###logstash script
 
 
-sudo wget https://jdbc.postgresql.org/download/postgresql-42.2.5.jar /etc/logstash/conf.d/
+sudo wget https://jdbc.postgresql.org/download/postgresql-42.2.6.jar /etc/logstash/conf.d/
 sudo apt-get install libpostgresql-jdbc-java

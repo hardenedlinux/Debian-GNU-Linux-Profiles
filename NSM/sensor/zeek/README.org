@@ -1,5 +1,4 @@
-
-* Pacage-mamager
+* Package-mamager
   - [[https://bro-package-manager.readthedocs.io/en/stable/index.html][Bro Package Manager — Bro Package Manager Documentation]]
 ** Hardened-Bro [3/6]
 + [X] [hosom/fileextraction] 

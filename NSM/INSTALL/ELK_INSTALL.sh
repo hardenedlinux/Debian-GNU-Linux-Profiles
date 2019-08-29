@@ -51,7 +51,7 @@ make -j 4
 sudo make install
 sudo ln -s /usr/local/zeek/bin/zeek* /usr/local/bin
 #Test Bro GeoIp
-zeek -e "print lookup_location(8.8.8.8);"
+sudo zeek -e "print lookup_location(8.8.8.8);"
 ..
 echo "Broker install..."
 wget https://www.zeek.org/downloads/broker-1.2.0.tar.gz
