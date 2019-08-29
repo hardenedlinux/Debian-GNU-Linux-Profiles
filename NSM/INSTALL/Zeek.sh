@@ -4,9 +4,9 @@ sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zl
 mkdir src
 cd ~/src
 echo "Bro install..."
-wget https://www.bro.org/downloads/bro-2.6.1.tar.gz
-tar -xvf bro-2.6.1.tar.gz
-cd bro-2.6.1/
+wget https://www.zeek.org/downloads/zeek-3.0.0-rc2.tar.gz
+tar -xvf zeek-3.0.0-rc2.tar.gz
+cd zeek-3.0.0-rc2
 echo "install libmaxminddb"
 sudo apt-get install libmaxminddb-dev
 
@@ -36,9 +36,9 @@ sudo ln -s /usr/local/bro/bin/bro* /usr/local/bin
 bro -e "print lookup_location(8.8.8.8);"
 ..
 echo "Broker install..."
-wget https://www.bro.org/downloads/broker-1.1.2.tar.gz
-tar -xvf broker-1.1.2.tar.gz
-cd broker-1.1.2
+wget https://www.zeek.org/downloads/broker-1.2.0.tar.gz
+tar -xvf broker-1.2.0.tar.gz
+cd broker-1.2.0
 ./configure
 sudo make -j4 install
 echo "=== Broker Installation finished ==="

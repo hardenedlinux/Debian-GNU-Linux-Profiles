@@ -37,7 +37,7 @@ bro -NN JGras::FuzzyHashing
 cd ~/src
 git clone https://github.com/corelight/bro-community-id.git
 cd bro-community-id/
-./configure --bro-dist=../bro-2.6.1
+./configure --bro-dist=../zeek-3.0.0-rc2
 make
 sudo make install
 cd ..
@@ -45,7 +45,7 @@ cd ..
 ###
 git clone https://github.com/CommunityBro/mqtt_analyzer.git
 cd mqtt_analyzer
-./configure --bro-dist=$HOME/src/bro-2.6.1
+./configure --bro-dist=$HOME/src/zeek-3.0.0-rc2
 make
 sudo make install
 
@@ -62,13 +62,13 @@ make
 sudo make install
 cd ..
 cd bro-http2/
-./configure --bro-dist=$HOME/src/bro-2.6.1
+./configure --bro-dist=$HOME/src/zeek-3.0.0-rc2
 make
 sudo make install
 
 
 #
-echo '@load packages' | sudo tee --append /usr/local/bro/share/bro/site/local.bro
-echo '@load /usr/local/bro/lib/bro/plugins/mitrecnd_HTTP2/scripts/http2/' | sudo tee --append /usr/local/bro/share/bro/site/local.bro
+echo '@load packages' | sudo tee --append /usr/local/zeek/share/zeek/site/local.zeek
+echo '@load /usr/local/zeek/lib/zeek/plugins/mitrecnd_HTTP2/scripts/http2/' | sudo tee --append /usr/local/zeek/share/zeek/site/local.zeek
 
-echo '@load /usr/local/bro/lib/bro/plugins/mitrecnd_HTTP2/scripts/http2/intel' | sudo tee --append /usr/local/bro/share/bro/site/local.bro
+echo '@load /usr/local/zeek/lib/zeek/plugins/mitrecnd_HTTP2/scripts/http2/intel' | sudo tee --append /usr/local/zeek/share/zeek/site/local.zeek

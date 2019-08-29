@@ -23,8 +23,8 @@ cd ~/src
 echo "Bro install..."
 #wget https://www.zeek.org/downloads/bro-2.6.4.tar.gz
 wget https://www.zeek.org/downloads/zeek-3.0.0-rc2.tar.gz
-tar -xvf 
-cd zeek-3.0.0-rc1
+tar -xvf zeek-3.0.0-rc2.tar.gz
+cd zeek-3.0.0-rc2
 echo "install libmaxminddb"
 sudo apt-get install libmaxminddb-dev -y
 
@@ -54,7 +54,7 @@ sudo ln -s /usr/local/zeek/bin/zeek* /usr/local/bin
 zeek -e "print lookup_location(8.8.8.8);"
 ..
 echo "Broker install..."
-wget https://www.bro.org/downloads/broker-1.2.0.tar.gz
+wget https://www.zeek.org/downloads/broker-1.2.0.tar.gz
 tar -xvf broker-1.2.0.tar.gz
 cd broker-1.2.0
 ./configure
