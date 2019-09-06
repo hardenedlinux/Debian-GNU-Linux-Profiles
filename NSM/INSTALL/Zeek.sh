@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-
+sudo apt update
+sudo apt -y upgrade
 sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zlib1g-dev libgeoip-dev  autoconf python-pip python3-pip jq curl wget libsasl2-dev libhtp-dev libssl-dev
 mkdir src
 cd ~/src
@@ -42,3 +43,12 @@ cd broker-1.2.0
 ./configure
 sudo make -j4 install
 echo "=== Broker Installation finished ==="
+
+
+
+echo "PostgreSQL install .../"
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+RELEASE=$(lsb_release -cs)
+echo "deb http://apt.postgresql.org/pub/repos/apt/ ${RELEASE}"-pgdg main | sudo tee  /etc/apt/sources.list.d/pgdg.list
+sudo apt update
+sudo apt -y install postgresql-11 libpq-dev postgresql-server-dev-all

@@ -22,7 +22,7 @@ wegt https://dl.google.com/go/go1.12.9.linux-amd64.tar.gz
 tar -xvf  go1.12.9.linux-amd64.tar.gz
 sudo mv go /usr/local
 echo "
-export GOPATH="/home/gtrun/go"
+export GOPATH="$HOME/go"
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 export GOROOT="/usr/local/go"
 "

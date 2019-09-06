@@ -1,3 +1,11 @@
+cd ~/src
+git clone https://github.com/0xxon/zeek-postgresql.git
+cd zeek-postgresql
+./configure --bro-dist=../zeek-3.0.0-rc2
+make && sudo make install
+sudo zeek -N Johanna::PostgreSQL
+
+
 mkdir ~/src/fuzzy-hash
 cd ~/src/fuzzy-hash
 git clone https://github.com/ssdeep-project/ssdeep.git
@@ -29,7 +37,7 @@ cp -r ~/src/fuzzy-hash/tlsh-3.4.5/include/* tlsh/.
 ./configure --with-tlsh=../tlsh/include
 make
 sudo make install
-bro -NN JGras::FuzzyHashing
+sudo zeek -N JGras::FuzzyHashing
 
 
 
