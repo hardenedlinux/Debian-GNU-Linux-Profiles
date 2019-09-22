@@ -178,8 +178,8 @@ Hello local persistent volume
 
 #### Reference:
 
-https://kubernetes.io/docs/concepts/storage/storage-classes/#local
-https://kubernetes.io/blog/2019/04/04/kubernetes-1.14-local-persistent-volumes-ga/
-https://vocon-it.com/2018/12/20/kubernetes-local-persistent-volumes/
-https://kubernetes.io/docs/concepts/storage/volumes/#local
-https://kubernetes.io/docs/concepts/storage/persistent-volumes/#raw-block-volume-support
+https://kubernetes.io/docs/concepts/storage/storage-classes/#local   
+https://kubernetes.io/blog/2019/04/04/kubernetes-1.14-local-persistent-volumes-ga/   
+https://vocon-it.com/2018/12/20/kubernetes-local-persistent-volumes/   
+https://kubernetes.io/docs/concepts/storage/volumes/#local   
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/#raw-block-volume-support   
