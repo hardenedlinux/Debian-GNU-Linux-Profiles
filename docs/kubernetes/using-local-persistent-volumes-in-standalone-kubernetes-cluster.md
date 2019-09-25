@@ -4,6 +4,7 @@ The Local Persistent Volumes feature has been promoted to GA in Kubernetes 1.14.
 
 A local volume represents a mounted local storage device such as a disk, partition or directory.
 
+Note: for Standalone Kubernetes Cluster, you should calculate your storage more carefully, because you can't easy expand your storage like normal cluster do. 
 
 #### Create StorageClass
 
@@ -176,6 +177,103 @@ and return
 Hello local persistent volume
 ```
 
+#### Create Persistent Volume (for mounting a raw block device)
+
+Create rar block volume persistent volume
+```
+cat > persistentVolumeBlock.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-block-pv
+spec:
+  capacity:
+    storage: 900Gi
+  volumeMode: Block
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /dev/sdc
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - examplenode
+EOF
+
+kubectl create -f persistentVolumeBlock.yaml
+```
+you should replace `examplenode` with the name of your node. In my case, I should change it to `kubesa`
+In this example, our block that we prepare to mount is `/dev/sdc`
+
+#### Create Persistent Volume Claim (for mounting a raw block device)
+
+```
+cat > persistentVolumeClaimBlock.yaml <<EOF
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: my-block-claim
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: local-storage
+  volumeMode: Block
+  resources:
+    requests:
+      storage: 5Gi
+EOF
+
+kubectl create -f persistentVolumeClaimBlock.yaml
+```
+#### Create a POD with local persistent Volume (for raw block device)
+
+```
+cat > http-pod-block.yaml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: www-block
+  labels:
+    name: www-block
+spec:
+  containers:
+  - name: www-block
+    image: centos
+    securityContext:
+      capabilities:
+        add: ["SYS_RAWIO"]
+    command: ["/bin/sh", "-c"]
+    args: [ "tail -f /dev/null" ]
+    ports:
+      - containerPort: 80
+        name: www-block
+    volumeDevices:
+      - name: block-data
+        devicePath: /dev/xvda
+  restartPolicy: Always
+  volumes:
+    - name: block-data
+      persistentVolumeClaim:
+        claimName: my-block-claim
+EOF
+```
+
+And we can enter the `http-pod-block` to run some test with block device.
+
+Note: for now, kubernetes bring rar block device support, it’s possible to do low-level actions on them from inside containers that wouldn’t be possible with file system volumes.
+
+But:   
+```
+Also, while Kubernetes is guaranteed to deliver a block device to the container, there’s no guarantee that it’s actually a SCSI disk or any other kind of disk for that matter. The user must either ensure that the desired disk type is used with his pods, or only deploy applications that can handle a variety of block device types.
+```
+
+
 #### Reference:
 
 https://kubernetes.io/docs/concepts/storage/storage-classes/#local   
@@ -183,3 +281,4 @@ https://kubernetes.io/blog/2019/04/04/kubernetes-1.14-local-persistent-volumes-g
 https://vocon-it.com/2018/12/20/kubernetes-local-persistent-volumes/   
 https://kubernetes.io/docs/concepts/storage/volumes/#local   
 https://kubernetes.io/docs/concepts/storage/persistent-volumes/#raw-block-volume-support   
+https://kubernetes.io/blog/2019/03/07/raw-block-volume-support-to-beta/   
