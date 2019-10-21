@@ -5,7 +5,6 @@ After=network.target
 
 [Service]
 ExecStart=/opt/zookeeper/bin/zkServer.sh start-foreground
-ExecReload=on-failure
 Restart=always
 User=root
 Group=root

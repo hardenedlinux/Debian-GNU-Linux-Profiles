@@ -2,9 +2,9 @@
 sudo apt-get update
 mkdir ~/src
 cd ~/src
-wget https://artifacts.elastic.co/downloads/kibana/kibana-7.3.1-amd64.deb
-wget https://artifacts.elastic.co/downloads/logstash/logstash-7.3.1.deb
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.3.1.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-7.3.2-amd64.deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-7.3.2.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.3.2-amd64.deb
 sudo apt-get update
 sudo apt-get install openjdk-8-jre
 sudo dpkg -i *.deb
@@ -22,9 +22,9 @@ mkdir src
 cd ~/src
 echo "Bro install..."
 #wget https://www.zeek.org/downloads/bro-2.6.4.tar.gz
-wget https://www.zeek.org/downloads/zeek-3.0.0-rc2.tar.gz
-tar -xvf zeek-3.0.0-rc2.tar.gz
-cd zeek-3.0.0-rc2
+wget https://www.zeek.org/downloads/zeek-3.0.0.tar.gz
+tar -xvf zeek-3.0.0.tar.gz
+cd zeek-3.0.0
 echo "install libmaxminddb"
 sudo apt-get install libmaxminddb-dev -y
 
@@ -80,16 +80,16 @@ echo "=== Broker Installation finished ==="
 # sudo npm install
 
 cd ~/src
-wget https://github.com/edenhill/librdkafka/archive/v1.1.0.tar.gz
-sudo tar -xvf v1.1.0.tar.gz
-cd librdkafka-1.1.0/
+wget https://github.com/edenhill/librdkafka/archive/v1.2.1.tar.gz
+sudo tar -xvf v1.2.1.tar.gz
+cd librdkafka-1.2.1/
 sudo ./configure --enable-sasl
 sudo make
 sudo make install
 cd ~/src/
-git clone https://github.com/apache/metron-bro-plugin-kafka.git
+git clone https://github.com/apache/metron-bro-plugin-kafka.git --depth=1
 cd metron-bro-plugin-kafka
-./configure --bro-dist=$HOME/src/bro-2.6.4
+./configure --bro-dist=$HOME/src/zeek-3.0.0 
 sudo make -j4 install
 
 
@@ -101,9 +101,9 @@ sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
 
 
 cd ~/src
-wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.5/apache-zookeeper-3.5.5-bin.tar.gz
-tar -xvf apache-zookeeper-3.5.5-bin.tar.gz
-sudo mv apache-zookeeper-3.5.5-bin /opt/zookeeper
+wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.6/apache-zookeeper-3.5.6-bin.tar.gz
+tar -xvf apache-zookeeper-3.5.6-bin.tar.gz
+sudo mv apache-zookeeper-3.5.6-bin /opt/zookeeper
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zoo.cfg /opt/zookeeper/conf/
 sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/zookeeper.service /etc/systemd/system/
 sudo systemctl daemon-reload
@@ -112,9 +112,9 @@ sudo systemctl start zookeeper
 
 ##
 #sudo cp ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka_2.12-1.0.0.tgz ~/src
-wget https://www-us.apache.org/dist/kafka/2.3.0/kafka-2.3.0-src.tgz
-sudo tar -xvf kafka-2.3.0-src.tgz
-sudo mv kafka-2.3.0-src /opt/kafka
+wget https://www-us.apache.org/dist/kafka/2.3.0/kafka_2.12-2.3.0.tgz
+sudo tar -xvf kafka_2.12-2.3.0.tgz
+sudo mv kafka_2.12-2.3.0/ /opt/kafka
 sudo sed -i '/^log.dirs/{s/=.*//;}' /opt/kafka/config/server.properties
 sudo sed -i 's/^log.dirs/log.dirs=\/var\/lib\/kafka/' /opt/kafka/config/server.properties
 sudo mv ~/src/Debian-GNU-Linux-Profiles/NSM/ELK/packages/kafka.service /etc/systemd/system/

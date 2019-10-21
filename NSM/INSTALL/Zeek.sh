@@ -5,9 +5,9 @@ sudo apt -y install cmake make gcc g++ flex bison libpcap-dev python-dev swig zl
 mkdir src
 cd ~/src
 echo "Bro install..."
-wget https://www.zeek.org/downloads/zeek-3.0.0-rc2.tar.gz
-tar -xvf zeek-3.0.0-rc2.tar.gz
-cd zeek-3.0.0-rc2
+wget https://www.zeek.org/downloads/zeek-3.0.0.tar.gz
+tar -xvf zeek-3.0.0.tar.gz
+cd zeek-3.0.0
 echo "install libmaxminddb"
 sudo apt-get install libmaxminddb-dev -y
 
