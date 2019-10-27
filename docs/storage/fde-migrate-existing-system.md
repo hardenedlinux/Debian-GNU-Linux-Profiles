@@ -58,7 +58,7 @@ Create luks inside the large partition, upon which setup LVM physical volume and
 
 You can migrate data back now, just as how you migrate them to the temporary storage. adjust the migrated filesystem with resize2fs if you use e2image to do low level copy.
 
-I prefer to create new filesystem, and do high level filesystem, as filesystem will slightly be optimized in the process.
+I prefer to create new filesystem, and migrate data back by high level copying, as filesystem will slightly be optimized in the process.
 
 ```
 # mkfs.ext4 /dev/vg-system/<label> -L <label>
@@ -75,8 +75,8 @@ Assuming now you have two disk (sda and sdb) in your target system, each has a "
 ```
 You can [add a key file to the luks on sdb](https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption#Creating_a_keyfile_with_random_characters), store the key in root, and unlock it with crypttab.
 ```
-# dd bs=512 count=4 if=/dev/random of=/mnt/root/etc/keys/luks-data.key iflag=fullblock
 # mkdir /mnt/root/etc/keys
+# dd bs=512 count=4 if=/dev/random of=/mnt/root/etc/keys/luks-data.key iflag=fullblock
 # cryptsetup luksAddKey /dev/sdbY /mnt/root/etc/keys/luks-data.key
 ```
 At this point, backup headers of all luks in the target system.
