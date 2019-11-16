@@ -257,7 +257,7 @@ The conf file will be generated for each type of log. The following is only an e
 input {
 	kafka {
 		topics => ["software"]
-		group_id => "bro_logstash"
+		group_id => "zeek_logstash"
      		bootstrap_servers => "192.168.1.147:9092"
      		codec => json
      		auto_offset_reset => "earliest"
