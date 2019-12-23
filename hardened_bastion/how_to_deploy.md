@@ -128,8 +128,7 @@ SSH to private server:
 
 ### Install Grsec/PAX
 ```
-$ git clone https://github.com/citypw/hardened-pwngame.git  
-$ cd hardened-pwngame/  
+$ wget https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/raw/master/hardened_bastion/debian_auto_deploy.sh
 $ sudo bash ./debian_auto_deploy.sh  
 $ sudo apt install gradm2 -y  
 ~# gradm2 -P  
