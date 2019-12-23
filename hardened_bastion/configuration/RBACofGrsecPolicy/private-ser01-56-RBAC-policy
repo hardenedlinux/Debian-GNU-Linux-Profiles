@@ -1,0 +1,1797 @@
+# policy generated from full system learning
+
+define grsec_denied {
+	/boot	h
+	/dev/grsec	h
+	/dev/kmem	h
+	/dev/mem	h
+	/dev/port	h
+	/etc/grsec	h
+	/proc/kcore	h
+	/proc/slabinfo	h
+	/proc/modules	h
+	/proc/kallsyms	h
+	/lib/modules	hs
+	/lib64/modules	hs
+	/etc/ssh	h
+}
+
+role admin sA
+subject / rvka
+	/ rwcdmlxi
+
+role shutdown sARG
+subject / rvka
+	/
+	/dev
+	/dev/urandom r
+	/dev/random r
+	/etc r
+	/bin rx
+	/sbin rx
+	/lib rx
+	/lib64 rx
+	/usr rx
+	/proc r
+	$grsec_denied
+	-CAP_ALL
+	connect disabled
+	bind disabled
+
+role default
+subject /
+	/			h
+	-CAP_ALL
+	connect	disabled
+	bind	disabled
+
+role man u
+role_allow_ip	0.0.0.0/32
+# Role: man
+subject /  {
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				h
+	/proc/filesystems		r
+	/sys				h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/find			x
+	/usr/lib			rx
+	/var				h
+	/var/cache/man			
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: man
+subject /usr/bin/mandb o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/etc/manpath.config		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/usr				
+	/usr/bin			h
+	/usr/bin/mandb			x
+	/usr/lib			rx
+	/usr/local			
+	/usr/local/share		
+	/usr/local/share/man		
+	/usr/src			h
+	/var				h
+	/var/cache/man			rwcd
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: man
+subject /usr/lib/systemd/systemd o {
+user_transition_allow root nobody
+
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib/modules			h
+	/lib64/modules			h
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/sys				h
+	/usr/bin/find			x
+	/usr/bin/mandb			x
+	/usr/src			h
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+role root uG
+role_transitions admin shutdown
+role_allow_ip	192.168.122.1/24
+role_allow_ip	0.0.0.0/32
+# Role: root
+subject /  {
+	/				
+	/boot				h
+	/dev				h
+	/dev/null			rw
+	/etc				rx
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/system		
+	/sys				h
+	/usr				h
+	/usr/bin			rxi
+	/usr/lib			rxi
+	/usr/share			h
+	/usr/share/dpkg/cputable	r
+	/usr/share/dpkg/tupletable	r
+	/usr/share/zoneinfo		r
+	/var				
+	/var/backups			
+	/var/backups/apt.extended_states.0	r
+	/var/cache			
+	/var/lib			h
+	/var/lib/apt/extended_states	r
+	/var/lib/apt/lists		
+	/var/lib/dpkg/status		
+	/var/log			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /etc/cron.daily o {
+user_transition_allow root Debian-exim hbtest
+
+	/				
+	/boot				r
+	/dev				
+	/dev/block			
+	/dev/bsg			
+	/dev/bus			
+	/dev/dri			
+	/dev/dri/by-path		
+	/dev/kmem			h
+	/dev/null			rw
+	/dev/port			h
+	/dev/shm			
+	/dev/shm/8.5-filelist		r
+	/dev/shm/dpkg_verify_ret	r
+	/dev/shm/proto_port_pair	r
+	/dev/shm/proto_port_pair_v6	r
+	/dev/tty			rw
+	/dev/virtio-ports		
+	/etc				rxi
+	/etc/samba/smbpasswd		h
+	/home				
+	/home/hbtest			r
+	/lib				
+	/lib/modules			h
+	/lib64				
+	/lib64/modules			h
+	/media				
+	/opt				
+	/opt/harbian-audit-master	r
+	/opt/master.zip			r
+	/proc				
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/root				r
+	/root/.gnupg			
+	/run				r
+	/run/.lk14777eharbian		wcdl
+	/run/.lk21901eharbian		wcdl
+	/run/.lk24765eharbian		wcdl
+	/run/NetworkManager		
+	/run/aide			rwcdl
+	/run/aide.lock			wd
+	/run/console-setup		
+	/run/console-setup/boot_completed	r
+	/run/console-setup/font-loaded	r
+	/run/dbus			
+	/run/dbus/system_bus_socket	rw
+	/run/exim4			
+	/run/exim4/exim.pid		r
+	/run/initramfs			
+	/run/initramfs/fsck-root	r
+	/run/initramfs/fsck.log		r
+	/run/log			
+	/run/log/journal		
+	/run/network			
+	/run/network/.ifstate.lock	r
+	/run/network/ifstate		r
+	/run/network/ifstate.ens3	r
+	/run/network/ifstate.lo		r
+	/run/sudo			
+	/run/sudo/ts			
+	/run/sudo/ts/hbtest		r
+	/run/systemd			rw
+	/run/tmpfiles.d			
+	/run/tmpfiles.d/kmod.conf	r
+	/run/user			
+	/sys				
+	/sys/devices/system/cpu/online	r
+	/tmp				rwcd
+	/usr				
+	/usr/bin			rxi
+	/usr/include			r
+	/usr/lib			rxi
+	/usr/lib64			
+	/usr/local			r
+	/usr/sbin			rxi
+	/usr/share			r
+	/var				
+	/var/backups			rwcd
+	/var/cache			r
+	/var/lib			rwcd
+	/var/log			r
+	/var/log/aide			rwcdl
+	/var/log/apt			
+	/var/log/apt/eipp.log.xz	r
+	/var/log/apt/history.log	r
+	/var/log/apt/term.log		r
+	/var/log/clamav			
+	/var/log/clamav/clamav.log	r
+	/var/log/clamav/freshclam.log	r
+	/var/log/exim4			
+	/var/log/exim4/mainlog		ra
+	/var/log/installer		r
+	/var/log/installer/cdebconf	
+	/var/log/installer/cdebconf/questions.dat	r
+	/var/log/installer/cdebconf/templates.dat	r
+	/var/mail			
+	/var/mail/hbtest		r
+	/var/spool			
+	/var/spool/cron			
+	/var/spool/exim4		rwc
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_OVERRIDE
+	+CAP_DAC_READ_SEARCH
+	+CAP_FOWNER
+	+CAP_FSETID
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SYS_ADMIN
+	+CAP_AUDIT_WRITE
+	bind 0.0.0.0/32:0 dgram ip
+	connect 192.168.122.1/32:53 dgram udp
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /usr/bin/apt-get o {
+	/				h
+	/dev				h
+	/dev/null			rw
+	/etc				r
+	/etc/apt			r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/tmp				rwcd
+	/usr				h
+	/usr/bin			x
+	/usr/lib			rx
+	/usr/share			h
+	/usr/share/dpkg/cputable	r
+	/usr/share/dpkg/tupletable	r
+	/usr/share/zoneinfo		r
+	/var				
+	/var/backups			h
+	/var/cache/apt			
+	/var/cache/apt/pkgcache.bin	r
+	/var/lib			rw
+	/var/log			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/bash o {
+	/				h
+	/etc/locale.alias		r
+	/root				
+	/root/.bash_history		rw
+	/usr				
+	/usr/bin			
+	/usr/bin/netstat		x
+	/usr/local			
+	/usr/sbin			
+	/usr/sbin/gradm2		x
+	/usr/src			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/cat o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/network/interfaces		r
+	/etc/ssh/sshd_config		r
+	/usr				h
+	/usr/bin/cat			x
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/chmod o {
+	/				h
+	/etc				rw
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/resolv.conf		
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/usr				h
+	/usr/bin/chmod			x
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/chown o {
+	/				h
+	/etc				w
+	/etc/group			r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/usr				h
+	/usr/bin/chown			x
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	/usr/lib/x86_64-linux-gnu/libnss_files-2.28.so	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/cp o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/proc				h
+	/proc/filesystems		r
+	/usr				h
+	/usr/bin			h
+	/usr/bin/cp			x
+	/usr/lib			rx
+	/var				h
+	/var/backups/apt.extended_states	wc
+	/var/lib/apt/extended_states	r
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/dash o {
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib/modules			h
+	/lib64/modules			h
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/motd.dynamic.new		wc
+	/sys				h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/dash			x
+	/usr/bin/env			x
+	/usr/bin/run-parts		x
+	/usr/lib			h
+	/usr/lib/rsyslog/rsyslog-rotate	x
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/dpkg o {
+group_transition_allow root
+
+	/				h
+	/etc				h
+	/etc/dpkg/dpkg.cfg		r
+	/etc/dpkg/dpkg.cfg.d		
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/proc				h
+	/proc/filesystems		r
+	/usr				h
+	/usr/bin			h
+	/usr/bin/dpkg			x
+	/usr/lib			rx
+	-CAP_ALL
+	+CAP_SETGID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/gzip o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/usr				h
+	/usr/bin/gzip			x
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	/var				h
+	/var/backups			
+	/var/backups/apt.extended_states.0	rwd
+	/var/backups/apt.extended_states.0.gz	wc
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/hostname o {
+	/				h
+	/etc/ld.so.cache		r
+	/usr/bin/hostname		x
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	-CAP_ALL
+	+CAP_SYS_ADMIN
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/ip o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/proc				
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/ip			x
+	/usr/lib			rx
+	-CAP_ALL
+	+CAP_NET_ADMIN
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /usr/bin/login o {
+	/				h
+	/etc/login.defs			r
+	/etc/passwd			r
+	/var/log/wtmp			w
+	-CAP_ALL
+	+CAP_AUDIT_WRITE
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /usr/bin/mv o {
+	/				h
+	/etc				rwcd
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/proc				h
+	/proc/filesystems		r
+	/usr				h
+	/usr/bin			h
+	/usr/bin/mv			x
+	/usr/lib			rx
+	/var				h
+	/var/backups/apt.extended_states	rwd
+	/var/backups/apt.extended_states.0	rwc
+	/var/backups/apt.extended_states.0.gz	rwd
+	/var/backups/apt.extended_states.1.gz	rwc
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/netstat o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/netstat		x
+	/usr/lib			rx
+	-CAP_ALL
+	+CAP_DAC_READ_SEARCH
+	+CAP_SYS_PTRACE
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/nm-online o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/proc				h
+	/proc/filesystems		r
+	/run				h
+	/run/dbus/system_bus_socket	rw
+	/usr				h
+	/usr/bin			h
+	/usr/bin/nm-online		x
+	/usr/lib			rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/rm o {
+	/				h
+	/etc				rwd
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/resolv.conf.dhclient-new.23188	
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/usr				h
+	/usr/bin/rm			x
+	/usr/lib/locale/locale-archive	r
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/savelog o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/usr				h
+	/usr/bin			rx
+	/usr/lib			h
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	/var				h
+	/var/backups			w
+	/var/backups/apt.extended_states	
+	/var/backups/apt.extended_states.0	
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/sudo o {
+group_transition_allow nogroup root hbtest
+
+	/				h
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/etc/sudoers.d			
+	/etc/sudoers.d/README		r
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/journal/dev-log	rw
+	/usr				h
+	/usr/bin			h
+	/usr/bin/cat			x
+	/usr/bin/systemctl		x
+	/usr/bin/vim.basic		x
+	/usr/sbin			h
+	/usr/sbin/gradm2		x
+	/usr/sbin/xtables-legacy-multi	x
+	/usr/share			h
+	/usr/share/zoneinfo		
+	/var				h
+	/var/log/sudo.log		a
+	/var/log/tallylog		rw
+	-CAP_ALL
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SYS_RESOURCE
+	+CAP_AUDIT_WRITE
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /usr/bin/systemctl o {
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/private		rw
+	/run/systemd/system		
+	/sys				h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/systemctl		x
+	/usr/bin/systemd-tty-ask-password-agent	x
+	/usr/lib			rx
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	+CAP_SYS_PTRACE
+	+CAP_SYS_RESOURCE
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/systemd-tmpfiles o {
+	/				
+	/boot				h
+	/dev				
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/etc/tmpfiles.d			
+	/etc/tmpfiles.d/screen-cleanup.conf	r
+	/lib				
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/run				rw
+	/sys				h
+	/usr				
+	/usr/bin/systemd-tmpfiles	x
+	/usr/lib			rx
+	/usr/local			
+	/usr/src			h
+	/var				
+	/var/backups			h
+	/var/lib			
+	/var/lib/dbus			
+	/var/lib/systemd		
+	/var/log			
+	-CAP_ALL
+	+CAP_FOWNER
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/systemd-tty-ask-password-agent o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				
+	/run/systemd			
+	/run/systemd/ask-password-block	rwc
+	/usr				h
+	/usr/bin			h
+	/usr/bin/systemd-tty-ask-password-agent	x
+	/usr/lib			rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/bin/vim.basic o {
+	/				h
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/vim			h
+	/etc/vim/vimrc			r
+	/home				h
+	/home/hbtest			
+	/proc				
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/root				
+	/root/.viminfo			rwcd
+	/root/.viminfo.tmp		rwcd
+	/usr				h
+	/usr/bin			h
+	/usr/bin/vim.basic		x
+	/usr/lib			rx
+	/usr/share			r
+	-CAP_ALL
+	+CAP_DAC_READ_SEARCH
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/lib/apt/apt.systemd.daily o {
+	/				
+	/boot				h
+	/dev				h
+	/dev/null			w
+	/etc				h
+	/etc/ld.so.cache		r
+	/lib/modules			h
+	/lib64/modules			h
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/sys				h
+	/usr				h
+	/usr/bin			x
+	/usr/lib			h
+	/usr/lib/apt/apt.systemd.daily	rx
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	/var				h
+	/var/backups			
+	/var/lib/apt/daily_lock		w
+	/var/lib/apt/extended_states	
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/lib/systemd/systemd o {
+	/				
+	/boot				h
+	/dev				h
+	/dev/full			
+	/dev/hugepages			
+	/dev/mqueue			
+	/dev/null			r
+	/dev/ptmx			
+	/dev/pts			
+	/dev/random			
+	/dev/shm			
+	/dev/tty			
+	/dev/tty0			rw
+	/dev/tty1			rw
+	/dev/urandom			
+	/dev/vda1			
+	/dev/zero			
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib				
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				rw
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/proc/sys/kernel/ngroups_max	r
+	/proc/sys/kernel/pid_max	r
+	/proc/sys/kernel/threads-max	r
+	/run				rwcd
+	/run/dbus			h
+	/run/dbus/system_bus_socket	rw
+	/run/udev			h
+	/run/udev/data/b254:1		r
+	/run/user			h
+	/run/user/1000			
+	/sys				rwcd
+	/tmp				wcd
+	/usr				
+	/usr/bin			h
+	/usr/bin/install		x
+	/usr/bin/systemd-tmpfiles	x
+	/usr/lib			rx
+	/usr/local			
+	/usr/sbin			h
+	/usr/sbin/agetty		x
+	/usr/sbin/logrotate		x
+	/usr/sbin/sshd			x
+	/usr/share			h
+	/usr/share/zoneinfo		
+	/usr/src			h
+	/var				h
+	/var/lib/systemd/timers		
+	/var/lib/systemd/timers/stamp-apt-daily-upgrade.timer	w
+	/var/lib/systemd/timers/stamp-apt-daily.timer	w
+	/var/lib/systemd/timers/stamp-logrotate.timer	w
+	/var/lib/systemd/timers/stamp-man-db.timer	w
+	/var/log/wtmp			w
+	/var/tmp			wcd
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_OVERRIDE
+	+CAP_DAC_READ_SEARCH
+	+CAP_FOWNER
+	+CAP_KILL
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SETPCAP
+	+CAP_SYS_CHROOT
+	+CAP_SYS_ADMIN
+	+CAP_SYS_RESOURCE
+	+CAP_SYS_TTY_CONFIG
+	+CAP_MKNOD
+	+CAP_AUDIT_WRITE
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /usr/lib/systemd/systemd-journald o {
+	/				h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				rwcd
+	-CAP_ALL
+	+CAP_DAC_READ_SEARCH
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SYS_PTRACE
+	+CAP_SYS_ADMIN
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/lib/systemd/systemd-logind o {
+	/				h
+	/dev				h
+	/dev/mqueue			
+	/dev/shm			
+	/etc				h
+	/etc/passwd			r
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				rwcd
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/lib/systemd/systemd-udevd o {
+	/				h
+	/run/systemd/notify		rw
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/lib/systemd/systemd-user-runtime-dir o {
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				rwcd
+	/sys				h
+	/usr				h
+	/usr/lib			rx
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	+CAP_DAC_OVERRIDE
+	+CAP_DAC_READ_SEARCH
+	+CAP_FOWNER
+	+CAP_SYS_ADMIN
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/agetty o {
+	/				h
+	/dev				h
+	/dev/tty1			rw
+	/etc				h
+	/etc/group			r
+	/etc/issue			r
+	/etc/ld.so.cache		r
+	/etc/locale.alias		r
+	/etc/nsswitch.conf		r
+	/run				h
+	/run/agetty.reload		r
+	/usr				h
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/agetty		x
+	/var				h
+	/var/log/wtmp			w
+	-CAP_ALL
+	+CAP_FSETID
+	+CAP_SYS_ADMIN
+	+CAP_SYS_TTY_CONFIG
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/cron o {
+user_transition_allow root
+group_transition_allow root
+
+	/				h
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/proc				rw
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/root				
+	/run				h
+	/run/dbus/system_bus_socket	rw
+	/tmp				
+	/usr				h
+	/usr/bin			h
+	/usr/bin/dash			x
+	/usr/lib			rx
+	/usr/share			h
+	/usr/share/zoneinfo		
+	/var				h
+	/var/spool/cron/crontabs	
+	-CAP_ALL
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SYS_RESOURCE
+	+CAP_AUDIT_WRITE
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: root
+subject /usr/sbin/dhclient o {
+	/				h
+	/usr/sbin/dhclient-script	x
+	/var/lib/dhcp/dhclient.ens3.leases	w
+	-CAP_ALL
+	bind	disabled
+	connect 192.168.122.1/32:67 dgram udp
+}
+
+# Role: root
+subject /usr/sbin/dhclient-script o {
+	/				h
+	/dev				h
+	/dev/null			w
+	/etc				rwc
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/run				h
+	/run/systemd/system		
+	/usr				h
+	/usr/bin			x
+	/usr/lib			h
+	/usr/lib/x86_64-linux-gnu/ld-2.28.so	x
+	/usr/lib/x86_64-linux-gnu/libc-2.28.so	rx
+	/usr/sbin			h
+	/usr/sbin/dhclient-script	r
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/exim4 o {
+group_transition_allow Debian-exim
+
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib/modules			h
+	/lib64/modules			h
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/sys				h
+	/usr				h
+	/usr/lib/x86_64-linux-gnu/libnss_dns-2.28.so	rx
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/lib/exim4/config.autogenerated	r
+	/var/log/exim4/mainlog		a
+	/var/spool/exim4		
+	-CAP_ALL
+	+CAP_DAC_OVERRIDE
+	+CAP_DAC_READ_SEARCH
+	+CAP_SETGID
+	bind 0.0.0.0/32:0 dgram ip
+	connect 192.168.122.1/32:53 dgram udp
+}
+
+# Role: root
+subject /usr/sbin/logrotate o {
+	/				
+	/boot				h
+	/dev/grsec			h
+	/dev/kmem			h
+	/dev/log			h
+	/dev/mem			h
+	/dev/port			h
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				h
+	/proc/filesystems		r
+	/sys				h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/dash			x
+	/usr/bin/gzip			x
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/logrotate		x
+	/usr/share			h
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/lib/logrotate/status	rwcd
+	/var/lib/logrotate/status.tmp	rwcd
+	/var/log			rwcd
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_READ_SEARCH
+	+CAP_FSETID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/rsyslogd o {
+	/				h
+	/etc				h
+	/etc/hosts			r
+	/etc/resolv.conf		r
+	/var				h
+	/var/log			h
+	/var/log/auth.log		a
+	/var/log/daemon.log		a
+	/var/log/kern.log		a
+	/var/log/messages		a
+	/var/log/syslog			a
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: root
+subject /usr/sbin/sshd o {
+group_transition_allow root hbtest nogroup
+
+	/				
+	/boot				h
+	/dev				h
+	/dev/null			rw
+	/dev/ptmx			rw
+	/dev/pts			w
+	/dev/tty			r
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/home				
+	/home/hbtest			
+	/home/hbtest/.ssh		
+	/home/hbtest/.ssh/authorized_keys	r
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				rw
+	/proc/bus			h
+	/proc/filesystems		r
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys/kernel/ngroups_max	r
+	/run				rwcd
+	/sys				h
+	/usr				h
+	/usr/bin			h
+	/usr/bin/bash			
+	/usr/bin/dash			x
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/sshd			x
+	/usr/share			h
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/log/lastlog		rw
+	/var/log/tallylog		rw
+	/var/log/wtmp			w
+	/var/mail/hbtest		
+	-CAP_ALL
+	+CAP_CHOWN
+	+CAP_DAC_READ_SEARCH
+	+CAP_KILL
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_NET_BIND_SERVICE
+	+CAP_SYS_CHROOT
+	+CAP_SYS_RESOURCE
+	+CAP_AUDIT_WRITE
+	bind 0.0.0.0/32:22 stream tcp
+	connect	disabled
+	sock_allow_family ipv6 netlink
+}
+
+# Role: root
+subject /usr/sbin/xtables-legacy-multi o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/protocols			r
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/xtables.lock		r
+	/usr				h
+	/usr/lib			rx
+	/usr/sbin/xtables-legacy-multi	x
+	-CAP_ALL
+	+CAP_NET_ADMIN
+	+CAP_NET_RAW
+	bind	disabled
+	connect 0.0.0.0/32:0 raw_sock raw_proto
+}
+
+role hbtest u
+role_allow_ip	192.168.122.84/32
+role_allow_ip	0.0.0.0/32
+# Role: hbtest
+subject /  {
+	/				
+	/boot				h
+	/dev				h
+	/dev/console			
+	/dev/null			rw
+	/dev/tty			rw
+	/dev/tty0			
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/home				
+	/home/hbtest			rwcd
+	/home/hbtest/.gnupg		
+	/home/hbtest/.gnupg/private-keys-v1.d	w
+	/lib				
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/cmdline			
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/sys				h
+	/usr				
+	/usr/bin			x
+	/usr/lib			rx
+	/usr/local			
+	/usr/share			r
+	/usr/src			h
+	/var				h
+	/var/mail/hbtest		
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: hbtest
+subject /etc/cron.daily o {
+	/				h
+	/home/hbtest			
+	/usr/share/zoneinfo		r
+	/var				
+	/var/backups			h
+	/var/log			h
+	/var/mail			
+	/var/mail/hbtest		rwc
+	/var/mail/hbtest.lock		wd
+	/var/mail/hbtest.lock.harbian.5df3756d.00005869	wcdl
+	/var/mail/hbtest.lock.harbian.5df4c6ed.0000639d	wcdl
+	/var/mail/hbtest.lock.harbian.5df6187c.00003c98	wcdl
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: hbtest
+subject /usr/bin/ip o {
+	/				h
+	/etc				h
+	/etc/iproute2/group		r
+	/etc/ld.so.cache		r
+	/proc				h
+	/proc/filesystems		r
+	/usr				h
+	/usr/bin			h
+	/usr/bin/ip			x
+	/usr/lib			rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: hbtest
+subject /usr/bin/sudo o {
+user_transition_allow root nobody
+group_transition_allow nogroup root hbtest
+
+	/				h
+	/dev				h
+	/dev/console			
+	/dev/pts			
+	/dev/tty			rw
+	/etc				r
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/run				h
+	/run/dbus/system_bus_socket	rw
+	/run/sudo/ts			
+	/run/sudo/ts/hbtest		rw
+	/usr				h
+	/usr/bin			x
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/gradm2		
+	/usr/sbin/xtables-legacy-multi	
+	/usr/share			h
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/lib/sudo/lectured		
+	/var/log/tallylog		rw
+	-CAP_ALL
+	+CAP_DAC_READ_SEARCH
+	+CAP_SETGID
+	+CAP_SETUID
+	+CAP_SYS_RESOURCE
+	+CAP_AUDIT_WRITE
+	bind	disabled
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: hbtest
+subject /usr/bin/systemctl o {
+	/				h
+	/etc				h
+	/etc/ld.so.cache		r
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/dbus/system_bus_socket	rw
+	/run/systemd/system		
+	/usr				h
+	/usr/bin			h
+	/usr/bin/systemctl		x
+	/usr/lib			rx
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: hbtest
+subject /usr/lib/systemd/systemd o {
+user_transition_allow root nobody
+
+	/				
+	/boot				h
+	/dev				h
+	/dev/autofs			
+	/dev/sr0			
+	/dev/vda			
+	/dev/vda1			
+	/dev/vda2			
+	/dev/vda5			
+	/dev/vport1p1			
+	/dev/vport1p2			
+	/etc				
+	/etc/grsec2			h
+	/etc/gshadow			h
+	/etc/gshadow-			h
+	/etc/ld.so.cache		r
+	/etc/login.defs			r
+	/etc/passwd			h
+	/etc/ppp			h
+	/etc/samba/smbpasswd		h
+	/etc/shadow			h
+	/etc/shadow-			h
+	/etc/ssh			h
+	/etc/systemd			
+	/etc/systemd/user.conf		r
+	/home				
+	/lib				
+	/lib/modules			h
+	/lib64/modules			h
+	/proc				r
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/run				r
+	/run/dbus			h
+	/run/dbus/system_bus_socket	rw
+	/run/systemd			
+	/run/systemd/journal/socket	rw
+	/run/systemd/notify		rw
+	/run/udev			
+	/run/udev/data			r
+	/run/udev/tags			h
+	/run/udev/tags/systemd		
+	/run/user			
+	/run/user/1000			wcd
+	/sys				rwcd
+	/usr				
+	/usr/bin			
+	/usr/lib			rx
+	/usr/local			
+	/usr/src			h
+	/var/backups			h
+	/var/log			h
+	-CAP_ALL
+	+CAP_SETUID
+	bind 0.0.0.0/32:0 dgram ip
+	connect	disabled
+	sock_allow_family netlink
+}
+
+# Role: hbtest
+subject /usr/sbin/sshd o {
+user_transition_allow root nobody
+
+	/				h
+	/dev				h
+	/dev/pts			rw
+	/dev/tty			rw
+	/home				h
+	/home/hbtest			
+	/proc				
+	/proc/bus			h
+	/proc/kallsyms			h
+	/proc/kcore			h
+	/proc/modules			h
+	/proc/slabinfo			h
+	/proc/sys			h
+	/run				h
+	/run/systemd/journal/dev-log	rw
+	/usr				h
+	/usr/bin/bash			x
+	-CAP_ALL
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+role Debian-exim u
+role_allow_ip	0.0.0.0/32
+# Role: Debian-exim
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: Debian-exim
+subject /etc/cron.daily o {
+user_transition_allow root
+group_transition_allow Debian-exim
+
+	/				h
+	/dev				h
+	/dev/null			rw
+	/etc				h
+	/etc/email-addresses		r
+	/etc/group			r
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/usr				h
+	/usr/lib			rxi
+	/usr/sbin			h
+	/usr/sbin/exim4			xi
+	/usr/share			h
+	/usr/share/zoneinfo		r
+	/var				h
+	/var/log/exim4			
+	/var/log/exim4/mainlog		a
+	/var/spool/exim4		rwcd
+	-CAP_ALL
+	+CAP_SETGID
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+# Role: Debian-exim
+subject /usr/sbin/exim4 o {
+user_transition_allow root
+group_transition_allow Debian-exim
+
+	/				h
+	/etc				h
+	/etc/group			r
+	/etc/ld.so.cache		r
+	/etc/nsswitch.conf		r
+	/etc/passwd			r
+	/usr				h
+	/usr/lib			rx
+	/usr/sbin			h
+	/usr/sbin/exim4			x
+	-CAP_ALL
+	+CAP_SETGID
+	+CAP_SETUID
+	bind	disabled
+	connect	disabled
+}
+
+role sshd u
+# Role: sshd
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+role ntp u
+role_allow_ip	0.0.0.0/32
+# Role: ntp
+subject /  {
+	/				h
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
+# Role: ntp
+subject /usr/sbin/ntpd o {
+	/				h
+	/etc				h
+	/etc/hosts			r
+	/etc/resolv.conf		
+	/etc/services			r
+	/usr				h
+	/usr/share/zoneinfo		
+	/var				h
+	/var/lib/ntp/ntp.drift		rwcd
+	/var/lib/ntp/ntp.drift.TEMP	rwcd
+	-CAP_ALL
+	+CAP_SYS_TIME
+	bind 0.0.0.0/32:0 dgram ip
+	connect 124.108.20.1/32:123 dgram udp
+	connect 5.79.108.34/32:123 dgram udp
+	connect 84.16.73.33/32:123 dgram udp
+	connect 84.16.67.12/32:123 dgram udp
+	connect 192.168.122.1/32:53 dgram udp
+	connect 119.28.206.193/32:123 dgram udp
+	connect 119.28.183.184/32:123 dgram udp
+	connect 51.75.17.219/32:123 dgram udp
+	connect 94.237.64.20/32:123 dgram udp
+	connect 94.130.49.186/32:123 dgram udp
+	connect 193.182.111.142/32:123 dgram udp
+	connect 185.209.85.222/32:123 dgram udp
+	connect 185.255.55.20/32:123 dgram udp
+	connect 203.107.6.88/32:123 dgram udp
+	connect 162.159.200.123/32:123 dgram udp
+	connect 162.159.200.1/32:123 dgram udp
+	connect 78.46.102.180/32:123 dgram udp
+	sock_allow_family netlink
+}
+
+role messagebus u
+role_allow_ip	0.0.0.0/32
+# Role: messagebus
+subject /  {
+	/				h
+	/run/systemd/seats		
+	/run/systemd/users/1000		r
+	/usr/share/dbus-1/system-services	
+	-CAP_ALL
+	bind	disabled
+	connect	disabled
+}
+
