@@ -12,7 +12,7 @@
         1.  [Bro](#orga615193)
         2.  [Snort/Suricata](#org3abab69)
     6.  [Open source intelligence (OSINT)](#org58af098)
-        1.  [Threl intel platform](#org610cc59)
+        1.  [Threat Intel Platform](#org610cc59)
     7.  [Data analysis with python or Clojure](#org410946d)
         1.  [PySpark](#orge626ece)
         2.  [Using Clojure achived Spark steaming](#org50fcd19)
@@ -530,9 +530,9 @@ NFQ
 
 <a id="org610cc59"></a>
 
-### Threl intel platform
+### Threat Intel Platform
 
-   osint can be almost anything that criteria it could be a list of domains that are resolved to a specific IP address a list of malware hash is associated with Google search any of those pieces of information
+   OSINT can be almost anything that criteria it could be a list of domains that are resolved to a specific IP address a list of malware hash is associated with Google search any of those pieces of information
 (like Virtualotal, you can use these type of websites to help determine reputation)
 Ownership: Using domain tools(whois etc.) checking RIPE or ARIN for IP addresss registered to the information. if this domain that is inherently mailicous.
 
