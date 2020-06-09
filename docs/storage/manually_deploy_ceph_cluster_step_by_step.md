@@ -371,3 +371,11 @@ Enable the ceph-mds service
 ```
 systemctl start ceph-mds@ceph0
 ```
+
+
+### Reference:
+
+https://pve.proxmox.com/wiki/Install_Proxmox_VE_on_Debian_Buster   
+https://ceph.readthedocs.io/en/latest/install/manual-deployment/   
+https://docs.ceph.com/docs/master/rados/operations/add-or-rm-mons/   
+https://docs.ceph.com/docs/master/rados/deployment/ceph-deploy-osd/   
