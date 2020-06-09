@@ -1,838 +1,373 @@
-### Manually Deploy Ceph Cluster Step-by-Step
+## Manually deploy ceph cluster step by step
 
-Note: Our installation is base on Ceph(10.2.9 LTS). The document url of this
-version is http://docs.ceph.com/docs/jewel/
-
-### Basic Setup
-
-#### Install PaX/Grsecurity kernel
-
-For Security build-in policy we should install PaX/Grsecurity kernel right
-after we finish the system installation
-
+##### Tesing environment
 ```
-root@cephmon0# ls
-linux-firmware-image-4.9.38-unofficial+grsec+_4.9.38-unofficial+grsec+-7_amd64.deb
-linux-headers-4.9.38-unofficial+grsec+_4.9.38-unofficial+grsec+-7_amd64.deb
-linux-image-4.9.38-unofficial+grsec+-dbg_4.9.38-unofficial+grsec+-7_amd64.deb
-linux-image-4.9.38-unofficial+grsec+_4.9.38-unofficial+grsec+-7_amd64.deb
-linux-libc-dev_4.9.38-unofficial+grsec+-7_amd64.deb
-root@cephmon0# dpkg -i *.deb
+OS: Debian 10 
+Ceph: 15.2.1 octopus (bluestore)
+Network Adapter: Mellanox ConnectX4 40/56Gb
+Switch: Mellanox SX1012
+Hard Drive: Dell Enterprise Hard 6TB 7.2K SAS 12 Gbps x6 per OSD node
+Solid State Drive: Intel S3710 x2 RAID 1 for OS
+PCI-E Solid State Drive: Intel 750 1.2TB x1 per OSD node
 ```
 
-#### Install Ceph
-
-##### Build Ceph from github (build with jemalloc)
-
+##### Machine information
 ```
-git clone https://github.com/ceph/ceph.git
-cd ceph
-git checkout v10.2.9
-```
-modify `debian/rules` file and add `extraopts += --without-tcmalloc --with-jemalloc` under `extraopts += --without-tcmalloc --with-jemalloc`
+Hostname: ceph0
+IP address: 192.168.195.10
 
-Dealing the dependencies
-```
-apt-get install debhelper
-dpkg-checkbuilddeps        # make sure we have all dependencies
-```
-And follow the missing dependencies list to get all the missing dependencies
+Hostname: ceph1
+IP address: 192.168.195.11
 
-After that build ceph
-
-```
-dpkg-buildpackage
+Hostname: ceph2
+IP address: 192.168.195.12
 ```
 
-```
-$ cd ../
-$ ls
-ceph					 libcephfs1_10.2.9-1_amd64.deb
-ceph-base_10.2.9-1_amd64.deb		 librados-dev_10.2.9-1_amd64.deb
-ceph-common-dbg_10.2.9-1_amd64.deb	 librados2-dbg_10.2.9-1_amd64.deb
-ceph-common_10.2.9-1_amd64.deb		 librados2_10.2.9-1_amd64.deb
-ceph-fs-common-dbg_10.2.9-1_amd64.deb	 libradosstriper-dev_10.2.9-1_amd64.deb
-ceph-fs-common_10.2.9-1_amd64.deb	 libradosstriper1-dbg_10.2.9-1_amd64.deb
-ceph-fuse-dbg_10.2.9-1_amd64.deb	 libradosstriper1_10.2.9-1_amd64.deb
-ceph-fuse_10.2.9-1_amd64.deb		 librbd-dev_10.2.9-1_amd64.deb
-ceph-mds-dbg_10.2.9-1_amd64.deb		 librbd1-dbg_10.2.9-1_amd64.deb
-ceph-mds_10.2.9-1_amd64.deb		 librbd1_10.2.9-1_amd64.deb
-ceph-mon-dbg_10.2.9-1_amd64.deb		 librgw-dev_10.2.9-1_amd64.deb
-ceph-mon_10.2.9-1_amd64.deb		 librgw2-dbg_10.2.9-1_amd64.deb
-ceph-osd-dbg_10.2.9-1_amd64.deb		 librgw2_10.2.9-1_amd64.deb
-ceph-osd_10.2.9-1_amd64.deb		 python-ceph_10.2.9-1_amd64.deb
-ceph-resource-agents_10.2.9-1_amd64.deb  python-cephfs_10.2.9-1_amd64.deb
-ceph-test-dbg_10.2.9-1_amd64.deb	 python-rados_10.2.9-1_amd64.deb
-ceph-test_10.2.9-1_amd64.deb		 python-rbd_10.2.9-1_amd64.deb
-ceph_10.2.9-1.dsc			 radosgw-dbg_10.2.9-1_amd64.deb
-ceph_10.2.9-1.tar.gz			 radosgw_10.2.9-1_amd64.deb
-ceph_10.2.9-1_amd64.buildinfo		 rbd-fuse-dbg_10.2.9-1_amd64.deb
-ceph_10.2.9-1_amd64.changes		 rbd-fuse_10.2.9-1_amd64.deb
-ceph_10.2.9-1_amd64.deb			 rbd-mirror-dbg_10.2.9-1_amd64.deb
-libcephfs-dev_10.2.9-1_amd64.deb	 rbd-mirror_10.2.9-1_amd64.deb
-libcephfs-java_10.2.9-1_all.deb		 rbd-nbd-dbg_10.2.9-1_amd64.deb
-libcephfs-jni_10.2.9-1_amd64.deb	 rbd-nbd_10.2.9-1_amd64.deb
-libcephfs1-dbg_10.2.9-1_amd64.deb
-```
-and install the package you need.
 
-##### Or you can use ceph with tcmalloc(default)
+
+### Install Ceph package
+
+Install Ceph Release key
 
 ```
-root@cephmon0# apt install software-properties-common -y
-root@cephmon0# wget -q -O- 'https://download.ceph.com/keys/release.asc' | apt-key add -
-root@cephmon0# apt-add-repository 'deb http://cn.ceph.com/debian-jewel/ stretch main'
-root@cephmon0# apt update
-root@cephmon0# apt install ceph -y
+apt install gnupg2 sudo curl vim uuid-runtime -y
+wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
 ```
 
-### Ceph Architecture (Manually Version)
-
-TBD
-
-### Configure Ceph Monitor
-
-Install UUID tool
-
+Add source
+/etc/apt/sources.list.d/ceph.list
 ```
-root@cephmon0# apt install uuid-runtime -y
-root@cephmon0# uuidgen
-a7f64266-0894-4f1e-a635-d0aeaca0e993
+cat >/etc/apt/sources.list.d/ceph.list <<EOF
+deb http://mirrors.ustc.edu.cn/ceph/debian-octopus buster main
+deb-src http://mirrors.ustc.edu.cn/ceph/debian-octopus buster main
+EOF
+```
+note: you could also using official repo `https://download.ceph.com/debian-octopus`   
+
+update and install
+```
+apt update
+apt install ceph
 ```
 
-Create /etc/ceph/ceph.conf, using the UUID for fsid(cluster uuid)
+### Configuration
 
+#### Ceph Monitor
+generate for ceph cluster
 ```
-[global]
-fsid = a7f64266-0894-4f1e-a635-d0aeaca0e993
-mon initial members = cephmon0
-mon host = 192.168.200.157
-public network = 192.168.200.0/24
+uuidgen
+c9fc98d6-e691-4ea3-bb6e-c4beadc0eeb0
+```
+
+/etc/ceph/ceph.conf
+```
+fsid = c9fc98d6-e691-4ea3-bb6e-c4beadc0eeb0
+mon initial members = ceph0
+mon host = 192.168.0.10
+auth cluster required = cephx
+auth service required = cephx
+auth client required = cephx
+public network = 192.168.0.0/20
+cluster network = 192.168.20.0/24
 auth cluster required = cephx
 auth service required = cephx
 auth client required = cephx
 osd journal size = 1024
+mon_allow_pool_delete = true
 osd pool default size = 3
 osd pool default min size = 1
-osd pool default pg num = 333
-osd pool default pgp num = 333
+osd pool default pg num = 128
+osd pool default pgp num = 128
 osd crush chooseleaf type = 1
+mon_pg_warn_max_object_skew = 20
+mon_max_pg_per_osd = 400
+
+[mon.ceph0]
+    host = ceph0
+    mon addr = 192.168.0.10
 ```
 
-Create client admin keyring
+Create a keyring for your cluster and generate a monitor secret key.
 
 ```
-root@cephmon0# ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --set-uid=0 --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow'
+ceph-authtool --create-keyring /tmp/ceph.mon.keyring --gen-key -n mon. --cap mon 'allow *'
 ```
 
-Create monitor keyring
+Generate an administrator keyring, generate a client.admin user and add the user to the keyring.
+```
+sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow *' --cap mgr 'allow *'
+```
+Generate a bootstrap-osd keyring, generate a client.bootstrap-osd user and add the user to the keyring.
 
 ```
-root@cephmon0# ceph-authtool --create-keyring /tmp/ceph.mon.keyring --gen-key -n mon. --cap mon 'allow *'
+sudo ceph-authtool --create-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring --gen-key -n client.bootstrap-osd --cap mon 'profile bootstrap-osd' --cap mgr 'allow r'
 ```
 
-Add client.admin keyring into ceph.mon keyring
+Change the owner for ceph.mon.keyring.
 
 ```
-root@cephmon0# ceph-authtool /tmp/ceph.mon.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring
+sudo chown ceph:ceph /tmp/ceph.mon.keyring
 ```
 
-Create the monitor map
+Generate a monitor map using the hostname(s), host IP address(es) and the FSID. Save it as `/tmp/monmap`
 
 ```
-root@cephmon0# monmaptool --create --add cephmon0 192.168.200.157 --fsid a7f64266-0894-4f1e-a635-d0aeaca0e993 /tmp/monmap
+monmaptool --create --add {hostname} {ip-address} --fsid {uuid} /tmp/monmap
+```
+For example:
 
-monmaptool: monmap file /tmp/monmap
-monmaptool: set fsid to a7f64266-0894-4f1e-a635-d0aeaca0e993
-monmaptool: writing epoch 0 to /tmp/monmap (1 monitors)
+```
+monmaptool --create --add ceph0 192.168.195.10 --fsid c9fc98d6-e691-4ea3-bb6e-c4beadc0eeb0 /tmp/monmap
+```
+
+Create a default data directory (or directories) on the monitor host(s).
+
+```
+sudo mkdir /var/lib/ceph/mon/{cluster-name}-{hostname}
+```
+For example
+```
+sudo -u ceph mkdir /var/lib/ceph/mon/ceph-ceph0
 ```
 
 Populate the monitor daemon(s) with the monitor map and keyring.
 
 ```
-root@cephmon0# chown ceph:ceph /tmp/ceph.mon.keyring
-root@cephmon0# ceph-mon --mkfs -i cephmon0 --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring --setuser ceph --setgroup ceph
-
-ceph-mon: set fsid to a7f64266-0894-4f1e-a635-d0aeaca0e993
-ceph-mon: created monfs at /var/lib/ceph/mon/ceph-cephmon0 for mon.cephmon0
-```
-Create done file
-
-```
-root@cephmon0# touch /var/lib/ceph/mon/ceph-cephmon0/done
-root@cephmon0# chown ceph:ceph /var/lib/ceph/mon/ceph-cephmon0/done
-```
-
-Autostart
-
-```
-root@cephmon0# systemctl enable ceph-mon@cephmon0
-root@cephmon0# systemctl start ceph-mon@cephmon0
-```
-
-### Configure Ceph OSD
-
-On Ceph Monitor Node
-
-#### Create new OSD and Add new OSD entry to Cluster and get the OSD ID
-```
-root@cephmon0# ceph osd create 
-0
-```
-Note: In this example osd id is 0
-
-#### Partition (On Ceph OSD Node)
-
-```
-root@cephnode0# sgdisk --mbrtogpt -- /dev/sdc
-root@cephnode0# mkfs.xfs /dev/sdc -f
+sudo -u ceph ceph-mon [--cluster {cluster-name}] --mkfs -i {hostname} --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring
 ```
+For example
 
-#### Making the osd node directory
-
-```
-root@cephnode0# mkdir /var/lib/ceph/osd/ceph-0
-```
-Note: The ceph "ceph-0" is represent a cluster call "ceph", and the "0" in
-"ceph-0" represent the osd id
-
-#### Mount the disk to osd directory
-
-```
-root@cephnode0#mount /dev/sdc1 /var/lib/ceph/osd/ceph-0
-chown ceph:ceph /var/lib/ceph/osd/ceph-0
-```
-
-#### Initial OSD
-
 ```
-ceph-osd -i 0 --mkfs --mkkey --setuser ceph --setgroup ceph
+sudo -u ceph ceph-mon --mkfs -i ceph0 --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring
 ```
-Note: The `-i 0` means using osid = 0, and `--setuser ceph --setgroup ceph` means generate the initial file with owner by ceph:ceph, so the `ceph-osd` can use user `ceph` to run a ceph-osd service
 
-#### Register the OSD authentication key
+Start ceph-mon service
 
-copy ceph monitor's /etc/ceph/ceph.client.admin.keyring to ceph OSD node /etc/ceph/ceph.client.admin.keyring
-and copy ceph monitor's /etc/ceph/ceph.conf to ceph OSD node /etc/ceph/ceph.conf
-
 ```
-ceph auth add osd.0 osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-0/keyring
+systemctl start ceph-mon@ceph0
 ```
 
-#### Add host bucket and move it under "default"
+Check ceph cluster status
 
 ```
-ceph osd crush add-bucket cephnode0 host
-ceph osd crush move cephnode0 root=default
+ceph -s
 ```
-
-#### Add OSD to CRUSH map
-
+Enable the ceph-mon service
 ```
-ceph osd crush add osd.0 1 root=default host=cephnode0
+systemctl enable ceph-mon@ceph0
 ```
 
-#### Add fstab entry for automount
+#### Enable msgr2
 
 ```
-DISK_UUID=$(ls /dev/disk/by-uuid/ -alh | grep sdc | awk '{print $9}')
-echo "UUID=$DISK_UUID /var/lib/ceph/osd/ceph-0 xfs defaults 0 0" >> /etc/fstab
+ceph mon enable-msgr2
 ```
 
-#### Systemd service
+#### Add more ceph monitor
 
+On new monitor node `ceph1(192.168.195.11)`
 ```
-systemctl start ceph-osd@0
-systemctl enable ceph-osd@0
+sudo -u ceph mkdir /var/lib/ceph/mon/ceph-ceph1
 ```
-
-#### simple script for automatic add new drive into ceph storage pool
+On first monitor node `ceph0(192.168.195.10)`
 
+Retrieve the keyring for your monitors
 ```
-#For hdd osd
-#!/bin/bash
-
-OSD_ID=$(ceph osd create) #On ceph monitor node
-sgdisk --mbrtogpt -- /dev/"$1"
-mkfs.xfs /dev/"$1" -f
-mkdir /var/lib/ceph/osd/ceph-$OSD_ID
-mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
-chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
-ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
-ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring 
-ceph osd crush add-bucket $HOSTNAME host
-ceph osd crush move $HOSTNAME root=default
-ceph osd crush add osd.$OSD_ID 1 root=default host=$HOSTNAME
-systemctl start ceph-osd@$OSD_ID
-systemctl enable ceph-osd@$OSD_ID
-
-DISK_UUID=$(ls /dev/disk/by-uuid/ -alh | grep $1 | awk '{print $9}')
-echo "UUID=$DISK_UUID /var/lib/ceph/osd/ceph-$OSD_ID xfs defaults 0 0" >> /etc/fstab
-```
-save it into `auto_add_osd_hdd.sh` file and use it `bash auto_add_osd_hdd.sh sdc`
-Be careful, this script will format your harddrive, cause you lost all you data in the device you put it.
-So really careful.
-
-### A small cluster (3 storage node)
-
-Each node has 6 * 6 TB Hard Drive, and 1 * 1.2 TB PCIE SSD.
-
-So after we running previous `auto_add_osd_hdd.sh` with every HDD. we can get a osd tree like this
-
-```
-root@cephmon0# ceph osd tree
-ID WEIGHT   TYPE NAME              UP/DOWN REWEIGHT PRIMARY-AFFINITY 
--1 18.00000 root default                                             
--2  6.00000     host cephnode0                                       
- 0  1.00000         osd.0               up  1.00000          1.00000 
- 1  1.00000         osd.1               up  1.00000          1.00000 
- 2  1.00000         osd.2               up  1.00000          1.00000 
- 3  1.00000         osd.3               up  1.00000          1.00000 
- 4  1.00000         osd.4               up  1.00000          1.00000 
- 5  1.00000         osd.5               up  1.00000          1.00000 
--3  6.00000     host cephnode1                                       
- 6  1.00000         osd.6               up  1.00000          1.00000 
- 7  1.00000         osd.7               up  1.00000          1.00000 
- 8  1.00000         osd.8               up  1.00000          1.00000 
-10  1.00000         osd.10              up  1.00000          1.00000 
-11  1.00000         osd.11              up  1.00000          1.00000 
- 9  1.00000         osd.9               up  1.00000          1.00000 
--4  6.00000     host cephnode2                                       
-12  1.00000         osd.12              up  1.00000          1.00000 
-13  1.00000         osd.13              up  1.00000          1.00000 
-14  1.00000         osd.14              up  1.00000          1.00000 
-15  1.00000         osd.15              up  1.00000          1.00000 
-16  1.00000         osd.16              up  1.00000          1.00000 
-17  1.00000         osd.17              up  1.00000          1.00000 
-```
-But there is not enough, because at this time. The cluster got shitty performance.
-
-#### SSD Cache Tiering
-You must direct all client traffic from the storage pool to the cache pool.
-
-##### Add SSD Based OSD
-
-To add a SSD Cache Tiering, we should add new `root` bucket other then `default` root bucket, such as root bucket call ssd
-
+ceph auth get mon. -o /tmp/ceph.mon.keyring
 ```
-ceph osd crush add-bucket ssd root
-```
-and add new hostname to split hdd and sdd, such as `cephnode0-ssd` and `cephnode1-ssd`
+Retrieve the monitor map
 ```
-ceph osd crush add-bucket cephnode0-ssd host
-```
-and add the SSD drive into cluster just like before, you can just read the script show as below
-
-```
-#!/bin/bash
-
-#ceph osd crush add-bucket ssd root
-#for ssd pool
-
-OSD_ID=$(ceph osd create) #On ceph monitor node
-sgdisk --mbrtogpt -- /dev/"$1"
-mkfs.xfs /dev/"$1" -f
-mkdir /var/lib/ceph/osd/ceph-$OSD_ID
-mount /dev/"$1" /var/lib/ceph/osd/ceph-$OSD_ID
-chown ceph:ceph /var/lib/ceph/osd/ceph-$OSD_ID
-ceph-osd -i $OSD_ID --mkfs --mkkey --setuser ceph --setgroup ceph
-ceph auth add osd.$OSD_ID osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-$OSD_ID/keyring 
-ceph osd crush add-bucket "$HOSTNAME"-ssd host
-ceph osd crush move "$HOSTNAME"-ssd root=ssd
-ceph osd crush add osd.$OSD_ID 1 root=ssd host="$HOSTNAME"-ssd
-systemctl start ceph-osd@$OSD_ID
-systemctl enable ceph-osd@$OSD_ID
-
-DISK_UUID=$(ls /dev/disk/by-uuid/ -alh | grep $1 | awk '{print $9}')
-echo "UUID=$DISK_UUID /var/lib/ceph/osd/ceph-$OSD_ID xfs defaults 0 0" >> /etc/fstab
-```
-save in as `auto_add_ssd_osd.sh` and use it like this `bash auto_add_ssd_osd.sh nvme0n1`
-(because the intel 750 pcie ssd localtion is /dev/nvme0n1)
-
-Note we add a host bucket call "cephnode0-ssd" and move it into `ssd` root bucket. But every time we restart the osd service
-in this OSD, it will run the `/usr/lib/ceph/ceph-osd-prestart.sh` and this script will run the `/usr/bin/ceph-crush-location ` and this tool will pass the `$HOSTNAME` to the CRUSH map, so if the `osd.18` is the SSD based OSD, under the `cephnode0-ssd` ("$HOSTNAME"-ssd) under the root bucket call `ssd`. after we restart the service the `host` of `osd.18` will change from `"$HOSTNAME"-ssd` into `"$HOSTNAME"`. So we should manually assign the host of this kind of osd. In the `/etc/ceph/ceph.conf`
-
-```
-[osd.18]
-    osd crush location = "root=ssd host=cephnode0-ssd"
-```
-so the osd tree show as below
-```
-ceph osd tree
-
-ID WEIGHT   TYPE NAME              UP/DOWN REWEIGHT PRIMARY-AFFINITY 
--5  3.00000 root ssd                                                 
--7  1.00000     host cephnode1-ssd                                   
-19  1.00000         osd.19              up  1.00000          1.00000 
--8  1.00000     host cephnode2-ssd                                   
-20  1.00000         osd.20              up  1.00000          1.00000 
--6  1.00000     host cephnode0-ssd                                   
-18  1.00000         osd.18              up  1.00000          1.00000 
--1 18.00000 root default                                             
--2  6.00000     host cephnode0                                       
- 0  1.00000         osd.0               up  1.00000          1.00000 
- 1  1.00000         osd.1               up  1.00000          1.00000 
- 2  1.00000         osd.2               up  1.00000          1.00000 
- 3  1.00000         osd.3               up  1.00000          1.00000 
- 4  1.00000         osd.4               up  1.00000          1.00000 
- 5  1.00000         osd.5               up  1.00000          1.00000 
--3  6.00000     host cephnode1                                       
- 6  1.00000         osd.6               up  1.00000          1.00000 
- 7  1.00000         osd.7               up  1.00000          1.00000 
- 8  1.00000         osd.8               up  1.00000          1.00000 
-10  1.00000         osd.10              up  1.00000          1.00000 
-11  1.00000         osd.11              up  1.00000          1.00000 
- 9  1.00000         osd.9               up  1.00000          1.00000 
--4  6.00000     host cephnode2                                       
-12  1.00000         osd.12              up  1.00000          1.00000 
-13  1.00000         osd.13              up  1.00000          1.00000 
-14  1.00000         osd.14              up  1.00000          1.00000 
-15  1.00000         osd.15              up  1.00000          1.00000 
-16  1.00000         osd.16              up  1.00000          1.00000 
-17  1.00000         osd.17              up  1.00000          1.00000 
-```
-
-##### Add new ruleset
-
-after we put all the SSD based OSD into one root bucket, we can set some rules to let pool only use this bucket.
-
-
-Get the CRUSH map
-```
-ceph osd getcrushmap -o crushmap
-```
-Decompile the CRUSH map
-```
-crushtool -d crushmap -o decompiled-crushmap
-```
-
-Now we can edit the CRUSH map and add one rule for ssd bucket
-
-```
-cat decompiled-crushmap
-# begin crush map
-tunable choose_local_tries 0
-tunable choose_local_fallback_tries 0
-tunable choose_total_tries 50
-tunable chooseleaf_descend_once 1
-tunable chooseleaf_vary_r 1
-tunable straw_calc_version 1
-
-# devices
-device 0 osd.0
-device 1 osd.1
-device 2 osd.2
-device 3 osd.3
-device 4 osd.4
-device 5 osd.5
-device 6 osd.6
-device 7 osd.7
-device 8 osd.8
-device 9 osd.9
-device 10 osd.10
-device 11 osd.11
-device 12 osd.12
-device 13 osd.13
-device 14 osd.14
-device 15 osd.15
-device 16 osd.16
-device 17 osd.17
-device 18 osd.18
-device 19 osd.19
-device 20 osd.20
-
-# types
-type 0 osd
-type 1 host
-type 2 chassis
-type 3 rack
-type 4 row
-type 5 pdu
-type 6 pod
-type 7 room
-type 8 datacenter
-type 9 region
-type 10 root
-
-# buckets
-host cephnode0 {
-	id -2		# do not change unnecessarily
-	# weight 6.000
-	alg straw
-	hash 0	# rjenkins1
-	item osd.0 weight 1.000
-	item osd.1 weight 1.000
-	item osd.2 weight 1.000
-	item osd.3 weight 1.000
-	item osd.4 weight 1.000
-	item osd.5 weight 1.000
-}
-host cephnode1 {
-	id -3		# do not change unnecessarily
-	# weight 6.000
-	alg straw
-	hash 0	# rjenkins1
-	item osd.6 weight 1.000
-	item osd.7 weight 1.000
-	item osd.8 weight 1.000
-	item osd.10 weight 1.000
-	item osd.11 weight 1.000
-	item osd.9 weight 1.000
-}
-host cephnode2 {
-	id -4		# do not change unnecessarily
-	# weight 6.000
-	alg straw
-	hash 0	# rjenkins1
-	item osd.12 weight 1.000
-	item osd.13 weight 1.000
-	item osd.14 weight 1.000
-	item osd.15 weight 1.000
-	item osd.16 weight 1.000
-	item osd.17 weight 1.000
-}
-root default {
-	id -1		# do not change unnecessarily
-	# weight 18.000
-	alg straw
-	hash 0	# rjenkins1
-	item cephnode0 weight 6.000
-	item cephnode1 weight 6.000
-	item cephnode2 weight 6.000
-}
-host cephnode1-ssd {
-	id -7		# do not change unnecessarily
-	# weight 1.000
-	alg straw
-	hash 0	# rjenkins1
-	item osd.19 weight 1.000
-}
-host cephnode2-ssd {
-	id -8		# do not change unnecessarily
-	# weight 1.000
-	alg straw
-	hash 0	# rjenkins1
-	item osd.20 weight 1.000
-}
-host cephnode0-ssd {
-	id -6		# do not change unnecessarily
-	# weight 1.000
-	alg straw
-	hash 0	# rjenkins1
-	item osd.18 weight 1.000
-}
-root ssd {
-	id -5		# do not change unnecessarily
-	# weight 3.000
-	alg straw
-	hash 0	# rjenkins1
-	item cephnode1-ssd weight 1.000
-	item cephnode2-ssd weight 1.000
-	item cephnode0-ssd weight 1.000
-}
-
-# rules
-rule replicated_ruleset {
-	ruleset 0
-	type replicated
-	min_size 1
-	max_size 10
-	step take default
-	step chooseleaf firstn 0 type host
-	step emit
-}
-
-# end crush map
-```
-We can see the last part of crush map is the `rules`
-
-```
-# rules
-rule replicated_ruleset {
-	ruleset 0
-	type replicated
-	min_size 1
-	max_size 10
-	step take default
-	step chooseleaf firstn 0 type host
-	step emit
-}
-```
-This is the default rule for default pool, and the `ruleset` is `0`
-
-we can add second rule after this rule.
-
-```
-rule ssd-primary {
-	ruleset 1
-	type replicated
-	min_size 0
-	max_size 4
-	step take ssd
-	step chooseleaf firstn 0 type host
-	step emit
-}
+ceph mon getmap -o /tmp/ceph.map
 ```
-in the `step take <bucket-name>` option, we set the `ssd` root bucket. Every pool use this ruleset will use the `ssd` bucket only.
-for more detail you can visit: http://docs.ceph.com/docs/jewel/rados/operations/crush-map/ 
+copy the `ceph.mon.keyring` and `ceph.map` to new monitor node `ceph1(192.168.195.11)`
 
-recompile the crush map
+on new monitor node `ceph1(192.168.195.11)`
 ```
-crushtool -c decompiled-crushmap -o new-crush-map
+sudo -u ceph ceph-mon --mkfs -i ceph1 --monmap /home/debian/ceph.map --keyring /home/debian/ceph.mon.keyring
 ```
-update the new crush map to your cluster
+Start ceph-mon service
 
 ```
-ceph osd setcrushmap -i new-crush-mapeew-crush-mapw-crush-map
+systemctl start ceph-mon@ceph1
 ```
 
-##### Create ssd-cache pool
+Check ceph cluster status
 
 ```
-ceph osd pool create <pool name> <pg number> <crush-ruleset-name>
+ceph -s
 ```
-for an example
+Enable the ceph-mon service
 ```
-ceph osd pool create ssd-cache 1024 ssd-primary
+systemctl enable ceph-mon@ceph1
 ```
 
-the why of pg number is 1024 because there is a formula   
+Quote from official document
+>It is advisable to run an odd-number of monitors but not mandatory. An odd-number of monitors has a higher resiliency to failures than an even-number of monitors. For instance, on a 2 monitor deployment, no failures can be tolerated in order to maintain a quorum; with 3 monitors, one failure can be tolerated; in a 4 monitor deployment, one failure can be tolerated; with 5 monitors, two failures can be tolerated. This is why an odd-number is advisable. Summarizing, Ceph needs a majority of monitors to be running (and able to communicate with each other), but that majority can be achieved using a single monitor, or 2 out of 2 monitors, 2 out of 3, 3 out of 4, etc.
+>
+>For an initial deployment of a multi-node Ceph cluster, it is advisable to deploy three monitors, increasing the number two at a time if a valid need for more than three exists.
 
-for more detail: http://docs.ceph.com/docs/jewel/rados/operations/placement-groups/#choosing-the-number-of-placement-groups
+and repeate adding the third monitor
 
-Total PGs = （OSDs * 100）/ replicas   
+#### Ceph Manager Daemon
 
-(21 OSD * 100) / 3 = 700   
-
-Nearest power of 2: 1024   
-
-##### Setting up the cache pool
-
-first we should create an hdd pool for daily use.
-
-```
-ceph osd pool create libvirt 1024
-```
-setting the cache tier####
-```
-ceph osd tier add {storagepool} {cachepool}
-```
-for example
-```
-ceph osd tier add libvirt ssd-cache
+On master node `ceph0`
 ```
-
-setting the cache mode
-```
-ceph osd tier cache-mode {cachepool} {cache-mode}
+sudo ceph auth get-or-create mgr.$name mon 'allow profile mgr' osd 'allow *' mds 'allow *'
 ```
-for example
+For example
 ```
-ceph osd tier cache-mode ssd-cache writeback
+sudo ceph auth get-or-create mgr.ceph0 mon 'allow profile mgr' osd 'allow *' mds 'allow *'
 ```
-You must direct all client traffic from the storage pool to the cache pool.
-setting the overlay.  
+Creating the directory for ceph-mgr
 ```
-ceph osd tier set-overlay {storagepool} {cachepool}
+sudo -u ceph mkdir /var/lib/ceph/mgr/ceph-ceph0
 ```
-for example
+Put the key into `/var/lib/ceph/mgr/ceph-ceph0/keyring`
 ```
-ceph osd tier set-overlay libvirt ssd-cache
+chown ceph:ceph /var/lib/ceph/mgr/ceph-ceph0/keyring
 ```
-setting cache pool type
+Start Ceph-mgr service
 
 ```
-ceph osd pool set {cachepool} hit_set_type bloom
+systemctl start ceph-mgr@ceph0
 ```
-for example
+Enable Ceph-mgr service
 ```
-ceph osd pool set ssd-cache hit_set_type bloom
+systemctl enable ceph-mgr@ceph0
 ```
 
-### Ceph with libvirt
+Repeate adding the second and third mgr on `ceph1` and `ceph2`
 
-Install the libvirt and librbd and other package.
 
-
-```
-apt install qemu-kvm libvirt-clients libvirt-daemon-system qemu-block-extra 
-```
-for qemu-system-x86_64 and libvirtd with PaX/Grsecurity
-```
-paxctl-ng -perms /usr/bin/qemu-system-x86_64
-paxctl-ng -perms /usr/sbin/libvirtd
-```
-#### Creat libvirt pool and create ceph user on Ceph monitor
+#### Adding Ceph OSD
 
-Create the libvirt pool (already create it before)
+Ceph OSD node:
 
 ```
-ceph osd pool create libvirt 1024 1024
+/dev/nvme0n1 #Intel 750 1.2T SSD
+/dev/sdc     #6t hdd
+/dev/sdd     #6t hdd
+/dev/sde     #6t hdd
+/dev/sdf     #6t hdd
+/dev/sdg     #6t hdd
+/dev/sdh     #6t hdd
 ```
 
-Create the Ceph user.
-
+On master node `ceph0`
+Retrieve the keyring for bootstrap osd
 ```
-ceph auth get-or-create client.libvirt mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=libvirt'
+ceph auth get client.bootstrap-osd
 ```
-the `client.libvirt` means a user name `libvirt`, and `mon 'allow r'` means allow read permission for monitor, `osd 'allow class-read object_prefix rbd_children'` means allow user to call `class-read` method to `rbd_children` which record the snapshot `parent` and `childern` relationship. And allow read, write, and call both read, wirte class method to pool `libvirt`
-
-the you will get and keyring.
+put it into `/var/lib/ceph/bootstrap-osd/ceph.keyring`
 
-you can verify it by this command.
+Change permission
 
 ```
-ceph auth list
+chown ceph:ceph /var/lib/ceph/bootstrap-osd/ceph.keyring
 ```
 
-#### Test with qemu-img on kvm host
+>A WAL device can be used for BlueStore’s internal journal or write-ahead log. It is identified by the block.wal symlink in the data directory. It is only useful to use a WAL device if the device is faster than the primary device (e.g., when it is on an SSD and the primary device is an HDD).
 
-Copy the /etc/ceph/ceph.conf to libvirt host
+>A DB device can be used for storing BlueStore’s internal metadata. BlueStore (or rather, the embedded RocksDB) will put as much metadata as it can on the DB device to improve performance. If the DB device fills up, metadata will spill back onto the primary device (where it would have been otherwise). Again, it is only helpful to provision a DB device if it is faster than the primary device.
 
-and create /etc/ceph/ceph.client.libvirt.keyring, such as
-
+Prepare the PCIE SSD for `wal` and `db` 
 ```
-[client.libvirt]
-	key = AQCPPo9Z4yukHRAXdnjDfxbn0GfHr0JJI9mg==
+/sbin/ceph-volume lvm zap /dev/nvme0n1
+/sbin/pvcreate /dev/nvme0n1
+/sbin/vgcreate ceph-ssd-pool /dev/nvme0n1
+/sbin/lvcreate -n osd0.wal -L 2G ceph-ssd-pool
+/sbin/lvcreate -n osd0.db -L 198G ceph-ssd-pool
+/sbin/lvcreate -n osd1.wal -L 2G ceph-ssd-pool
+/sbin/lvcreate -n osd1.db -L 198G ceph-ssd-pool
+/sbin/lvcreate -n osd2.wal -L 2G ceph-ssd-pool
+/sbin/lvcreate -n osd2.db -L 198G ceph-ssd-pool
+/sbin/lvcreate -n osd3.wal -L 2G ceph-ssd-pool
+/sbin/lvcreate -n osd3.db -L 198G ceph-ssd-pool
+/sbin/lvcreate -n osd4.wal -L 2G ceph-ssd-pool
+/sbin/lvcreate -n osd4.db -L 198G ceph-ssd-pool
+/sbin/lvcreate -n osd5.wal -L 2G ceph-ssd-pool
+/sbin/lvcreate -n osd5.db -l 100%FREE ceph-ssd-pool
 ```
-
 
-```
-qemu-img create -f raw rbd:<pool name>/<new-image-new>:conf=/etc/ceph/ceph.conf 20G
-```
-for example
-```
-qemu-img create -f raw rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf 40G
-Formatting 'rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf', fmt=raw size=42949672960
-```
-check the image by using
+Zapping many raw devices
 
 ```
-qemu-img info  rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf
-image: rbd:libvirt/debian9-netinstall:conf=/etc/ceph/ceph.conf
-file format: raw
-virtual size: 40G (42949672960 bytes)
-disk size: unavailable
-cluster_size: 4194304
+/sbin/ceph-volume lvm zap /dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg /dev/sdh 
 ```
 
-Using Virt-manager to create a Virtual Machine (without enable the storage for this virtual machine)
-And we manually add the ceph block device to this virtual machine.
-
+Using `ceph-volume` to create osd
 ```
-virsh list --all
- Id    Name                           State
-----------------------------------------------------
- -     debian9                        shut off
+sudo -s # for $PATH env
+ID=0;DEVICE=/dev/sdc;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
+ID=1;DEVICE=/dev/sdd;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
+ID=2;DEVICE=/dev/sde;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
+ID=3;DEVICE=/dev/sdf;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
+ID=4;DEVICE=/dev/sdg;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
+ID=5;DEVICE=/dev/sdh;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
 ```
-before we add the rbd, we should create a libvirt secret first
 
+If you encounter some error like below
 ```
-cat > libvirt-secret.xml <<EOF
-<secret ephemeral='no' private='no'>
-        <usage type='ceph'>
-                <name>client.libvirt secret</name>
-        </usage>
-</secret>
-EOF
+unning command: /usr/bin/ceph-authtool --gen-print-key
+Running command: /usr/bin/ceph --cluster ceph --name client.bootstrap-osd --keyring /var/lib/ceph/bootstrap-osd/ceph.keyring -i - osd new f20214fe-8472-4742-b4b3-6dee58972ad4
+Running command: /usr/sbin/lvcreate --yes -l 100%FREE -n osd-block-f20214fe-8472-4742-b4b3-6dee58972ad4 ceph-5a85dd02-6fa3-4270-aff1-f58d5dcdac08
+ stderr: Calculated size of logical volume is 0 extents. Needs to be larger.
+--> Was unable to complete a new OSD, will rollback changes
+Running command: /usr/bin/ceph --cluster ceph --name client.bootstrap-osd --keyring /var/lib/ceph/bootstrap-osd/ceph.keyring osd purge-new osd.6 --yes-i-really-mean-it
+ stderr: 2020-05-07T11:59:00.891+0800 7fd2b1797700 -1 auth: unable to find a keyring on /etc/ceph/ceph.client.bootstrap-osd.keyring,/etc/ceph/ceph.keyring,/etc/ceph/keyring,/etc/ceph/keyring.bin,: (2) No such file or directory
+2020-05-07T11:59:00.891+0800 7fd2b1797700 -1 AuthRegistry(0x7fd2ac058b78) no keyring found at /etc/ceph/ceph.client.bootstrap-osd.keyring,/etc/ceph/ceph.keyring,/etc/ceph/keyring,/etc/ceph/keyring.bin,, disabling cephx
+ stderr: purged osd.6
+-->  RuntimeError: command returned non-zero exit status: 5
 ```
-Define the secret
+check with `lsblk`
 ```
-virsh secret-define --file libvirt-secret.xml
-Secret d550132c-ed06-4ece-bf45-570693cb0b8b created
+sdc                                                                                                     8:32   0   5.5T  0 disk  
+└─ceph--5a85dd02--6fa3--4270--aff1--f58d5dcdac08-osd--block--c9bf4fe3--662e--4fa8--9ca7--e64cd4d6bf16 253:14   0   5.5T  0 lvm   
 ```
-Get the client.libvirt key and save the key string to a file
+It means last osd create preparation was some how fail and the drive `/dev/sdc` has been made as `physical volume` device and create a random `volume group` call `ceph-5a85dd02-6fa3-4270-aff1-f58d5dcdac08` and `logic volume` call `osd-block-c9bf4fe3-662e-4fa8-9ca7-e64cd4d6bf16`
 
-You can get the key from your monitor host by execute this command.
-```
-ceph auth get-key client.libvirt |  tee client.libvirt.key
-cat client.libvirt.key
-AQCPPo9Z4yukHRAXdnjDfxbn0GfHr0JJI9mg==
-```
+So we have to delete those device and make the `/dev/sdc` as raw drive
 
 ```
-virsh secret-set-value --secret {uuid of secret} --base64 $(cat client.libvirt.key) && rm client.libvirt.key libvirt-secret.xml
+lvremove /dev/ceph-5a85dd02-6fa3-4270-aff1-f58d5dcdac08/osd-block-c9bf4fe3-662e-4fa8-9ca7-e64cd4d6bf16
+vgremove /dev/ceph-5a85dd02-6fa3-4270-aff1-f58d5dcdac08
+pvremove /dev/sdc
 ```
-for example
+And Zap again and run `ceph-volume` again  
+Like following command
 ```
-virsh secret-set-value --secret d550132c-ed06-4ece-bf45-570693cb0b8b --base64 $(cat client.libvirt.key)
-Secret value set
+ID=0;DEVICE=/dev/sdc;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --block.wal ceph-ssd-pool/osd$ID.wal --block.db ceph-ssd-pool/osd$ID.db
 ```
-and add the 
 
-```
-<disk type='network' device='disk'>
-  <source protocol='rbd' name='libvirt/debian9-netinstall'>
-    <host name='176.16.0.10' port='6789'/>
-    <host name='176.16.0.11' port='6789'/>
-    <host name='176.16.0.12' port='6789'/>
-  </source>
-  <auth username='libvirt'>
-  <secret type='ceph' uuid='d550132c-ed06-4ece-bf45-570693cb0b8b'/>
-  </auth>
-  <target dev='vda' bus='virtio'/>
-</disk>
-```
-to the virsh xml
+#### Ceph Block Device
 
-due to some xml problem
+Create rbd
+
 ```
-Failed. Try again? [y,n,i,f,?]: 
-error: XML document failed to validate against schema: Unable to validate doc against /usr/share/libvirt/schemas/domain.rng
-Extra element devices in interleave
-Element domain failed to validate content
+ceph osd pool create vms
+rbd pool init vms
+ceph osd pool application enable vms rbd
 ```
-We can't use virsh edit just now. So we can dump the xml and undefine the domain and redefine it.
+#### CephFS
 
 ```
-virsh dumpxml debian9 >debian9.xml
+ceph fs volume create datacenter
 ```
-edit the debian9.xml
-
-undefine the domain
+Create an mds data point `/var/lib/ceph/mds/ceph-${id}` on mds node
 ```
-virsh undefine debian9
+sudo -u ceph mkdir /var/lib/ceph/mds/ceph-ceph0
 ```
-redefine the domain
+Create the keyring for mds
 ```
-virsh define debian9.xml
+sudo ceph auth get-or-create mds.ceph0 mon 'profile mds' mgr 'profile mds' mds 'allow *' osd 'allow *' 
 ```
+and put it on mds node's  `/var/lib/ceph/mds/ceph-ceph0/keyring`
 
-Enjoy the ceph block device with libvirt
-
-or
-
-You can simply add the ceph pool into your libvirt pool
-
+Start the ceph mds service
 ```
-<pool type='rbd'>
-  <name>ceph-libvirt-pool</name>
-  <source>
-    <host name='176.16.0.10' port='6789'/>
-    <host name='176.16.0.11' port='6789'/>
-    <host name='176.16.0.12' port='6789'/>
-    <name>libvirt</name>
-    <auth type='ceph' username='libvirt'>
-      <secret uuid='d550132c-ed06-4ece-bf45-570693cb0b8b'/>
-    </auth>
-  </source>
-</pool>
+systemctl start ceph-mds@ceph0
 ```
-the `<name>libvirt</name>` it the ceph pool's name.
-save this file in libvirt-pool.xml
-
+Enable the ceph-mds service
 ```
-virsh pool-define libvirt-pool.xml
-virsh pool-start ceph-libvirt-pool
-virsh pool-autostart ceph-libvirt-pool
-Pool ceph-libvirt-pool marked as autostarted
+systemctl start ceph-mds@ceph0
 ```
-So you can see the libvirt got a new storage call `ceph-libvirt-pool`. And you can use it to create new image and easily mount to virtual machine.
-
-#### Reference:
-http://docs.ceph.com/docs/jewel/architecture/   
-http://docs.ceph.com/docs/jewel/install/manual-deployment/   
-http://docs.ceph.com/docs/jewel/rados/configuration/auth-config-ref/   
-http://docs.ceph.com/docs/jewel/rados/operations/cache-tiering/
-http://docs.ceph.com/docs/jewel/rados/operations/user-management/
-http://docs.ceph.com/docs/master/rbd/rbd-snapshot/
