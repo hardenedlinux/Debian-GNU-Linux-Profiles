@@ -341,7 +341,7 @@ ID=0;DEVICE=/dev/sdc;/sbin/ceph-volume lvm create --bluestore --data $DEVICE --b
 
 #### Ceph Block Device
 
-Create rbd
+Create rbd pool for proxmox
 
 ```
 ceph osd pool create vms
@@ -349,6 +349,8 @@ rbd pool init vms
 ceph osd pool application enable vms rbd
 ```
 #### CephFS
+
+Create cephfs for proxmox
 
 ```
 ceph fs volume create datacenter
@@ -373,9 +375,147 @@ systemctl start ceph-mds@ceph0
 ```
 
 
+#### Install Proxmox
+
+Add an `/etc/hosts` entry for your IP address
+
+for example my hostname is `ceph0`
+```
+127.0.0.1	localhost
+192.168.195.10	ceph0
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+```
+
+Add the Proxmox VE repository:
+```
+echo "deb http://mirrors.ustc.edu.cn/proxmox/debian/pve/ buster pve-no-subscription" > /etc/apt/sources.list.d/pve-install-repo.list
+```
+note: you could also using official repo: `http://download.proxmox.com/debian/pve`
+
+Add Proxmox VE repository key:
+```
+wget http://download.proxmox.com/debian/proxmox-ve-release-6.x.gpg -O /etc/apt/trusted.gpg.d/proxmox-ve-release-6.x.gpg
+chmod +r /etc/apt/trusted.gpg.d/proxmox-ve-release-6.x.gpg  # optional, if you have a non-default umask
+```
+
+update repository and system
+
+```
+apt update && apt full-upgrade
+```
+
+Install the Proxmox VE packages
+```
+apt install proxmox-ve postfix open-iscsi
+```
+
+##### Network Configuration  
+
+Mellanox ConnectX4 40/56Gb bonding with 1Gb ethernet backup
+`/etc/network/interface`
+```
+auto eno1 
+iface eno1 inet manual
+#1Gb ethernet
+
+auto enp130s0
+iface enp130s0 inet manual
+#Mellanox ConnectX4
+
+auto bond0
+iface bond0 inet manual
+	bond-slaves eno1 enp130s0
+	bond-miimon 100
+	bond-mode active-backup
+	bond-primary enp130s0
+
+auto vmbr0
+iface vmbr0 inet static
+	address 192.168.195.10/20
+	gateway 192.168.200.1
+	bridge-ports bond0
+	bridge-stp off
+	bridge-fd 0
+	bridge-vlan-aware yes
+	bridge-vids 2-4094
+```
+
+##### Storage backend
+
+We are using ceph rbd pool name `vms` for images, and using cephfs dir `/proxmox` for template, backups, isos, snippets.   
+
+Copy ceph cluster configuration to proxmox
+```
+cp /etc/ceph/ceph.conf /etc/pve/
+cp /etc/ceph/ceph.client.admin.keyring /etc/pve/priv/
+```
+
+In this step, we give proxmox the admin privilege. Be careful when you set up a production cluser.
+
+###### Cephfs
+On Ceph Controller node mount cephfs root `/`
+
+```
+mkdir /mnt/cephfs
+ceph-fuse -n client.admin /mnt/cephfs
+mkdir /mnt/cephfs/proxmox
+```
+
+Create the user keyring for using cephfs
+
+```
+ceph fs authorize  datacenter client.proxmoxcephfs / r /proxmox rw
+```
+`/ r` means  only have read permission for the root dir
+`/proxmox rw` means this user `proxmoxcephfs` have read and write permission on `/proxmox` subdir
+
+create the dir for proxmox using the ceph secrets
+
+```
+mkdir /etc/pve/priv/ceph -p
+```
+
+put the secret in `/etc/pve/priv/ceph/<storage_name>.secret`
+in our case. `storage name` is `cephfs`   
+   
+so put the secret of `proxmoxcephfs` in `/etc/pve/priv/ceph/cephfs.secret`   
+
+```
+ceph auth get-or-create-key client.proxmoxcephfs > /etc/pve/priv/ceph/cephfs.secret
+```
+
+edit `/etc/pve/storage.cf`
+```
+cephfs: cephfs
+	path /mnt/pve/cephfs
+	content backup,vztmpl,iso,snippets
+	monhost 192.168.195.10 192.168.195.11 192.168.195.12
+	subdir /proxmox
+	username proxmoxcephfs
+```
+`cephfs: cephfs`:  first cephfs is storage type, sencond cephfs is storage name.
+
+###### Ceph RBD
+
+edit /etc/pve/storage.cfg
+
+```
+rbd: ceph-rbd
+	content images
+	krbd 0
+	pool vms
+```
+
+
 ### Reference:
 
 https://pve.proxmox.com/wiki/Install_Proxmox_VE_on_Debian_Buster   
 https://ceph.readthedocs.io/en/latest/install/manual-deployment/   
 https://docs.ceph.com/docs/master/rados/operations/add-or-rm-mons/   
 https://docs.ceph.com/docs/master/rados/deployment/ceph-deploy-osd/   
+https://pve.proxmox.com/wiki/Storage:_RBD   
+https://pve.proxmox.com/wiki/Storage:_CephFS   
