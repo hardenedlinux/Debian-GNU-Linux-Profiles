@@ -1,7 +1,7 @@
 # Kernel QA with syzkaller and qemu 
 This guide will contain of three partitation. 
 - Build syzkaller
-- Install and configure a VM with syzakaller support
+- Install and configure a VM with syzkaller support
 - Modify a fit configure
 
 ## install golang and build syzkaller
@@ -16,7 +16,7 @@ Add the follow-up option to  ~/.bashrc
 
 `export GOROOT=/home/root/go`  
 `export PATH=$GOROOT/bin:$PATH`  
-- The diryory golang work in:  
+- The directory golang work in:  
 
 `export GOPATH=/home/root/syzkalls/`  
 - Syzkaller binary located at:  
@@ -38,7 +38,7 @@ After that, you will find syz-* executable under the dirtory $(GOPATH)/bin.
 This cmd will create a image "/PATH/TO/YOUR/VM_HDA" with size "$(SIZE)G"  
 
 `qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA -enable-kvm -cdrom /PATH/TO/YOUR/IMG -boot d`  
--cdrom is the livecd iso dowload from net  
+- cdrom is the livecd iso dowload from net  
 - sshd should be enable when installed  
 
 <b>Run VM with sshd:</b>  
@@ -49,7 +49,7 @@ $(SSH_PORT) can be specify as your willing.
 ### Set VM login without password  
 <b>run in localhost with a qemu running:</b>  
 `ssh-keygen -t rsa`  
-this cmdline will generate two keys, public key id_isa.pub and pravite id_isa  
+this cmdline will generate two keys, public key id_isa.pub and private key id_isa  
 `scp id_rsa.pub -P $(SSH_PORT) root@vm:/root/.ssh/id_isa.pub`  
 copy public key to VM.  
 ### Edit sshd configure on your VM  
@@ -73,7 +73,7 @@ UsePAM no
 run`sudo /etc/init.d/ssh restart`restart the sshd.  
 
 ### Verify the public key login is ok  
-<b>Run the flowing cmdline on localhost:</b>  
+<b>Run the following cmdline on localhost:</b>  
 `qemu-system-x86_64 -m 4096 -hda /PATH/TO/YOUR/VM_HDA --enable-kvm -net nic -net user,host=10.0.2.10,hostfwd=tcp::23505-:22`  
 Try to ssh to VM:  
 `ssh -p $(SSH_PORT)  -i ssh_key/id_rsa root@127.0.0.1 -v`  
@@ -85,7 +85,7 @@ Try to ssh to VM:
 
 ## Run syzkaller with custom kernel
 ### Check the configure option follow-up
-you can simplely make defconfig and then modify the option you need.
+you can simply make defconfig and then modify the option you need.
 For code coverage collection:
 ```
 CONFIG_KCOV=y
@@ -132,8 +132,8 @@ Try the follow-up cmdline to test:
 -kernel /PATH/TO/KERNEL/arch/x86_64/boot/bzImage -initrd
 /PATH/TO/INITRD/initrd.img -append root=/dev/sda1 user,host=10.0.2.10,hostfwd=tcp::$(SSH_PORT)-:22`  
 
-### Run syzkaller with a generial configure  
-config.json for syz-maneger  
+### Run syzkaller with a general configure  
+config.json for syz-manager  
 ```
 {
 	"http": "127.0.0.1:50000",                        http server specify
@@ -164,6 +164,6 @@ config.json for syz-maneger
                ]
 }
 ```
-Then, run the syz-maneger with configure file.  
+Then, run the syz-manager with configure file.  
 `syz-manager -config config.json`  
 Then open your browser and enter 127.0.0.1：50000, there is a monitor of all test VM you run.  
