@@ -5,6 +5,14 @@
 ### Information
 
 ```
+kubernetes v1.18.8
+containerd v1.4.0
+coredns v1.7.0
+cni v0.8.6
+etcd v3.4.11
+```
+
+```
 Kubernetes Subnet — 192.168.1.0/24 # Host Network
 POD_CIDR — 10.100.0.0/16
 SERVICE_CIDR — 10.32.0.0/16
@@ -20,7 +28,7 @@ you should edit the `/etc/hosts` on all your controller node and worker node
 and install package for all node
 
 ```
-sudo apt install conntrack socat -y
+sudo apt install conntrack socat ipset curl -y
 ```
 
 ### Setting up cfssl & generating configs
@@ -31,10 +39,12 @@ We using CloudFlare's PKI toolkit generation of the certificate authority and fo
 Install cfssl
 
 ```
-wget -q --show-progress --https-only --timestamping https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
-sudo mv cfssl_linux-amd64 /usr/local/bin/cfssl
-sudo mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+wget -q --show-progress --https-only --timestamping \
+  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssl \
+  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssljson
+
+chmod +x cfssl cfssljson
+sudo mv cfssl cfssljson /usr/local/bin/
 ```
 
 Create directories for TLS certs
@@ -326,7 +336,8 @@ mkdir configs
 
 Get kubectl
 ```
-curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kubectl
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kubectl
+
 chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 ```
@@ -481,9 +492,9 @@ scp data-encryption/encryption-config.yaml ${instance}:~/
 Download etcd file
 
 ```
-wget -q --show-progress --https-only --timestamping "https://github.com/coreos/etcd/releases/download/v3.3.13/etcd-v3.3.13-linux-amd64.tar.gz"
-tar -xvf etcd-v3.3.13-linux-amd64.tar.gz
-sudo mv etcd-v3.3.13-linux-amd64/etcd* /usr/local/bin/
+wget -q --show-progress --https-only --timestamping "https://github.com/etcd-io/etcd/releases/download/v3.4.11/etcd-v3.4.11-linux-amd64.tar.gz"
+tar -xvf etcd-v3.4.11-linux-amd64.tar.gz
+sudo mv etcd-v3.4.11-linux-amd64/etcd* /usr/local/bin/
 ```
 
 #### Configuring the ETCD server
@@ -493,7 +504,7 @@ Following setup should perform every controller node
 
 ```
 sudo mkdir -p /etc/etcd /var/lib/etcd
-mv * ~/
+sudo chmod 700 /var/lib/etcd
 sudo cp ~/ca.pem ~/kubernetes-key.pem ~/kubernetes.pem /etc/etcd/
 ```
 
@@ -530,6 +541,7 @@ ExecStart=/usr/local/bin/etcd \\
   --data-dir=/var/lib/etcd
 Restart=on-failure
 RestartSec=5
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -565,13 +577,12 @@ Download binaries
 
 ```
 sudo mkdir -p /etc/kubernetes/config
-sudo apt install curl -y
 
 wget -q --show-progress --https-only --timestamping \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kube-apiserver" \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kube-controller-manager" \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kube-scheduler" \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kubectl"
+  "https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kube-apiserver" \
+  "https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kube-controller-manager" \
+  "https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kube-scheduler" \
+  "https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kubectl"
 chmod +x kube-apiserver kube-controller-manager kube-scheduler kubectl
 sudo mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/local/bin/
 ```
@@ -606,7 +617,6 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --bind-address=0.0.0.0 \\
   --client-ca-file=/var/lib/kubernetes/ca.pem \\
   --enable-admission-plugins=NamespaceLifecycle,NodeRestriction,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \\
-  --enable-swagger-ui=true \\
   --etcd-cafile=/var/lib/kubernetes/ca.pem \\
   --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
   --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
@@ -617,7 +627,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --kubelet-client-certificate=/var/lib/kubernetes/kubernetes.pem \\
   --kubelet-client-key=/var/lib/kubernetes/kubernetes-key.pem \\
   --kubelet-https=true \\
-  --runtime-config=api/all \\
+  --runtime-config='api/all=true' \\
   --service-account-key-file=/var/lib/kubernetes/service-account.pem \\
   --service-cluster-ip-range=10.32.0.0/24 \\
   --service-node-port-range=30000-32767 \\
@@ -626,6 +636,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --v=2
 Restart=on-failure
 RestartSec=5
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -677,6 +688,7 @@ sudo cp ~/kube-scheduler.kubeconfig /var/lib/kubernetes/
 Create the yaml config files
 
 ```
+mkdir /etc/kubernetes/config/
 cat <<EOF | sudo tee /etc/kubernetes/config/kube-scheduler.yaml
 apiVersion: kubescheduler.config.k8s.io/v1alpha1
 kind: KubeSchedulerConfiguration
@@ -735,13 +747,19 @@ sudo rm /etc/nginx/sites-enabled/default
 sudo mv kubernetes.default.svc.cluster.local /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
 sudo ln -s /etc/nginx/sites-available/kubernetes.default.svc.cluster.local /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
+sudo systemctl enable nginx
 ```
 #### Verify all is healthy
 
 ```
 kubectl get componentstatuses --kubeconfig admin.kubeconfig
 ```
-
+```
+NAME                 STATUS    MESSAGE             ERROR
+controller-manager   Healthy   ok                  
+scheduler            Healthy   ok                  
+etcd-0               Healthy   {"health":"true"}   
+```
 check the nginx is working
 
 ```
@@ -750,11 +768,12 @@ curl -H "Host: kubernetes.default.svc.cluster.local" -i http://127.0.0.1/healthz
 ##Returns
 
 HTTP/1.1 200 OK
-Server: nginx/1.10.3
-Date: Mon, 01 Jul 2019 06:27:45 GMT
+Server: nginx/1.14.2
+Date: Fri, 21 Aug 2020 03:53:38 GMT
 Content-Type: text/plain; charset=utf-8
 Content-Length: 2
 Connection: keep-alive
+Cache-Control: no-cache, private
 X-Content-Type-Options: nosniff
 ```
 
@@ -807,14 +826,13 @@ Download the worker releated binaries
 
 ```
 wget -q --show-progress --https-only --timestamping \
-  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.14.0/crictl-v1.14.0-linux-amd64.tar.gz \
-  https://storage.googleapis.com/kubernetes-the-hard-way/runsc-50c283b9f56bb7200938d9e207355f05f79f0d17 \
-  https://github.com/opencontainers/runc/releases/download/v1.0.0-rc8/runc.amd64 \
-  https://github.com/containernetworking/plugins/releases/download/v0.8.1/cni-plugins-linux-amd64-v0.8.1.tgz \
-  https://github.com/containerd/containerd/releases/download/v1.2.7/containerd-1.2.7.linux-amd64.tar.gz \
-  https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kubectl \
-  https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kube-proxy \
-  https://storage.googleapis.com/kubernetes-release/release/v1.14.3/bin/linux/amd64/kubelet
+  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.18.0/crictl-v1.18.0-linux-amd64.tar.gz \
+  https://github.com/opencontainers/runc/releases/download/v1.0.0-rc92/runc.amd64 \
+  https://github.com/containernetworking/plugins/releases/download/v0.8.6/cni-plugins-linux-amd64-v0.8.6.tgz \
+  https://github.com/containerd/containerd/releases/download/v1.4.0/containerd-1.4.0-linux-amd64.tar.gz \
+  https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kubectl \
+  https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kube-proxy \
+  https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kubelet
 ```
 
 Create directories
@@ -832,13 +850,14 @@ sudo mkdir -p \
 Install all 
 
 ```
-mv runsc-50c283b9f56bb7200938d9e207355f05f79f0d17 runsc
-mv runc.amd64 runc
-chmod +x kubectl kube-proxy kubelet runc runsc
-sudo mv kubectl kube-proxy kubelet runc runsc /usr/local/bin/
-sudo tar -xvf crictl-v1.14.0-linux-amd64.tar.gz -C /usr/local/bin/
-sudo tar -xvf cni-plugins-linux-amd64-v0.8.1.tgz  -C /opt/cni/bin/
-sudo tar -xvf containerd-1.2.7.linux-amd64.tar.gz -C /
+mkdir containerd
+tar -xvf crictl-v1.18.0-linux-amd64.tar.gz
+tar -xvf containerd-1.4.0-linux-amd64.tar.gz -C containerd
+sudo tar -xvf cni-plugins-linux-amd64-v0.8.6.tgz -C /opt/cni/bin/
+sudo mv runc.amd64 runc
+chmod +x crictl kubectl kube-proxy kubelet runc 
+sudo mv crictl kubectl kube-proxy kubelet runc /usr/local/bin/
+sudo mv containerd/bin/* /bin/
 ```
 
 #### CNI Networking
@@ -856,7 +875,7 @@ on kubesa
 ```
 POD_CIDR=10.200.0.0/24
 
-cat <<EOF | tee /etc/cni/net.d/10-bridge.conf
+cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
 {
     "cniVersion": "0.3.1",
     "name": "bridge",
@@ -878,13 +897,16 @@ EOF
 loopback config
 
 ```
-cat <<EOF | tee /etc/cni/net.d/99-loopback.conf
+cat <<EOF | sudo tee /etc/cni/net.d/99-loopback.conf
 {
     "cniVersion": "0.3.1",
+    "name": "lo",
     "type": "loopback"
 }
 EOF
 ```
+
+
 
 Setting forward
 
@@ -892,7 +914,7 @@ Setting forward
 sudo modprobe br_netfilter
 sudo -s
 echo "br_netfilter" > /etc/modules-load.d/br_netfilter.conf
-exit
+
 ```
 
 
@@ -920,14 +942,6 @@ cat << EOF | sudo tee /etc/containerd/config.toml
       runtime_type = "io.containerd.runtime.v1.linux"
       runtime_engine = "/usr/local/bin/runc"
       runtime_root = ""
-    [plugins.cri.containerd.untrusted_workload_runtime]
-      runtime_type = "io.containerd.runtime.v1.linux"
-      runtime_engine = "/usr/local/bin/runsc"
-      runtime_root = "/run/containerd/runsc"
-    [plugins.cri.containerd.gvisor]
-      runtime_type = "io.containerd.runtime.v1.linux"
-      runtime_engine = "/usr/local/bin/runsc"
-      runtime_root = "/run/containerd/runsc"
 EOF
 ```
 create containerd service
@@ -938,6 +952,7 @@ cat <<EOF | sudo tee /etc/systemd/system/containerd.service
 Description=containerd container runtime
 Documentation=https://containerd.io
 After=network.target
+
 [Service]
 ExecStartPre=/sbin/modprobe overlay
 ExecStart=/bin/containerd
@@ -949,6 +964,7 @@ OOMScoreAdjust=-999
 LimitNOFILE=1048576
 LimitNPROC=infinity
 LimitCORE=infinity
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -959,10 +975,12 @@ Note: if your server have some connective problem with google releated server, y
 for example:
 
 ```
+cat <<EOF | sudo tee /etc/systemd/system/containerd.service
 [Unit]
 Description=containerd container runtime
 Documentation=https://containerd.io
 After=network.target
+
 [Service]
 ExecStartPre=/sbin/modprobe overlay
 ExecStart=/bin/containerd
@@ -976,8 +994,10 @@ OOMScoreAdjust=-999
 LimitNOFILE=1048576
 LimitNPROC=infinity
 LimitCORE=infinity
+
 [Install]
 WantedBy=multi-user.target
+EOF
 ```
 
 So when you pull images from k8s.gcr.io will be no problem.
@@ -1027,6 +1047,7 @@ Description=Kubernetes Kubelet
 Documentation=https://github.com/kubernetes/kubernetes
 After=containerd.service
 Requires=containerd.service
+
 [Service]
 ExecStart=/usr/local/bin/kubelet \\
   --config=/var/lib/kubelet/kubelet-config.yaml \\
@@ -1039,6 +1060,7 @@ ExecStart=/usr/local/bin/kubelet \\
   --v=2
 Restart=on-failure
 RestartSec=5
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -1057,15 +1079,18 @@ clientConnection:
 mode: "iptables"
 clusterCIDR: "10.200.0.0/16"
 EOF
+
 cat <<EOF | sudo tee /etc/systemd/system/kube-proxy.service
 [Unit]
 Description=Kubernetes Kube Proxy
 Documentation=https://github.com/kubernetes/kubernetes
+
 [Service]
 ExecStart=/usr/local/bin/kube-proxy \\
   --config=/var/lib/kube-proxy/kube-proxy-config.yaml
 Restart=on-failure
 RestartSec=5
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -1098,7 +1123,7 @@ metadata:
   name: coredns
   namespace: kube-system
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -1115,8 +1140,14 @@ rules:
   verbs:
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   annotations:
@@ -1143,20 +1174,19 @@ data:
     .:53 {
         errors
         health
+        ready
         kubernetes cluster.local in-addr.arpa ip6.arpa {
           pods insecure
-          upstream
           fallthrough in-addr.arpa ip6.arpa
         }
         prometheus :9153
-        proxy . /etc/resolv.conf
         cache 30
         loop
         reload
         loadbalance
     }
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: coredns
@@ -1165,7 +1195,7 @@ metadata:
     k8s-app: kube-dns
     kubernetes.io/name: "CoreDNS"
 spec:
-  replicas: 3
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -1178,15 +1208,16 @@ spec:
       labels:
         k8s-app: kube-dns
     spec:
+      priorityClassName: system-cluster-critical
       serviceAccountName: coredns
       tolerations:
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
         - key: "CriticalAddonsOnly"
           operator: "Exists"
+      nodeSelector:
+        beta.kubernetes.io/os: linux
       containers:
       - name: coredns
-        image: coredns/coredns:1.3.1
+        image: coredns/coredns:1.7.0
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -1226,6 +1257,11 @@ spec:
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8181
+            scheme: HTTP
       dnsPolicy: Default
       volumes:
         - name: config-volume
@@ -1258,12 +1294,27 @@ spec:
   - name: dns-tcp
     port: 53
     protocol: TCP
+  - name: metrics
+    port: 9153
+    protocol: TCP
 EOF
 ```
 Install CoreDNS
 ```
 kubectl apply -f coredns.yaml
 ```
+
+List the pods created by the kube-dns deployment:
+```
+kubectl get pods -l k8s-app=kube-dns -n kube-system
+```
+
+```
+NAME                       READY   STATUS    RESTARTS   AGE
+coredns-5677dc4cdb-2nq56   1/1     Running   0          3m6s
+coredns-5677dc4cdb-g6gnt   1/1     Running   0          3m6s
+```
+
 
 ### Install CNI Plugin
 
@@ -1297,13 +1348,13 @@ Address 1: 10.32.0.1 kubernetes.default.svc.cluster.local
 Clean up
 
 ```
-kubectl delete deployment busybox
+kubectl delete pods busybox
 ```
 
 #### 
 
 Reference: 
 
-http://www.opus1.com/www/whitepapers/pki-whatisacert.pdf   
-https://medium.com/@DrewViles/kubernetes-the-hard-way-on-bare-metal-vms-fdb32bc4fed0   
+http://www.opus1.com/www/whitepapers/pki-whatisacert.pdf    
+https://github.com/kelseyhightower/kubernetes-the-hard-way   
 https://containerd.io/   
