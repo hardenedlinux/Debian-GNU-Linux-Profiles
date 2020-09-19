@@ -237,7 +237,7 @@ usbserial_ftdi
 usbserial_pl2303
 usbserial_usbdebug
 usbtest
-verify
+verifiers
 video_bochs
 video_cirrus
 video_colors
