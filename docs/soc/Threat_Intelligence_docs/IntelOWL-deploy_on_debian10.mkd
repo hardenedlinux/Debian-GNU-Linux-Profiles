@@ -1,0 +1,109 @@
+# IntelOwl deploy on Debian 10 
+
+## Introduction    
+IntelOwl was designed with the intent to help the community, in particular those researchers that can not afford commercial solutions, in the generation of threat intelligence data, in a simple, scalable and reliable way.    
+
+## Community activity    
+This project first commit is Dec 31 2019 on Github, As of Dec 17, 2020, there are 1531 stars, 148 forks, 171 Pull Requests, 26 Open issues, and 86 Closed issues. So, the community is active.
+
+## Pre-install     
+The project leverages docker-compose for a classic server deployment. So, you need docker and docker-compose installed in your machine.
+```
+~# apt-get install docker docker-compose git -y 
+```
+
+## Pre-configuration     
+If don't support IPv6, to disable IPv6 on Debian 10, add 'ipv6.disable=1' to GRUB_CMDLINE_LINUX="" line in /etc/default/grub file, and exec following command:
+```
+~# update-grub2    
+~# reboot 
+```
+
+## Install and Configuration    
+
+###  Git clone    
+```
+git clone https://github.com/intelowlproject/IntelOwl
+cd IntelOwl
+cp env_file_postgres_template env_file_postgres
+cp env_file_app_template env_file_app
+cp env_file_integrations_template env_file_integrations
+```
+Comment line 13 and uncomment line 15 in '.env' file.
+
+Advanced additional configuration:
+OLD_JOBS_RETENTION_DAYS: Database retention, default 3 days. Change this if you want to keep your old analysis longer in the database. The configuration item is in the env_file_app file. 
+
+### Run     
+```
+IntelOwl# docker-compose up -d    
+IntelOwl# docker-compose ps    
+         Name                        Command               State                               Ports                            
+--------------------------------------------------------------------------------------------------------------------------------
+intel_owl_celery_beat     /usr/local/bin/celery -A i ...   Up                                                                   
+intel_owl_celery_worker   /usr/local/bin/celery -A i ...   Up                                                                   
+intel_owl_nginx           /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp                     
+intel_owl_postgres        docker-entrypoint.sh postgres    Up      5432/tcp                                                     
+intel_owl_rabbitmq        docker-entrypoint.sh rabbi ...   Up      15691/tcp, 15692/tcp, 25672/tcp, 4369/tcp, 5671/tcp, 5672/tcp
+intel_owl_uwsgi           ./docker_entrypoint.sh           Up      8001/tcp 
+```
+
+### Create a super user    
+```
+IntelOwl# docker exec -ti intel_owl_uwsgi python3 manage.py createsuperuser
+```
+Example create user name is root, create a user named root. 
+
+### Use web interface    
+Login in browser:
+![1](./TI-image/Intelowl_login.png)   
+![2](./TI-image/Intelowl_web.png)   
+
+### Scan file with no key     
+![3](./TI-image/Intelowl_scan_file_nokey_01.png)
+![4](./TI-image/Intelowl_scan_file_nokey_02.png)
+![5](./TI-image/Intelowl_scan_file_nokey_03.png)
+![6](./TI-image/Intelowl_scan_file_nokey_04.png)
+![7](./TI-image/Intelowl_scan_file_nokey_05.png)
+![8](./TI-image/Intelowl_scan_file_nokey_06.png)
+![9](./TI-image/Intelowl_scan_file_nokey_07.png)
+
+### Add virustotal key    
+Intelowl supports about 100 available analyzers that you can use to generate or retrieve data about a suspicious file or observable. If you need from the analyzer gets threat intelligence, must get that analyzer's key. For example, use Virustotal public API to get threat intelligence, to registered and get API key,  as shown below: 
+![10](./TI-image/virustotal-public-key.png)
+
+Add the public API key to 'VT_KEY=' line in env_file_app file.
+
+* NOTE: *  Must exec docker-compose build command after modifying env_file_app file. As follows:
+```
+IntelOwl# docker-compose stop  
+IntelOwl# docker-compose build
+IntelOwl# docker-compose build up -d
+```
+
+### Scan file with virustotal key    
+![11](./TI-image/Intelowl_scan_file_01.png)
+![12](./TI-image/Intelowl_scan_file_02.png)
+![13](./TI-image/Intelowl_scan_file_03.png)
+![14](./TI-image/Intelowl_scan_file_04.png)
+
+### Scan observable   
+![15](./TI-image/Intelowl_scan_observable_01.png)
+![16](./TI-image/Intelowl_scan_observable_02.png)
+![17](./TI-image/Intelowl_scan_observable_03.png)
+![18](./TI-image/Intelowl_scan_observable_04.png)
+
+## How to add method to the project    
+
+### Add methods to static analyzers    
+TODO
+
+### Add new analyzers to the project    
+Please to reference:  
+[https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer](https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer)
+
+
+## Reference    
+[https://intelowl.readthedocs.io/en/latest/index.html](https://intelowl.readthedocs.io/en/latest/index.html)    
+[https://github.com/intelowlproject/IntelOwl](https://github.com/intelowlproject/IntelOwl)   
+
