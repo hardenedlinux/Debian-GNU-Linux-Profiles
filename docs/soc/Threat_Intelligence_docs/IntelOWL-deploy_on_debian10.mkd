@@ -69,14 +69,14 @@ Login in browser:
 ![9](./TI-image/Intelowl_scan_file_nokey_07.png)
 
 ### Add virustotal key    
-Intelowl supports about 100 available analyzers that you can use to generate or retrieve data about a suspicious file or observable. If you need from the analyzer gets threat intelligence, must get that analyzer's key. For example, use Virustotal public API to get threat intelligence, to registered and get API key,  as shown below: 
+Intelowl supports about 100 available analyzers that you can use to generate or retrieve data about a suspicious file or observable. If you need from the analyzer gets threat intelligence, must get that analyzer's key. For example, use Virustotal public API to get threat intelligence, to registered and get API key,  as shown below:    
 ![10](./TI-image/virustotal-public-key.png)
 
 Add the public API key to 'VT_KEY=' line in env_file_app file.
 
 * NOTE: *  Must exec docker-compose build command after modifying env_file_app file. As follows:
 ```
-IntelOwl# docker-compose stop  
+IntelOwl# docker-compose stop    
 IntelOwl# docker-compose build
 IntelOwl# docker-compose build up -d
 ```
@@ -96,10 +96,88 @@ IntelOwl# docker-compose build up -d
 ## How to add method to the project    
 
 ### Add methods to static analyzers    
-TODO
+Example add sha512 method to File_Info analyzer.  
+
+####  Add method to File_Info module    
+Find this module code file:  
+IntelOw/api_app/script_analyzers/file_analyzers/file_info.py   
+
+Add sha512 method in the file, git diff info:
+```
+# git diff  api_app/script_analyzers/file_analyzers/file_info.py   
+diff --git a/api_app/script_analyzers/file_analyzers/file_info.py b/api_app/script_analyzers/file_analyzers/file_info.py
+index b515a72..905cdb2 100644
+--- a/api_app/script_analyzers/file_analyzers/file_info.py
++++ b/api_app/script_analyzers/file_analyzers/file_info.py
+@@ -27,6 +27,7 @@ class FileInfo(FileAnalyzer):
+         results["md5"] = hashlib.md5(binary).hexdigest()
+         results["sha1"] = hashlib.sha1(binary).hexdigest()
+         results["sha256"] = hashlib.sha256(binary).hexdigest()
++        results["sha512"] = hashlib.sha512(binary).hexdigest()
+         results["ssdeep"] = pydeep.hash_file(self.filepath).decode()
+```
+
+####  Create Dockfile and modify docker-compose.yml for application the modify   
+```
+cat <<EOF> ./Dockerfile_for_modify_file_info
+FROM intelowlproject/intelowl:v1.9.1
+
+ENV PYTHONPATH /opt/deploy/intel_owl/api_app/script_analyzers/file_analyzers
+COPY ./api_app/script_analyzers/file_analyzers/file_info.py $PYTHONPATH
+EOF
+```
+Git diff info of docker-compose.yml:  
+```
+$ git diff docker-compose.yml 
+diff --git a/docker-compose.yml b/docker-compose.yml
+index bb08ee2..d2ccf55 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -10,7 +10,9 @@ services:
+       - ./env_file_postgres
+ 
+   uwsgi:
+-    image: intelowlproject/intelowl:${INTELOWL_TAG_VERSION}
++    build:
++      context: .
++      dockerfile: ./Dockerfile_for_modify_file_info
+     container_name: intel_owl_uwsgi
+     volumes:
+       - ./configuration/intel_owl.ini:/etc/uwsgi/sites/intel_owl.ini
+@@ -50,7 +52,9 @@ services:
+     container_name: intel_owl_rabbitmq
+ 
+   celery_beat:
+-    image: intelowlproject/intelowl:${INTELOWL_TAG_VERSION}
++    build:
++      context: .
++      dockerfile: ./Dockerfile_for_modify_file_info
+     container_name: intel_owl_celery_beat
+     restart: unless-stopped
+     command: /usr/local/bin/celery -A intel_owl.celery beat --uid www-data --gid www-data --pidfile=/tmp/celerybeat.pid --schedule=/tmp/celerybeat-schedule
+@@ -65,7 +69,9 @@ services:
+       - postgres
+ 
+   celery_worker:
+-    image: intelowlproject/intelowl:${INTELOWL_TAG_VERSION}
++    build:
++      context: .
++      dockerfile: ./Dockerfile_for_modify_file_info
+     container_name: intel_owl_celery_worker
+     restart: unless-stopped
+     stop_grace_period: 3m
+
+```
+#### Rebuild and run the docker containers   
+```
+docker-compose stop 
+docker-compose build
+docker-compose up -d
+```
+![19](./TI-image/Intelowl_addsha512.png)
 
 ### Add new analyzers to the project    
-Please to reference:  
+Please to reference:    
 [https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer](https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer)
 
 
