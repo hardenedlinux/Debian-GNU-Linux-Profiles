@@ -174,12 +174,105 @@ docker-compose stop
 docker-compose build
 docker-compose up -d
 ```
+After adding the sha512 function, as shown below:
 ![19](./TI-image/Intelowl_addsha512.png)
 
 ### Add new analyzers to the project    
 Please to reference:    
-[https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer](https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer)
+[https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer](https://intelowl.readthedocs.io/en/latest/Contribute.html#how-to-add-a-new-analyzer)   
 
+### Enable https   
+The project provides a template file to configure Nginx to serve HTTPS: configuration/intel_owl_nginx_https.
+You should change ssl_certificate, ssl_certificate_key and server_name in that file. 
+Then you should modify the nginx service configuration in docker-compose.yml:
+1) change intel_owl_nginx_http with intel_owl_nginx_https  
+2) copy your ssl_certificate, ssl_certificate_key to nginx image 
+
+Generate your own ssl_certificate, ssl_certificate_key:    
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout ./nginx-selfsigned.key -out ./nginx-selfsigned.crt
+```
+
+Git diff info of configuration/intel_owl_nginx_https:
+```
+diff --git a/configuration/intel_owl_nginx_https b/configuration/intel_owl_nginx_https
+index 525644c..a140f71 100644
+--- a/configuration/intel_owl_nginx_https
++++ b/configuration/intel_owl_nginx_https
+@@ -3,22 +3,24 @@ upstream django {
+     server uwsgi:8001 fail_timeout=30s;
+ }
+ 
+-server {
+-    listen 80;
+-    server_name intel_owl.com;
+-    return 301 https://intel_owl.com$request_uri;
+-}
++#server {
++#    listen 80;
++#    server_name 192.168.4.153;
++#    #server_name intel_owl.com;
++#    return 301 https://intel_owl.com$request_uri;
++#}
+ 
+ 
+ server {
+     listen 443 ssl;
+ 
+-    ssl on;
+       ssl_protocols TLSv1.2;
+-      ssl_certificate certificate_chain.chain.crt;
+-      ssl_certificate_key private_key.key;
++      ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
++      #ssl_certificate certificate_chain.chain.crt;
++      #ssl_certificate_key private_key.key;
++      ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+ 
+-    server_name intel_owl.com;
++    server_name 192.168.4.153;
+```
+
+
+```
+diff --git a/docker-compose.yml b/docker-compose.yml
+index bb08ee2..346668c 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -36,7 +38,9 @@ services:
+     restart: unless-stopped
+     hostname: nginx
+     volumes:
+-      - ./configuration/intel_owl_nginx_http:/etc/nginx/conf.d/default.conf
++      - ./configuration/intel_owl_nginx_https:/etc/nginx/conf.d/default.conf
+
+```
+
+Git diff info of Dockerfile_nginx:
+```
+diff --git a/Dockerfile_nginx b/Dockerfile_nginx
+index 7b4e270..dbe8b15 100644
+--- a/Dockerfile_nginx
++++ b/Dockerfile_nginx
+@@ -4,5 +4,13 @@ FROM intelowlproject/intelowl_ng:v1.6.3 AS angular-prod-build
+ # Stage 2: Inject the build artifacts into nginx container
+ FROM library/nginx:1.19-alpine
+ 
+ COPY --from=angular-prod-build /usr/src/app/dist /var/www/angular_build
+-VOLUME /var/log/nginx
+\ No newline at end of file
++COPY ./nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
++COPY ./nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
++COPY ./configuration/intel_owl_nginx_https /etc/nginx/conf.d/default.conf
++VOLUME /var/log/nginx
+```
+Rebuild and up intel_owl project:
+```
+IntelOwl# docker-compose down   
+IntelOwl# docker-compose build
+IntelOwl# docker-compose build up -d
+```
+
+![19](./TI-image/Intelowl_enabled_https.png)
 
 ## Reference    
 [https://intelowl.readthedocs.io/en/latest/index.html](https://intelowl.readthedocs.io/en/latest/index.html)    
