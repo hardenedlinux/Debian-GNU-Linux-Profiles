@@ -36,6 +36,7 @@
 
 [ELK with Bro-based Application Layer Packet Classifier](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/NSM/docs/ELK_with_bro_ID_doc.mkd)   
 
+[Threat intelligence--IntelOwl project deploy on Debian 10](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/soc/Threat_Intelligence_docs/IntelOWL-deploy_on_debian10.mkd)
 
 #### Storage
 [Manually deploy ceph cluster step by step](https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/storage/manually_deploy_ceph_cluster_step_by_step.md)
