@@ -1,5 +1,9 @@
 # IntelOwl deploy on Debian 10 
 
+## Platfrom version info  
+Debian: 10.6   
+IntelOwl: v1.9.1   
+
 ## Introduction    
 IntelOwl was designed with the intent to help the community, in particular those researchers that can not afford commercial solutions, in the generation of threat intelligence data, in a simple, scalable and reliable way.    
 
