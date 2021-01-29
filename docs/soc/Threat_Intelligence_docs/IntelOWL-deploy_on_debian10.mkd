@@ -2,13 +2,13 @@
 
 ## Platfrom version info  
 Debian: 10.6   
-IntelOwl: v1.9.1   
+IntelOwl: v2.1.0   
 
 ## Introduction    
 IntelOwl was designed with the intent to help the community, in particular those researchers that can not afford commercial solutions, in the generation of threat intelligence data, in a simple, scalable and reliable way.    
 
 ## Community activity    
-This project first commit is Dec 31 2019 on Github, As of Dec 17, 2020, there are 1531 stars, 148 forks, 171 Pull Requests, 26 Open issues, and 86 Closed issues. So, the community is active.
+This project's first commit is Dec 31 2019 on Github, as of January 29, 2021, there are 1668 stars, 168 forks, 197 Pull Requests, 24 Open issues, and 99 Closed issues. So, the community is active.
 
 ## Pre-install     
 The project leverages docker-compose for a classic server deployment. So, you need docker and docker-compose installed in your machine.
@@ -28,28 +28,28 @@ If don't support IPv6, to disable IPv6 on Debian 10, add 'ipv6.disable=1' to GRU
 ###  Git clone    
 ```
 git clone https://github.com/intelowlproject/IntelOwl
-cd IntelOwl
+cd IntelOwl/docker
 cp env_file_postgres_template env_file_postgres
 cp env_file_app_template env_file_app
 cp env_file_integrations_template env_file_integrations
 ```
-Comment line 13 and uncomment line 15 in '.env' file.
 
 Advanced additional configuration:
 OLD_JOBS_RETENTION_DAYS: Database retention, default 3 days. Change this if you want to keep your old analysis longer in the database. The configuration item is in the env_file_app file. 
 
 ### Run     
 ```
-IntelOwl# docker-compose up -d    
-IntelOwl# docker-compose ps    
-         Name                        Command               State                               Ports                            
---------------------------------------------------------------------------------------------------------------------------------
-intel_owl_celery_beat     /usr/local/bin/celery -A i ...   Up                                                                   
-intel_owl_celery_worker   /usr/local/bin/celery -A i ...   Up                                                                   
-intel_owl_nginx           /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp                     
-intel_owl_postgres        docker-entrypoint.sh postgres    Up      5432/tcp                                                     
-intel_owl_rabbitmq        docker-entrypoint.sh rabbi ...   Up      15691/tcp, 15692/tcp, 25672/tcp, 4369/tcp, 5671/tcp, 5672/tcp
-intel_owl_uwsgi           ./docker_entrypoint.sh           Up      8001/tcp 
+IntelOwl# python start.py prod up -d
+
+IntelOwl# python start.py prod ps
+              Name                            Command               State                               Ports                            
+----------------------------------------------------------------------------------------------------------------------------------------
+intel_owl_celery_beat             /usr/local/bin/celery -A i ...   Up                                                                   
+intel_owl_celery_worker_default   /usr/local/bin/celery -A i ...   Up                                                                   
+intel_owl_nginx                   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp                     
+intel_owl_postgres                docker-entrypoint.sh postgres    Up      5432/tcp                                                     
+intel_owl_rabbitmq                docker-entrypoint.sh rabbi ...   Up      15691/tcp, 15692/tcp, 25672/tcp, 4369/tcp, 5671/tcp, 5672/tcp
+intel_owl_uwsgi                   ./docker//docker_entrypoint.sh   Up      8001/tcp 
 ```
 
 ### Create a super user    
@@ -80,9 +80,9 @@ Add the public API key to 'VT_KEY=' line in env_file_app file.
 
 * NOTE: *  Must exec docker-compose build command after modifying env_file_app file. As follows:
 ```
-IntelOwl# docker-compose stop    
-IntelOwl# docker-compose build
-IntelOwl# docker-compose build up -d
+IntelOwl# python start.py prod stop    
+IntelOwl# python start.py prod build
+IntelOwl# python start.py prod up -d
 ```
 
 ### Scan file with virustotal key    
@@ -121,62 +121,60 @@ index b515a72..905cdb2 100644
          results["ssdeep"] = pydeep.hash_file(self.filepath).decode()
 ```
 
-####  Create Dockfile and modify docker-compose.yml for application the modify   
+####  Create Dockfile and modify docker-compose configuration for application the modify   
 ```
-cat <<EOF> ./Dockerfile_for_modify_file_info
-FROM intelowlproject/intelowl:v1.9.1
+cp api_app/script_analyzers/file_analyzers/file_info.py docker
+cat <<EOF> ./docker/Dockerfile_for_modify_file_info
+FROM intelowlproject/intelowl:v2.1.0
 
 ENV PYTHONPATH /opt/deploy/intel_owl/api_app/script_analyzers/file_analyzers
-COPY ./api_app/script_analyzers/file_analyzers/file_info.py $PYTHONPATH
+COPY ./file_info.py \$PYTHONPATH
 EOF
 ```
-Git diff info of docker-compose.yml:  
+Git diff info of default.yml:  
 ```
-$ git diff docker-compose.yml 
-diff --git a/docker-compose.yml b/docker-compose.yml
-index bb08ee2..d2ccf55 100644
---- a/docker-compose.yml
-+++ b/docker-compose.yml
+diff --git a/docker/default.yml b/docker/default.yml
+index 9d214d9..2277940 100644
+--- a/docker/default.yml
++++ b/docker/default.yml
 @@ -10,7 +10,9 @@ services:
        - ./env_file_postgres
  
    uwsgi:
 -    image: intelowlproject/intelowl:${INTELOWL_TAG_VERSION}
 +    build:
-+      context: .
-+      dockerfile: ./Dockerfile_for_modify_file_info
++        context: .
++        dockerfile: ./Dockerfile_for_modify_file_info
      container_name: intel_owl_uwsgi
      volumes:
-       - ./configuration/intel_owl.ini:/etc/uwsgi/sites/intel_owl.ini
+       - ../configuration/intel_owl.ini:/etc/uwsgi/sites/intel_owl.ini
 @@ -50,7 +52,9 @@ services:
      container_name: intel_owl_rabbitmq
  
    celery_beat:
 -    image: intelowlproject/intelowl:${INTELOWL_TAG_VERSION}
 +    build:
-+      context: .
-+      dockerfile: ./Dockerfile_for_modify_file_info
++        context: .
++        dockerfile: ./Dockerfile_for_modify_file_info
      container_name: intel_owl_celery_beat
      restart: unless-stopped
      command: /usr/local/bin/celery -A intel_owl.celery beat --uid www-data --gid www-data --pidfile=/tmp/celerybeat.pid --schedule=/tmp/celerybeat-schedule
 @@ -65,7 +69,9 @@ services:
        - postgres
  
-   celery_worker:
+   celery_worker_default:
 -    image: intelowlproject/intelowl:${INTELOWL_TAG_VERSION}
 +    build:
-+      context: .
-+      dockerfile: ./Dockerfile_for_modify_file_info
-     container_name: intel_owl_celery_worker
++        context: .
++        dockerfile: ./Dockerfile_for_modify_file_info
+     container_name: intel_owl_celery_worker_default
      restart: unless-stopped
-     stop_grace_period: 3m
-
 ```
 #### Rebuild and run the docker containers   
 ```
-docker-compose stop 
-docker-compose build
-docker-compose up -d
+python start.py prod down 
+python start.py prod build
+python start.py prod up -d
 ```
 After adding the sha512 function, as shown below:
 ![19](./TI-image/Intelowl_addsha512.png)
@@ -188,22 +186,22 @@ Please to reference:
 ### Enable https   
 The project provides a template file to configure Nginx to serve HTTPS: configuration/intel_owl_nginx_https.
 You should change ssl_certificate, ssl_certificate_key and server_name in that file. 
-Then you should modify the nginx service configuration in docker-compose.yml:
+Then you should modify the nginx service configuration in default.yml:
 1) change intel_owl_nginx_http with intel_owl_nginx_https  
 2) copy your ssl_certificate, ssl_certificate_key to nginx image 
 
 Generate your own ssl_certificate, ssl_certificate_key:    
 ```
-openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout ./nginx-selfsigned.key -out ./nginx-selfsigned.crt
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout nginx-selfsigned.key -out nginx-selfsigned.crt
 ```
 
 Git diff info of configuration/intel_owl_nginx_https:
 ```
 diff --git a/configuration/intel_owl_nginx_https b/configuration/intel_owl_nginx_https
-index 525644c..a140f71 100644
+index 525644c..2dab089 100644
 --- a/configuration/intel_owl_nginx_https
 +++ b/configuration/intel_owl_nginx_https
-@@ -3,22 +3,24 @@ upstream django {
+@@ -3,11 +3,11 @@ upstream django {
      server uwsgi:8001 fail_timeout=30s;
  }
  
@@ -214,66 +212,65 @@ index 525644c..a140f71 100644
 -}
 +#server {
 +#    listen 80;
-+#    server_name 192.168.4.153;
-+#    #server_name intel_owl.com;
++#    server_name intel_owl.com;
 +#    return 301 https://intel_owl.com$request_uri;
 +#}
  
  
  server {
-     listen 443 ssl;
+@@ -15,8 +15,8 @@ server {
  
--    ssl on;
+     ssl on;
        ssl_protocols TLSv1.2;
 -      ssl_certificate certificate_chain.chain.crt;
 -      ssl_certificate_key private_key.key;
 +      ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
-+      #ssl_certificate certificate_chain.chain.crt;
-+      #ssl_certificate_key private_key.key;
 +      ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
  
--    server_name intel_owl.com;
-+    server_name 192.168.4.153;
+     server_name intel_owl.com;
 ```
 
-
+Git diff info of docker/default.yml:
 ```
-diff --git a/docker-compose.yml b/docker-compose.yml
-index bb08ee2..346668c 100644
---- a/docker-compose.yml
-+++ b/docker-compose.yml
-@@ -36,7 +38,9 @@ services:
+diff --git a/docker/default.yml b/docker/default.yml
+index 9d214d9..2277940 100644
+--- a/docker/default.yml
++++ b/docker/default.yml
+@@ -36,7 +38,7 @@ services:
      restart: unless-stopped
      hostname: nginx
      volumes:
--      - ./configuration/intel_owl_nginx_http:/etc/nginx/conf.d/default.conf
-+      - ./configuration/intel_owl_nginx_https:/etc/nginx/conf.d/default.conf
-
+-      - ../configuration/intel_owl_nginx_http:/etc/nginx/conf.d/default.conf
++      - ../configuration/intel_owl_nginx_https:/etc/nginx/conf.d/default.conf
+       - nginx_logs:/var/log/nginx
+       - static_content:/var/www/static
 ```
 
 Git diff info of Dockerfile_nginx:
 ```
-diff --git a/Dockerfile_nginx b/Dockerfile_nginx
-index 7b4e270..dbe8b15 100644
---- a/Dockerfile_nginx
-+++ b/Dockerfile_nginx
-@@ -4,5 +4,13 @@ FROM intelowlproject/intelowl_ng:v1.6.3 AS angular-prod-build
+diff --git a/docker/Dockerfile_nginx b/docker/Dockerfile_nginx
+index de2d7da..1661d2e 100644
+--- a/docker/Dockerfile_nginx
++++ b/docker/Dockerfile_nginx
+@@ -4,5 +4,9 @@ FROM intelowlproject/intelowl_ng:v1.7.0 AS angular-prod-build
  # Stage 2: Inject the build artifacts into nginx container
  FROM library/nginx:1.19-alpine
  
++ENV PRIKEYPATH /etc/ssl/private/
  COPY --from=angular-prod-build /usr/src/app/dist /var/www/angular_build
 -VOLUME /var/log/nginx
 \ No newline at end of file
-+COPY ./nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
++COPY ./nginx-selfsigned.key $PRIKEYPATH
 +COPY ./nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
 +COPY ./configuration/intel_owl_nginx_https /etc/nginx/conf.d/default.conf
 +VOLUME /var/log/nginx
+
 ```
 Rebuild and up intel_owl project:
 ```
-IntelOwl# docker-compose down   
-IntelOwl# docker-compose build
-IntelOwl# docker-compose build up -d
+IntelOwl# python start.py prod down   
+IntelOwl# python start.py prod build
+IntelOwl# python start.py prod up -d
 ```
 
 ![19](./TI-image/Intelowl_enabled_https.png)
