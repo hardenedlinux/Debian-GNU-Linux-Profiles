@@ -192,7 +192,7 @@ Then you should modify the nginx service configuration in default.yml:
 
 Generate your own ssl_certificate, ssl_certificate_key:    
 ```
-openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout nginx-selfsigned.key -out nginx-selfsigned.crt
+IntelOwl$ openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout nginx-selfsigned.key -out nginx-selfsigned.crt
 ```
 
 Git diff info of configuration/intel_owl_nginx_https:
