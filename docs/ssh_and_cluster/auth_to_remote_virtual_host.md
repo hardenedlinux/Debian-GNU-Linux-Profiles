@@ -1,6 +1,4 @@
 ## Ways to authenticate yourself to a remote virtual machine host.
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Via SSH
 

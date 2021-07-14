@@ -1,6 +1,4 @@
 ## Set Up Unrestricted Secure Boot On supporting machine
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Background
 

@@ -1,6 +1,4 @@
 ## Ways to build your own trustchain for secureboot.
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Background
 

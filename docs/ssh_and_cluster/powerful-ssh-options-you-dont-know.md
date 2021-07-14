@@ -1,6 +1,4 @@
 ## Powerful ssh(1) options you don't know.
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Introduction.
 

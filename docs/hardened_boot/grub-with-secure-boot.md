@@ -1,6 +1,4 @@
 ## Use GRUB with Secure Boot
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Sign your boot loaders
 

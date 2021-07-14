@@ -1,6 +1,4 @@
 ## Deploy Heads atop coreboot for GNU/Linux
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ### Introduction of Heads
 [Heads](https://github.com/osresearch/heads) is a boot firmware (program stored in rom to init hardware) solution based on [coreboot](https://www.coreboot.org/). [linux kernel](https://www.kernel.org/) and various tools. It is essentially a "[BusyBox](https://www.busybox.net/)/[musl](https://www.musl-libc.org)/Linux" OS, booted directly by coreboot, running only inside its initramfs, accessing hard disks as external storages, with `kexec` equipped to load the kernel of main OS, automated via shell scripts. It has implemented OpenPGP-based signed boot, TPM-based measured boot, OTP-based attestation.

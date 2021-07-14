@@ -1,6 +1,4 @@
 ## Assemble GRUB executable for coreboot
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Implement a mechanism similar to linuxefi with grub config script
 

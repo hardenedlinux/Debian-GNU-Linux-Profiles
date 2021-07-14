@@ -1,6 +1,4 @@
 ## Recommended way to use ssh(1) for cluster management.
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Prerequests
 

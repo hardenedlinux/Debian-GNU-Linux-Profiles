@@ -1,6 +1,4 @@
 ## The recommended configs of host computers and management console running Debian GNU/Linux within clusters.
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Partitioning and file system for hosts.
 

@@ -1,6 +1,4 @@
 ## Preparation for Secure Boot on Key Management Server.
-##### Copyright (c) TYA
-##### Homepage: http://tya.company/
 
 ##### Background
 
